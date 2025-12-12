@@ -110,7 +110,7 @@ make
 ## ディレクトリ構成
 
 ```
-katlab_master_thesis_template/
+katlab-bachelor-thesis-template/
 ├── Dockerfile          # Docker 環境定義
 ├── compose.yaml        # Docker Compose 設定
 ├── Makefile            # ビルドタスク定義
@@ -195,7 +195,7 @@ bash scripts/sync-template.sh
 
 ```bash
 # テンプレートリポジトリを remote として追加
-git remote add template https://github.com/KatLab-MiyazakiUniv/katlab_master_thesis_template.git
+git remote add template https://github.com/KatLab-MiyazakiUniv/katlab-bachelor-thesis-template.git
 
 # テンプレートの最新情報を取得
 git fetch template

@@ -1,7 +1,7 @@
 services:
   latex:
     build: .
-    container_name: katlab-master-thesis-template
+    container_name: katlab-bachelor-thesis-template
     volumes:
       - .:/workspace
     working_dir: /workspace

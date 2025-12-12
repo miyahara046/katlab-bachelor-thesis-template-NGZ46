@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-This is a Japanese LaTeX thesis template for Miyazaki University (宮崎大学) KatLab master's theses. The environment uses Docker and supports both Docker Compose and VS Code Dev Containers workflows. Documents are written in Japanese using uplatex and compiled via latexmk.
+This is a Japanese LaTeX thesis template for Miyazaki University (宮崎大学) KatLab bachelor's theses. The environment uses Docker and supports both Docker Compose and VS Code Dev Containers workflows. Documents are written in Japanese using uplatex and compiled via latexmk.
 
 ## Build and Compilation Commands
 
@@ -67,7 +67,7 @@ The script:
 
 **Manual sync method:**
 ```bash
-git remote add template https://github.com/KatLab-MiyazakiUniv/katlab_master_thesis_template.git
+git remote add template https://github.com/KatLab-MiyazakiUniv/katlab-bachelor-thesis-template.git
 git fetch template
 git merge template/main --allow-unrelated-histories
 ```
@@ -125,7 +125,7 @@ Commands adjust automatically based on the detected environment.
 2. Includes various packages from `packages/` directory
 3. Inputs all chapter files from `chapters/` via `\input{}`
 4. Defines thesis metadata via custom commands:
-   - `\degree{m}` - Master's thesis (use 'g' for graduate/bachelor)
+   - `\degree{b}` - Bachelor's thesis (use 'g' for graduate/bachelor)
    - `\title{}`, `\author{}`, `\nendo{}`, `\major{}`
 5. Uses `miyazaki-u-paper.sty` for university-specific formatting
 

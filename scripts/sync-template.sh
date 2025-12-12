@@ -4,7 +4,7 @@ set -euo pipefail
 # テンプレートリポジトリから更新を同期するスクリプト
 # このスクリプトは、テンプレートから作成された派生リポジトリで実行します
 
-TEMPLATE_REPO="https://github.com/KatLab-MiyazakiUniv/katlab_master_thesis_template.git"
+TEMPLATE_REPO="https://github.com/KatLab-MiyazakiUniv/katlab-bachelor-thesis-template.git"
 TEMPLATE_REMOTE="template"
 TEMPLATE_BRANCH="main"
 
