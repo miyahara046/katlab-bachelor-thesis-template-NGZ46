@@ -60,6 +60,7 @@
 \usepackage[hdivide={21mm, , 21mm}, vdivide={30mm, , 25mm}]{geometry} % スタイルを少し変えたくても\hoffset, \voffsetは使わないでね
 \usepackage[dvipdfmx, hidelinks]{hyperref} % リンクを付けてくれる。
 \usepackage{pxjahyper}          % リンクを付けてくれる（日本語）
+\usepackage[nameinlink]{cleveref} % 図表の自動参照（\cref）
 %\RequirePackage[l2tabu, orthodox]{nag} % これを入れると、古いコマンドを警告してくれる！なお完全には消せなかった模様
 
 \lstset{
@@ -76,6 +77,31 @@
   stepnumber=1%1行おきに行番号を
 }
 
+%
+% 図表の自動参照設定
+%
+% cleveref用の日本語名設定
+\crefname{figure}{図}{図}
+\crefname{table}{表}{表}
+\crefname{equation}{式}{式}
+\crefname{chapter}{}{}
+\crefformat{chapter}{#2#1章#3}
+\crefrangeformat{chapter}{#3#1章#4から#5#2章#6}
+\crefname{section}{}{}
+\crefformat{section}{#2#1節#3}
+\crefrangeformat{section}{#3#1節#4から#5#2節#6}
+\crefname{subsection}{}{}
+\crefformat{subsection}{#2#1項#3}
+\crefrangeformat{subsection}{#3#1項#4から#5#2項#6}
+\creflabelformat{equation}{#2(#1)#3}
+
+% autoref用の日本語名設定
+\def\figureautorefname{図}
+\def\tableautorefname{表}
+\def\equationautorefname{式}
+\def\chapterautorefname{}
+\def\sectionautorefname{}
+\def\subsectionautorefname{}
 
 %
 % マクロの定義
@@ -88,7 +114,10 @@
 %%
 % miyazaki-u-paper.sty用設定値
 %
-\degree{g} % Graduateのg or Masterのm
+%%
+% miyazaki-u-paper.sty用設定値
+%
+\degree{m} % Graduateのg or Masterのm
 \figurenumbering{f} % 図目次を付ける場合はt (真) を持つ真偽値を引数に取る関数
 \tablenumbering{f} % 表目次を付ける場合はt (真) を持つ真偽値を引数に取る関数
 \title{長ったらしいタイトルを \\ リアルタイムに描画するツール \\ \tool{}の実装と評価}
