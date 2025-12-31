@@ -341,16 +341,16 @@
 % 箇条書
 %
 
-\def\labelenumi{\theenumi.} 
-\def\theenumi{\arabic{enumi}} 
-\def\labelenumii{(\theenumii)}
-\def\theenumii{\alph{enumii}}
+\def\labelenumi{\theenumi.}
+\def\theenumi{\arabic{enumi}}
+\def\labelenumii{\theenumii}
+\def\theenumii{(\alph{enumii})}
 \def\p@enumii{\theenumi}
 \def\labelenumiii{\theenumiii.}
 \def\theenumiii{\roman{enumiii}}
-\def\p@enumiii{\theenumi(\theenumii)}
+\def\p@enumiii{\theenumi\theenumii}
 \def\labelenumiv{\theenumiv.}
-\def\theenumiv{\Alph{enumiv}} 
+\def\theenumiv{\Alph{enumiv}}
 \def\p@enumiv{\p@enumiii\theenumiii}
 
 \def\labelitemi{$\bullet$}
