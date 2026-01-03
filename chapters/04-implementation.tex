@@ -1,74 +1,170 @@
-\chapter{拡張したツールの実装}\label{cha:Implementation}
+\chapter{拡張するツールの実装}\label{cha:Implementation}
 
-本章では、LaTeX でソースコードを挿入する方法について説明する。
-本テンプレートの実装方法については、文献\cite{kimura-automation}で詳しく述べられている。
-
-\section{listings パッケージ}
-
-本テンプレートでは、\verb|listings| パッケージを使用してソースコードを挿入できる。
-このパッケージは、paper.tex で既に読み込まれているため、すぐに使用できる。
-
-\section{基本的なコードの挿入}
-
-\subsection{Python のコード例}
-
-コード\ref{lst:python}に Python のコード例を示す。
-
-\begin{figure}[tp]
-\begin{lstlisting}[caption={Python のコード例}, label={lst:python}, language=Python]
-def hello_world():
-    print("Hello, World!")
-
-if __name__ == "__main__":
-    hello_world()
-\end{lstlisting}
-\end{figure}
-
-\subsection{Java のコード例}
-
-コード\ref{lst:java}に Java のコード例を示す。
-
-\begin{figure}[tp]
-\begin{lstlisting}[caption={Java のコード例}, label={lst:java}, language=Java]
-public class HelloWorld {
-    public static void main(String[] args) {
-        System.out.println("Hello, World!");
-    }
-}
-\end{lstlisting}
-\end{figure}
-
-\subsection{JavaScript のコード例}
-
-コード\ref{lst:javascript}に JavaScript のコード例を示す。
-
-\begin{figure}[tp]
-\begin{lstlisting}[caption={JavaScript のコード例}, label={lst:javascript}, language=java]
-function helloWorld() {
-    console.log("Hello, World!");
-}
-
-helloWorld();
-\end{lstlisting}
-\end{figure}
-
-\section{サポートされている言語}
-
-listings パッケージは、以下の言語をサポートしている：
-
+本章では、拡張するツールの実装について説明する。
+拡張するツールのシステム構成を図\ref{fig:system-architecture}に示す。
+拡張するツールは、以下の6つの主要なコンポーネントで構成する。
 \begin{itemize}
-  \item Python
-  \item Java
-  \item JavaScript
-  \item C / C++
-  \item Ruby
-  \item PHP
-  \item その他多数
+  \item プロジェクト管理部
+  \item 解析部
+  \item GUI要素生成部
+  \item 変換部
+  \item 描画部
+  \item ユーザ操作監視部
 \end{itemize}
+以降、各コンポーネントの実装についてそれぞれ説明する。
 
-言語の指定は、\verb|language=言語名| で行う。
+\begin{figure}[tp]
+  \centering
+  \includegraphics[width=0.8\linewidth]{./images/system-architecture.png}
+  \caption{拡張するツールのシステム構成図}
+  \label{fig:system-architecture}
+\end{figure}
 
-\section{コードの参照}
 
-コードを参照する場合は、図や表と同様に \verb|\ref{}| コマンドを使用する。
-例えば、コード\ref{lst:python}、コード\ref{lst:java}、コード\ref{lst:javascript}のように参照できる。
+\section{プロジェクト管理部}
+
+プロジェクト管理部は、本ツールにおける制御中枢であり、外部ファイル（Markdn,VDM++,JSON）と内部処理部との橋渡しを行う。
+ユーザ操作を起点として、各処理部を適切な順序で呼び出し、仕様データ、GUI表示、保存データの整合性を維持する役割を担う。
+\subsection{ファイル読込処理}
+ファイル読込処理は，ユーザが選択したMarkdownファイルを起点として、仕様解析およびGUI表示の初期状態を構築する処理である。
+本処理では、仕様記述（Markdown）とGUI表示の対応関係を初期化し、解析部、変換部、描画部が一貫した状態で動作できるようにすることを目的とする。\\
+入力として、ユーザ操作イベント、Markdownファイル、JSONファイルを受け取り、解析部に渡すMarkdownデータ、変換部に渡すMarkdownデータ、内部プロジェクトの更新を出力とする。
+本処理の流れを以下に示す。
+\begin{enumerate}
+    \item ユーザがプロジェクトフォルダを選択する。
+    \item 指定されたフォルダ配下を走査し、対象となるMarkdownファイルを列挙する。
+    \item ユーザが特定のMarkdownファイルを選択する。
+    \item 選択されたMarkdownファイルをテキストとして読み込む。
+    \item 読み込んだMarkdownはMarkdownContentプロパティに格納する。このプロパティは変更通知を伴うObservableプロパティとして実装する。
+    \item 当該Markdownデータを解析部および変換部へ渡す。
+    \item 同名のJSONファイルが存在する場合、GUI要素の配置情報として読み込む。
+\end{enumerate}
+\subsection{ファイル更新処理}
+ファイル更新処理は、GUI操作やMarkdown編集によって変更された仕様情報を更新し、永続化する処理である。
+本処理では、Markdown、VDM++、GUI要素配置情報（JSON）を同時に更新することで、仕様書、可視化状態の一貫性を保証する。\\
+入力として、ユーザ操作による編集結果、更新対象のMarkdownデータ、JSONファイルを受け取り、更新後のMarkdownファイル、生成したVDM++ファイル、更新後のJSONファイルを出力とする。
+本処理の流れを以下に示す。
+\begin{enumerate}
+    \item ユーザの保存操作を検出する。
+    \item 現在のMarkdownContentをMarkdownファイルとして保存する。
+    \item 保存されたMarkdownContentを変換部へ渡し、VDM++データを生成する。
+    \item 生成されたVDM++データをVDM++ファイルとして保存する。
+    \item GUI上で変更された要素配置情報をJSON形式で保存する。
+\end{enumerate}
+\section{解析部}
+解析部は、Markdownにより記述された仕様記述を解析し、GUI表示および操作の基礎となる構造データを生成する処理部である。
+本部では、Markdown の文法構造を直接解釈するのではなく，「画面」「操作」「遷移」「条件分岐」といった GUI 表現に対応する概念構造を抽出することを目的とする。
+\subsection{Markdown解析処理}
+Markdown解析処理は、画面定義、タイムアウト定義、ボタン定義、イベント定義、および条件分岐定義を抽出し、
+これらをGUIElementとして構造化する処理である。
+本処理の流れを以下に示す。
+\begin{enumerate}
+    \item 入力されたMarkdownデータを改行で分割し、行配列として保持する。
+    \item 行を先頭から走査し、見出し記号の数、特定の文字列に応じてセクションの種別を判定する。
+    \item 画面定義セクションでは、画面名を取得しScreen要素を生成する。
+    \item タイムアウト定義セクションでは、タイムアウト時間を抽出しTimeout要素を生成する。
+    \item ボタン一覧セクションでは、箇条書き行からボタン名を抽出しButton要素を生成する。
+    \item イベント一覧セクションでは、「→」記号を含む行を解析し、「→」の前後、特定の文字列をもとに対象ボタンとイベントを抽出する。
+    「タイムアウト」イベントを検出した場合は前述のTimeout要素をtargetとしたTimeoutEvent要素を生成する。
+    \item 条件分岐が記述されている場合、インデント構造を用いて分岐条件とイベントを対象ボタンに対応付ける。
+    \item 生成した要素を内部リストへ順次追加する。
+    \item 最終的に、生成した要素リストをGUIElementデータ列として返却する。
+\end{enumerate}
+\section{GUI要素生成部}
+GUI要素生成部は、解析部で生成されたGUIElementデータ列をもとに、実際のGUI要素を生成、整形する処理部である。
+\subsection{GUI要素生成処理}
+GUI要素生成処理は、GUIElementデータ列を走査し、各要素に対応するGUI要素（座標、サイズ、操作可否）を生成、整形する処理である。
+本処理の流れを以下に示す。
+\begin{enumerate}
+    \item 入力されたGUIElementデータ列を先頭から走査する。
+    \item Screen要素に対しては、ウィンドウ要素を生成し、画面名をタイトルとして設定する。
+    \item Button要素に対しては、ボタン要素を生成し、ボタン名をラベルとして設定する。
+    \item Timeout要素に対しては、タイムアウト表示用のラベル要素を生成し、タイムアウト時間を表示する。
+    \item 生成したGUI要素に対して、初期座標、サイズ、操作可否などのプロパティを設定する。
+    \item 最終的に、生成したGUI要素リストを出力する。
+\end{enumerate}
+    \section{変換部}
+変換部は，仕様記述の表現形式を相互に変換する処理部である。
+本ツールでは、MarkdownとVDM++の変換に加え、GUI操作結果をMarkdownへ反映する処理を担う。
+\subsection{MarkdownからVDM++への変換処理}
+MarkdownからVDM++への変換処理は、テキストベースの仕様記述から形式仕様記述を生成する処理である。
+本処理により、GUI操作やMarkdown編集による仕様変更が、VDM++形式仕様として自動的に反映される。
+本処理の流れを以下に示す。
+\begin{enumerate}
+    \item MarkdownテキストをMarkdigライブラリにより解析する。
+    \item Markdownの見出しおよび箇条書きを抽出する。
+    \item 画面定義をVDM++のクラス定義へ変換する。
+    \item ボタンおよびイベント定義をVDM++の操作定義へ変換する。
+    \item 生成したVDM++テキストを出力する。
+\end{enumerate}
+\subsection{GUI操作からMarkdownへの変換処理}
+GUI操作からMarkdownへの変換処理は、GUI 上の編集結果を仕様記述へ反映するための処理である。
+本処理により、GUI上での操作がMarkdown仕様書に即座に反映され、仕様の一貫性が保たれる。
+本処理の流れを以下に示す。
+\begin{enumerate}
+    \item 現在の GUIElement コレクションを走査する。
+    \item 要素の種別と順序に基づいてMarkdownの構造を再構成する。
+    \item 条件分岐をインデント付き箇条書きとして出力する。
+    \item 生成したMarkdownテキストをViewModelへ返却する。
+\end{enumerate}
+\section{描画部}
+描画部は、GUI要素生成部から渡されたGUI要素データをもとに、仕様構造を視覚的に表現する役割を担う。\\
+本部の目的は、仕様の論理構造（画面、操作、イベント、条件分岐）を、ユーザが直感的に把握できる図として提示することである。\\
+描画部では、仕様要素を単なる図形として描くのではなく、要素種別ごとに異なる形状、配置規則を与えることで、仕様上の意味が視覚的に区別できるよう設計している。
+また、後述するユーザ操作監視部と連携し、描画結果が直接操作可能であることを前提とした構成となっている。
+描画部では以下の方針に基づいてGUI表示を生成する。
+\begin{itemize}
+    \item 仕様要素と描画要素を1対1で対応付ける。
+    \item 画面、ボタン、イベント、条件分岐などを形状や色で区別する。
+    \item 配置は縦方向に並べる。
+    \item 要素間の関係は矢印で表現する。
+    \item 描画結果は常に再描画可能であるようにする。
+\end{itemize}
+\subsection{初期描画処理}
+初期描画処理は、GUI要素生成部から受け取ったGUI要素データをもとに、初期状態のGUI表示を生成する処理である。
+本処理の流れを以下に示す。
+\begin{enumerate}
+    \item 描画領域（キャンバス）を初期化する。
+    \item GUI要素データを走査し、各要素の種別を判定する。
+    \item 要素種別に応じた描画形状を決定する。
+    \item 各要素の座標情報をもとに、キャンバス上へノードを描画する。
+    \item 遷移関係を表す要素については、対応するノード間を矢印で接続する。
+    \item 描画要素の外接矩形を記録し、後続のヒットテストに利用できるよう保持する。
+\end{enumerate}
+
+\subsection{再描画処理}
+再描画処理は、ユーザ操作や仕様変更に伴い、GUI表示を更新する処理である。
+この処理により、仕様の変更が即座に視覚的に反映され、ユーザが最新の状態を把握できるようにする。
+本処理の流れを以下に示す。
+\begin{enumerate}
+    \item 再描画要求を受理する。
+    \item 更新対象となるGUI要素の状態（座標、選択状態等）を反映する。
+    \item 描画領域をクリアする。
+    \item 初期描画処理と同一の手順で全要素を再描画する。
+    \item 選択中要素については、視覚的に強調表示を行う。
+\end{enumerate}
+\section{ユーザ操作監視部}
+ユーザ操作監視部は、GUI 上で発生するユーザ入力を監視し、GUI 要素の選択や配置変更を検出する処理部である。
+本部の目的は、ユーザの直感的な操作を、仕様変更として正確に内部データへ反映することである。
+\subsection{クリック操作監視処理}
+クリック操作監視処理は、ユーザがGUI要素をクリックした際の選択操作を検出し、対応するGUI要素を選択状態に更新する処理である。
+本処理の流れを以下に示す。
+\begin{enumerate}
+    \item クリック位置を取得する。
+    \item 描画部が保持する描画要素の外接矩形を用いてヒットテストを行う。
+    \item ヒットしたGUI要素を選択対象として決定する。
+    \item 既存の選択状態を解除し、新たな選択状態を設定する。
+    \item 選択状態の変更を描画部へ通知し、再描画を要求する。
+\end{enumerate}
+\subsection{ドラッグ操作監視処理}
+ドラッグ操作監視処理は、ユーザがGUI要素をドラッグした際の配置変更操作を検出し、対応するGUI要素の座標を更新する処理である。
+本処理の流れを以下に示す。
+\begin{enumerate}
+    \item 押下開始時に、対象GUI要素を確定する。
+    \item 対象要素が移動可能かを判定する。
+    \item ドラッグ中、ポインタ移動量に応じて要素座標を更新する。
+    \item 移動中も随時再描画を行い、操作結果を即時反映する。
+    \item 押下終了時に、配置規則（スナップ）を適用する。
+    \item 最終座標を内部データとして確定する。
+    \item 位置変更をプロジェクト管理部へ通知する。
+\end{enumerate}
