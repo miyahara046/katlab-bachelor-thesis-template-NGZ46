@@ -62,6 +62,8 @@
 \usepackage{pxjahyper}          % リンクを付けてくれる（日本語）
 \usepackage[nameinlink]{cleveref} % 図表の自動参照（\cref）
 %\RequirePackage[l2tabu, orthodox]{nag} % これを入れると、古いコマンドを警告してくれる！なお完全には消せなかった模様
+\usepackage{array}
+
 
 \lstset{
   breaklines = true,%自動で折り返す
@@ -75,6 +77,13 @@
   framexleftmargin=6mm,%行番号をフレーム内に
   numberstyle=\scriptsize,%行番号のサイズ
   stepnumber=1%1行おきに行番号を
+}
+
+\lstdefinelanguage{markdown}{
+  morekeywords={},
+  sensitive=false,
+  morecomment=[l]{\#},
+  morestring=[b]"
 }
 
 %

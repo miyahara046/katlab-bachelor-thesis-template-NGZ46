@@ -1,140 +1,219 @@
 \chapter{拡張するツールの機能}\label{cha:Function}
+本章では、拡張するツールの機能について説明する。拡張するツールは、以下3つの機能を提供する。
+\begin{itemize}
+  \item 仕様状態に応じたGUI操作制御機能
+  \item Condition Transition Map（CTM）（\ref{sec:CTM}で説明する）描画機能
+  \item VDM\texttt{++}仕様をGUI操作によって生成する機能
+\end{itemize}
+拡張するツールは以下の2つを入力とする。
+\begin{itemize}
+  \item プロジェクトフォルダ
+  \item ユーザ操作
+\end{itemize}
+拡張するツールは以下の4つを出力とする
+\begin{itemize}
+  \item CTM描画
+  \item \tool の記述ルールに沿ったMarkdown形式の仕様記述ファイル
+  \item VDM\texttt{++}形式の仕様記述ファイル
+  \item JSON形式のGUI要素配置情報ファイル
+\end{itemize}
+以降、本章ではConditionTransitionMapと各機能について詳細に説明する
 
-本章では、図、表、数式の挿入方法について説明する。
+\section{Condition Transition Map（CTM）}\label{sec:CTM}
+Condition Transition Map（CTM）は、新たに提案する画面遷移表現ダイアグラムである。
+CTMは、画面遷移システムにおける操作と遷移の関係を、
+GUI操作および形式仕様の両方と対応付けるための中間表現として位置付ける。
+本研究では、CTM上で編集された画面遷移構造を基に、
+Markdown形式仕様およびVDM\texttt{++}形式の仕様を生成することで、
+視覚的編集と形式仕様記述との一貫性を保つことを可能としている。\\
+CTMの構成要素を以下に示す。各要素の表示例を表\ref{tab:ctm_elements}に示す。
+\begin{itemize}
+  \item 画面
+  \begin{itemize}
+    \item 画面は、システムの各状態を表す要素であり、CTM上では矩形で表現する。
+    \item 画面要素は、画面名を保持する。
+  \end{itemize}
+  \item ボタン
+  \begin{itemize}
+    \item ボタンは、ユーザが操作可能なインターフェース要素を表し、CTM上では画面要素内に配置する楕円で表現する。
+    \item ボタン要素は、有効ボタン名を保持する。
+  \end{itemize}
+  \item イベント
+  \begin{itemize}
+    \item イベントは、対象の有効ボタン押下時に発生する動作を表し、CTM上では矢印で対象ボタンからの遷移を表現する。
+    \item イベント要素は、イベント動作を保持し、画面遷移イベントの際に対象画面要素がないときには赤く強調表示する。
+  \end{itemize}
+  \item 条件分岐
+  \begin{itemize}
+    \item 条件分岐は、システムの動作が特定の条件に基づいて変化することを表し、CTM上ではダイヤモンド形状で表現する。
+    \item 条件分岐要素は、条件名を保持する。
+  \end{itemize}
+  \item タイムアウト
+  \begin{itemize}
+    \item タイムアウトは、一定時間内に特定の操作が行われなかった場合に発生する動作を表し、CTM上ではピンク色の矩形で表現する。
+    \item タイムアウト要素は、タイムアウト時間、タイムアウト後の動作を保持する。
+    \end{itemize}
+\end{itemize}
+各要素は、GUI上で直感的に操作、編集可能であり、
+画面遷移システムの全体像を把握しやすくする。\\
+CTMでは、画面内のユーザ操作を起点として、
+ボタン、条件分岐、イベントを左から右へ配置することで、
+画面遷移の流れを一方向に表現する。
+条件分岐を伴わない場合は、ボタンから直接イベントへ遷移する構造を取る。
 
-\section{図の挿入}
 
-図を挿入するには、\verb|figure| 環境と \verb|\includegraphics| コマンドを使用する。
-
-\subsection{基本的な図の挿入}
-
-図\ref{fig:example}に例を示す。
-
+\begin{table}[htbp]
+  \caption{Condition Transition Map（CTM）を構成する要素表示例}
+  \centering
+  \label{tab:ctm_elements}
+  \begin{tabular}{|>{\centering\arraybackslash}m{3.5cm}|>{\centering\arraybackslash}m{6cm}|}
+    \hline
+    要素名 & 図 \\
+    \hline
+    画面 & \includegraphics[width=0.5\linewidth]{./images/画面.png} \\
+    \hline
+    ボタン & \includegraphics[width=0.4\linewidth]{./images/ボタン.png} \\
+    \hline
+    イベント & \includegraphics[width=0.9\linewidth]{./images/イベント.png} \\
+    \hline
+    条件分岐イベント & \includegraphics[width=0.9\linewidth]{./images/条件分岐イベント.png} \\
+    \hline
+    タイムアウト & \includegraphics[width=0.9\linewidth]{./images/タイムアウト.png} \\
+    \hline
+  \end{tabular}
+\end{table}
+\section{仕様状態に応じたGUI操作制御機能}\label{sec:GUI-operation-control-function}
+仕様状態に応じたGUI操作制御機能は、現在のMarkdown仕様記述状態に基づいて
+ツール上部に配置された操作ボタンの表示および有効状態を制御する機能である。
+この機能により、Markdown仕様記述の状態に応じて実行可能な操作のみがGUI上に提示され、
+不適切な操作の実行を防止する。\\
+本機能では、Markdown仕様記述の解析結果を基に、
+現在の仕様状態を特定し、
+各操作ボタンの表示および有効状態を動的に更新する。
+操作ボタンの表示方法は，編集対象となっているクラスの種類に基づいて
+3種類に分類し、本研究ではこれらを表示方法A、表示方法B、表示方法Cと定義する。
+\subsection{表示方法A}
+表示方法Aは、画面一覧クラスを編集対象として選択した場合に表示する表示方法である。
+この状態では、画面一覧に対する画面の追加を可能とし、
+画面遷移システム全体の画面状態を定義するための操作が可能となる。
+表示方法Aは、個々の画面遷移ロジックを記述する前段階に対応しており、
+画面構成の管理を行うことを目的としている。\\
+表示方法Aのツール外観を図\ref{fig:look_A}に示す。
 \begin{figure}[tp]
   \centering
-  \includegraphics[width=0.5\linewidth]{./images/syokuji_computer.png}
-  \caption{図の挿入例}
-  \label{fig:example}
+  \includegraphics[width=0.7\linewidth]{./images/Look_A.png}
+  \caption{表示方法Aのツール外観}
+  \label{fig:look_A}
+
 \end{figure}
-
-上記の図は以下のコードで挿入できる：
-
-\begin{verbatim}
+\subsection{表示方法B}
+表示方法Bは、個々の画面クラスを編集対象として選択した場合に表示する表示方法である。
+この状態では、対象画面に対するボタン、イベント、タイムアウトの追加を可能とし、
+画面遷移システムの各画面における操作と遷移の詳細を定義するための操作が可能となる。
+表示方法Bは、個々の画面遷移ロジックを記述する段階に対応しており、
+画面ごとの操作と遷移の管理を行うことを目的としている。\\
+表示方法Bのツール外観を図\ref{fig:look_B}に示す。
 \begin{figure}[tp]
   \centering
-  \includegraphics[width=0.5\linewidth]{./images/syokuji_computer.png}
-  \caption{図の挿入例}
-  \label{fig:example}
+  \includegraphics[width=0.7\linewidth]{./images/Look_B.png}
+  \caption{表示方法Bのツール外観}
+  \label{fig:look_B}
 \end{figure}
-\end{verbatim}
+\subsection{表示方法C}
+表示方法Cは、クラス定義が存在しないMarkdownファイルを編集対象とした場合に
+表示される表示方法である。
+この状態では、画面一覧クラス・画面クラスの選択のみが表示され、
+その他の編集操作は実行できない。
+表示方法Cは、仕様記述の初期状態を明確にし、
+不完全な状態での操作実行を防止することを目的としている。\\
+表示方法Cのツール外観を図\ref{fig:look_C}に示す。
+\begin{figure}[tp]
+  \centering 
+  \includegraphics[width=0.7\linewidth]{./images/Look_C.png}
+  \caption{表示方法Cのツール外観}
+  \label{fig:look_C}
+\end{figure}
 
-\subsection{画像ファイルの配置}
-
-画像ファイルは \verb|images/| ディレクトリに配置する。
-サポートされている画像形式：PNG、JPG、PDF など。
-
-\section{表の挿入}
-
-表を挿入するには、\verb|table| 環境と \verb|tabular| 環境を使用する。
-
-\subsection{基本的な表の挿入}
-
-表\ref{tb:example}に例を示す。
-
-\begin{table}[tp]
-  \caption{表の挿入例}
-  \label{tb:example}
+また、各表示方法と仕様状態の対応を表\ref{tab:Look_patterns}に示す。
+\begin{table}[htbp]
   \centering
-  \begin{tabular}{|l|c|r|}
+  \caption{操作ボタン表示方法と仕様状態の対応}
+  \label{tab:Look_patterns}
+  \begin{tabular}{|c|p{9cm}|}
     \hline
-    左寄せ & 中央寄せ & 右寄せ \\
+    表示方法 & 表示される条件 \\
     \hline
-    データ1 & データ2 & データ3 \\
-    データ4 & データ5 & データ6 \\
+    表示方法A &
+    画面一覧クラスを編集対象として選択している状態 \\
+    \hline
+    表示方法B &
+    画面クラスを編集対象として選択している状態 \\
+    \hline
+    表示方法C &
+    クラス定義が存在しないMarkdownファイルを
+    編集対象として選択している状態 \\
     \hline
   \end{tabular}
 \end{table}
 
-上記の表は以下のコードで挿入できる：
+\section{Condition Transition Map（CTM）描画機能}\label{sec:CTM-drawing-function}
+CTM描画機能は、コード\ref{lst:markdown_example}に示すように\tool の記述ルール（\ref{sec:Specrule}小節）に沿ったMarkdown形式の仕様記述ファイルを入力として受け取り、
+対応するCTMを自動で描画する機能である。本機能により、ユーザはテキストベースの仕様記述から視覚的な画面遷移構造を容易に把握できるようになる。\\
+本機能では、入力したMarkdown形式仕様記述ファイルを解析し、画面、ボタン、イベント、条件分岐、タイムアウトなどCTMの各要素を抽出してGUI上に描画する。
+描画の際には、定義されている要素間の関係性を考慮し、適切な位置に配置する （\ref{sec:GUIElementGenerationComponent}節で詳細に説明）ことで、
+画面遷移の流れを直感的に理解できるようにする。\\
+描画したCTMは、ユーザ操作によって選択やドラッグが可能であり、
+要素の位置関係を調整しながら画面遷移の全体像を確認できる。
+また、遷移先が未定義のイベントなど、仕様上不整合が存在する場合には、
+視覚的に識別できるよう強調表示を行う。\\
+図\ref{fig:ctm_example}に、Markdown形式仕様記述（コード\ref{lst:markdown_example}）に対応するCTM描画例を示す。
 
-\begin{verbatim}
-\begin{table}[tp]
-  \caption{表の挿入例}
-  \label{tb:example}
+\begin{figure}[tp]
+\begin{lstlisting}[caption={Markdown形式仕様の記述例}, label={lst:markdown_example}, language=markdown]
+  ## 画面1
+  - 80秒でタイムアウト
+
+  ### 有効ボタン一覧
+  - ボタン1
+  - ボタン2
+  - ボタン3
+  - ボタン4
+  - ボタン5
+  - ボタン6
+  - 確定
+
+  ### イベント一覧
+  - タイムアウト → 画面Aへ
+  - ボタン1押下 → 表示部に1を追加
+  - ボタン2押下 → 表示部に2を追加
+  - ボタン3押下 → 表示部に3を追加
+  - ボタン4押下 → 表示部に4を追加
+  - ボタン5押下 → 表示部に5を追加
+  - ボタン6押下 → 表示部に6を追加
+  - 確定押下 →
+    - 表示部に1が入力されている → 画面Kへ
+    - 表示部に1が入力されていない → 画面Fへ
+
+\end{lstlisting}
+\end{figure}
+
+\begin{figure}[tp]
   \centering
-  \begin{tabular}{|l|c|r|}
-    \hline
-    左寄せ & 中央寄せ & 右寄せ \\
-    \hline
-    データ1 & データ2 & データ3 \\
-    データ4 & データ5 & データ6 \\
-    \hline
-  \end{tabular}
-\end{table}
-\end{verbatim}
+  \includegraphics[width=0.9\linewidth]{./images/CTM_Example.png}
+  \caption{Markdown形式仕様記述（コード\ref{lst:markdown_example}）に対応するCTM描画例}
+  \label{fig:ctm_example}
+\end{figure}
 
-\section{数式の挿入}
+\section{VDM\texttt{++}仕様をGUI操作によって生成する機能}\label{sec:VDM++-generation-function}
+\subsection{クラスの種類選択・追加}
+\subsection{画面の追加}
+\subsection{ボタンの追加}
+\subsection{タイムアウトの追加}
+\subsection{イベントの追加}
+\subsection{削除}
+\subsection{ノードの編集}
+\subsection{クリック操作}
+\subsection{ドラッグ操作}
+\subsection{画面追加時画面一覧への自動追加}
+\subsection{画面一覧から対象画面への遷移}
 
-\subsection{インライン数式}
-
-文中に数式を挿入する場合は、\verb|$...$| または \verb|\(...\)| を使用する。
-例：$E = mc^2$ は有名な公式である。
-
-\subsection{ディスプレイ数式}
-
-独立した行に数式を表示する場合は、\verb|equation| 環境を使用する。
-
-\begin{equation}\label{eq:example}
-  \int_0^\infty e^{-x^2} dx = \frac{\sqrt{\pi}}{2}
-\end{equation}
-
-式(\ref{eq:example})のように、数式にも番号とラベルを付けて参照できる。
-
-\subsection{複数行の数式}
-
-複数行の数式を表示する場合は、\verb|align| 環境を使用する：
-
-\begin{align}
-  a + b &= c \\
-  x + y &= z
-\end{align}
-
-\section{図表の参照}
-\label{sec:ref}
-
-図や表を参照するには、\verb|\ref{}| コマンドを使用する：
-
-\begin{itemize}
-  \item 図\ref{fig:example}のように図を参照
-  \item 表\ref{tb:example}のように表を参照
-  \item 式(\ref{eq:example})のように数式を参照
-\end{itemize}
-
-より便利な自動参照コマンドも利用できる。
-自動参照コマンドは、「図」「表」「式」などの名前を自動で判定して表示する。
-
-\subsection{crefコマンド（推奨）}
-
-\verb|\cref{}| コマンドを使うと、図表の種類を自動判定して日本語で表示する：
-
-\begin{itemize}
-  \item 図：\cref{fig:example}のように図を参照
-  \item 表：\cref{tb:example}のように表を参照
-  \item 式：\cref{eq:example}のように数式を参照
-  \item 章：\cref{cha:Introduction}のように章を参照
-  \item 節：\cref{sec:ref}のように節を参照
-\end{itemize}
-
-\subsection{autorefコマンド}
-
-\verb|\autoref{}| コマンドも同様に使用できる：
-
-\begin{itemize}
-  \item 図：\autoref{fig:example}のように図を参照
-  \item 表：\autoref{tb:example}のように表を参照
-  \item 式：\autoref{eq:example}のように数式を参照
-  \item 章：\autoref{cha:Introduction}のように章を参照
-\end{itemize}
-
-\textbf{注意：}章や節の参照は、\verb|\cref| を使うと「3章」「3.1節」のように表示され、
-\verb|\autoref| では番号のみが表示される。より柔軟な表示が可能な \verb|\cref| の使用を推奨する。
