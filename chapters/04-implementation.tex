@@ -34,16 +34,19 @@
 \end{itemize}
 \subsection{フォルダ・ファイルの探索処理}
 フォルダ・ファイルの探索処理は、ユーザが選択したプロジェクトフォルダ配下を走査し、編集対象となるMarkdownファイルおよびフォルダ構造を取得し、
-GUI上にツリー形式で表示するための内部データを構築する処理である。\\
+GUI上にツリー形式で表示するための内部データを構築する処理である。
+
 ユーザがフォルダ選択捜査を行った際に、選択したフォルダパスを保持し、その直下および下位階層を再帰的に探索する。
-探索では、まずフォルダ自信を登録し、その配下に存在するサブフォルダおよびMarkdownファイルを検出する。\\
+探索では、まずフォルダ自信を登録し、その配下に存在するサブフォルダおよびMarkdownファイルを検出する。
+
 探索結果は、ファイルパス、階層レベル、展開情報を持つデータ構造として保持し、表示の展開、折り畳み操作に応じて表示状態を動的に制御する。
 \subsection{ファイル読込処理}
 ファイル読込処理は、
 ユーザがツリー上で選択したMarkdownファイルを対象として、
 その内容を読み込み、
 解析部（\ref{sec:ParsingComponent}節を参照）および変換部（\ref{sec:ConversionComponent}節を参照）
-に必要な内部状態を初期化する処理である。\\
+に必要な内部状態を初期化する処理である。
+
 対象ファイルを選択すると、
 プロジェクト管理部はファイル内容を読み込み、
 Markdown文字列として内部に保持する。
@@ -55,7 +58,8 @@ GUI要素の配置を復元する。
 Markdownで記述された仕様をVDM++形式に変換し、
 外部ファイルとして保存する処理である。
 本処理では、変換部（\ref{sec:ConversionComponent}節を参照）を利用してMarkdownからVDM++への変換を行い、
-生成されたVDM++データを指定されたファイルパスに出力する。\\
+生成されたVDM++データを指定されたファイルパスに出力する。
+
 入力として、変換部から受け取ったVDM++データを取得し、
 出力先のファイルパスを指定する。
 \subsection{ファイル更新処理}\label{sec:FileUpdateProcess}
@@ -71,13 +75,15 @@ Markdownで記述された仕様をVDM++形式に変換し、
 \end{enumerate}
 \subsection{JSONファイル出力処理}
 JSONファイル出力処理は、
-GUI要素の配置情報を永続化するための処理である。\\
+GUI要素の配置情報を永続化するための処理である。
+
 GUI上で配置した各要素の座標情報は、
 要素名と座標の組としてJSON形式に変換し、
 対応するMarkdownファイルと同名のJSONファイルとして保存する。
 このJSONファイルは、
 仕様の論理構造には含まれない視覚的情報のみを保持するため，
-Markdown本体の可読性や再利用性を損なわない。\\
+Markdown本体の可読性や再利用性を損なわない。
+
 次回ファイル読込時には、
 このJSONファイルを参照することで
 GUI要素の配置を復元できるため、
@@ -85,7 +91,8 @@ GUI要素の配置を復元できるため、
 
 \section{解析部}\label{sec:ParsingComponent}
 解析部は、Markdownにより記述された仕様記述を解析し、GUI表示および操作の基礎となる構造データを生成する処理部である。
-本部では、Markdown の文法構造を直接解釈するのではなく，「画面」「操作」「遷移」「条件分岐」といった GUI 表現に対応する概念構造を抽出することを目的とする。\\
+本部では、Markdown の文法構造を直接解釈するのではなく，「画面」「操作」「遷移」「条件分岐」といった GUI 表現に対応する概念構造を抽出することを目的とする。
+
 Markdown解析処理は、画面定義、タイムアウト定義、ボタン定義、イベント定義、および条件分岐定義を抽出し、
 これらを表\ref{tb:GUIElement}に示すGUIElementとして構造化する処理である。
 本処理の流れを図\ref{fig:parsing-flow}と以下に示す。
@@ -166,33 +173,47 @@ Markdown解析処理は、画面定義、タイムアウト定義、ボタン定
 \label{tb:GUIElement}
 \begin{tabular}{|l|l|p{7cm}|}
 \hline
-\textbf{属性名} & \textbf{型} & \textbf{説明} \\
+\textbf{属性名} & \textbf{型} & \textbf{説明}\\ 
+
 \hline
 Type & GuiElementType & ノードの種類（Screen, Button, Event, Timeout, Operation など） \\
+
 \hline
 Name & string & ノードの名称 \\
+
 \hline
 Target & string & 遷移先となるノード名 \\
+
 \hline
 X & float & ノードの X 座標 \\
+
 \hline
 Y & float & ノードの Y 座標 \\
+
 \hline
 Width & float & ノードの横幅 \\
+
 \hline
 Height & float & ノードの高さ \\
+
 \hline
 IsSelected & bool & ノードがユーザにより選択されているかどうか \\
+
 \hline
 IsFixed & bool & ドラッグによる移動が可能かどうか \\
+
 \hline
 Branches & List\textless EventBranch \textgreater & 条件分岐を表す分岐リスト \\
+
 \hline
 Branches.Condition & string & 分岐条件 \\
+
 \hline
 Branches.Target & string & 分岐条件成立時のイベント \\
+
 \hline
 IsBranch & bool & 分岐（Branches）を保持しているかどうか \\
+
 \hline
 \end{tabular}
 \end{table}
@@ -218,7 +239,8 @@ Markdownにより記述された仕様の論理構造を、
 GUI要素生成部は、
 単なる要素の対応付けを行うのではなく、
 \textbf{配置，サイズ，操作可否}といった
-GUIとしての振る舞いを規則に基づいて決定する。\\
+GUIとしての振る舞いを規則に基づいて決定する。
+
 通常ノードの形状・寸法を表\ref{tab:gui_node_spec}に，
 条件分岐における可視ノードの形状・寸法を表\ref{tab:gui_node_branch}に示す。
 GUI要素の初期配置は、
@@ -256,31 +278,37 @@ GUI要素の初期配置は、
 \label{tab:gui_node_spec}
 \begin{tabular}{|l|l|c|c|p{4.5cm}|}
 \hline
-\textbf{要素} & \textbf{形状} & \textbf{幅} & \textbf{高} & \textbf{配置・備考} \\ \hline
+\textbf{要素} & \textbf{形状} & \textbf{幅} & \textbf{高} & \textbf{配置・備考} \\
+ \hline
 Screen
 & 角丸矩形
 & 160 & 45
-& 左列に縦配置（間隔80）、移動可 \\ \hline
+& 左列に縦配置（間隔80）、移動可 \\
+ \hline
 
 Button
 & 楕円
 & 80 & 45
-& Screen内に縦配置、移動可 \\ \hline
+& Screen内に縦配置、移動可 \\
+ \hline
 
 Event
 & 矩形
 & 160 & 45
-& 中列配置，条件分岐時は本体非表示、移動可 \\ \hline
+& 中列配置，条件分岐時は本体非表示、移動可 \\
+ \hline
 
 Timeout
 & 楕円
 & 112 & 45
-& 左上固定配置，移動不可 \\ \hline
+& 左上固定配置，移動不可 \\
+ \hline
 
 Operation
 & ひし形
 & 160 & 45
-& 右列配置，遷移先ノード \\ \hline
+& 右列配置，遷移先ノード \\
+ \hline
 \end{tabular}
 \end{table}
 
@@ -292,16 +320,19 @@ Operation
 \label{tab:gui_node_branch}
 \begin{tabular}{|l|l|c|c|p{4cm}|}
 \hline
-\textbf{要素} & \textbf{形状} & \textbf{幅} & \textbf{高} & \textbf{備考} \\ \hline
+\textbf{要素} & \textbf{形状} & \textbf{幅} & \textbf{高} & \textbf{備考} \\
+ \hline
 Condition
 & ダイヤモンド
 & 176 & 50
-& 分岐条件を表す可視ノード \\ \hline
+& 分岐条件を表す可視ノード \\
+ \hline
 
 Target
 & 矩形
 & 152 & 36
-& 分岐先を示す中間ノード \\ \hline
+& 分岐先を示す中間ノード \\
+ \hline
 \end{tabular}
 \end{table}
 
@@ -314,7 +345,8 @@ GUI操作からMarkdownへの変換処理は、GUI操作による編集結果を
 GUI要素の現在状態からMarkdownを全体再生成する方式を採用している。
 この設計により、
 編集履歴や操作順序に依存しない一貫した仕様記述を生成でき、
-構造的不整合が生じることを防止している。\\
+構造的不整合が生じることを防止している。
+
 変換処理では,
 まずGUI要素をその種別および関連関係に基づいて分類し,
 仕様記述として出力する順序を決定する。
