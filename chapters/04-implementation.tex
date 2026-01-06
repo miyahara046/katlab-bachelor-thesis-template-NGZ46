@@ -1,7 +1,7 @@
 \chapter{拡張部分の実装}\label{cha:Implementation}
 
 本章では、拡張部分の実装について説明する。
-拡張部分のシステム構成を、図\ref{fig:system-architecture}に示す。
+拡張部分も既存の\tool 同様にMVVMアーキテクチャ（\ref{sec:MVVM}節を参照）を採用している。拡張部分のシステム構成を、図\ref{fig:system-architecture}に示す。
 拡張後の\tool は、以下の6つの主要なコンポーネントで構成する。
 \begin{itemize}
   \item プロジェクト管理部
@@ -11,6 +11,16 @@
   \item 描画部
   \item ユーザ操作監視部
 \end{itemize}
+MVVM に基づき、各コンポーネントは責務を明確にし、連携して動作する。
+View はGUI の表示およびユーザ入力の受付を担い、画面上の図を描画部により可視化する。
+ViewModel はGUI 要素リスト\verb|elements| を状態として保持し、
+ユーザ操作監視部によりクリック、および、ドラッグの操作を検出し、
+Model 層の各処理部へ処理を指示する。
+Model はプロジェクト管理部、解析部、GUI要素生成部、変換部から構成し、
+仕様データの永続化、解析、GUI 表現の生成、および形式変換を担う。
+この構成により、Model 層は View 層を直接参照せず、
+ViewModel 層を介して状態のみを受け渡す。
+
 以降、各コンポーネントの実装について、それぞれ説明する。
 
 \begin{figure}[tp]
@@ -21,7 +31,7 @@
 \end{figure}
 
 
-\section{プロジェクト管理部}
+\section{プロジェクト管理部}\label{sec:ProjectManagementComponent}
 
 プロジェクト管理部は、ユーザが操作するプロジェクト全体の状態を管理する。
 具体的には以下の５つの処理を担う。
@@ -145,7 +155,7 @@ VDM++形式仕様として出力できる。
 本処理の流れを以下に示す。
 
 \begin{enumerate}
-\item ユーザ操作監視部（\ref{sec:UserOperationMonitoringComponent}節を参照）によりユーザの保存操作を検出する。
+\item ユーザ操作監視部（\ref{sec:UserOperationMonitoring}節を参照）によりユーザの保存操作を検出する。
 \item 現在のGUI要素リスト（\ref{sec:GUIElementGenerationComponent}節を参照）に基づいて変換部で生成したMarkdown文字列を取得する。
 \item 取得したMarkdown文字列をMarkdownファイルとして保存する。
 \item 保存したMarkdown文字列を変換部へ渡し、VDM++文字列を生成する。
@@ -520,6 +530,16 @@ GUI要素の初期配置は、
 重なりが生じないようオフセットを付与する。
 要素のサイズについても、
 ノードの種類ごとに既定値を設定している。
+画面要素 $i$ の初期配置座標は、
+インデックス $i$ に基づきで式\ref{eq:initial_position}で決定する。
+ここで、
+$d$ は要素間の縦方向間隔を表す定数である。
+$X_0$、$Y_0$ は初期配置の基準座標を表す定数である。
+\begin{align}
+X_i = X_0,\quad\\
+Y_i = Y_0 + i \cdot d
+\label{eq:initial_position}
+\end{align}
 
 生成したGUI要素には、
 ユーザ操作に関する属性も付与する。
@@ -611,7 +631,8 @@ Target
 
 \section{変換部}\label{sec:ConversionComponent}
 変換部は、Markdown、およびVDM++形式仕様記述の表現形式を相互に変換する処理部である。
-本コンポーネントでは、Markdown形式仕様とVDM++形式仕様の変換に加え、GUI操作結果をMarkdown形式仕様へ反映する処理を担う。Markdown形式仕様からVDM++形式仕様への変換処理については、既存のツール\tool のMarkdown変換部（\ref(sec:Structure)小節を参照）を利用する。
+本コンポーネントでは、Markdown形式仕様とVDM++形式仕様の変換に加え、GUI操作結果をMarkdown形式仕様へ反映する処理を担う。
+Markdown形式仕様からVDM++形式仕様への変換処理については、既存のツール\tool のMarkdown変換部（\ref{sec:Structure}小節を参照）を利用する。
 
 GUI操作からMarkdown形式仕様への変換処理は、GUI操作による編集結果を差分として反映するのではなく、
 GUI要素リストの現在状態からMarkdown形式仕様を全体再生成する方式を採用している。
@@ -619,11 +640,14 @@ GUI要素リストの現在状態からMarkdown形式仕様を全体再生成す
 編集履歴や操作順序に依存しない一貫した仕様を生成でき、
 構造的不整合が生じることを防止している。
 
-変換処理では、
+\subsection{GUI操作からMarkdown形式仕様への変換処理}\label{sec:GUItoMarkdownConversionProcess}
+本処理は、GUI要素生成部（\ref{sec:GUIElementGenerationComponent}節を参照）で生成されたGUI要素リスト \verb|elements| を入力として、
+Markdown形式仕様を生成する処理である。
 まずGUI要素を種類および関連関係に基づいて分類する。
 次に各要素を
 仕様記述として出力する順序を決定する。
-出力規則は\tool のMarkdown仕様記述ルール（\ref{Specrule}小節を参照）に準拠しており、
+
+出力規則は\tool のMarkdown仕様記述ルール（\ref{sec:Specrule}小節を参照）に準拠しており、
 画面定義、タイムアウト定義、ボタン一覧、イベント一覧、条件分岐の順に要素を出力する。
 変換処理の結果として生成したMarkdown形式仕様は、
 プロジェクト管理部に引き渡し、
@@ -633,13 +657,109 @@ GUI上の編集操作と仕様記述との間に
 常に一貫した対応関係が保たれる。
 本処理の流れを以下に示す。
 \begin{enumerate}
-    \item 現在のGUI要素リスト（\ref{sec:GUIElementGenerationComponent}節を参照）を走査する。
-    \item GUI要素を、種類、および、関連関係に基づいて分類する。
-    \item Markdown形式仕様記述ルールに基づき、出力順序を決定する。
-    \item 各要素を対応するMarkdown形式仕様記述へ変換する。
-    \item 変換したMarkdownテキストを連結し、最終的なMarkdown形式仕様文字列を生成する。
-    \item 生成したMarkdownテキストをプロジェクト管理部へ通知し、ファイル更新処理（\ref{sec:FileUpdateProcess}節を参照）を要求する。
+  \item GUI要素生成部
+        （\ref{sec:GUIElementGenerationComponent}節）で生成した。
+        GUI要素リスト
+        \verb|elements| を取得する。
+  \item 取得した \verb|elements| を先頭から走査し、
+        各GUI要素が保持する
+        要素種別、名称、遷移先、および条件分岐情報を参照しながら、
+        後続処理の入力データとして用いる。
+  \item \verb|elements| に含まれるGUI要素を、
+        Markdown形式仕様記述ルールに基づき、
+        出力順序決定のために整理する（\ref{sec:ConversionOrderProcess}節を参照）。
+  \item 整理処理の結果を用いて、
+        \verb|elements| に含む各GUI要素に対し、
+        要素種別に応じたMarkdown形式仕様記述を生成し、
+        生成結果を
+        Markdown形式仕様記述各行のリスト
+        \verb|lines| に順次格納する。
+  \item 条件分岐を含むイベント要素については、
+        当該要素が保持する分岐情報
+        \verb|Branches| を参照し、
+        親イベント行の直下に、
+        条件および遷移先を表す
+        ネストされた箇条書き構造として
+        Markdown行を \verb|lines| に追加する。
+  \item \verb|lines| に格納されたMarkdown形式仕様記述各行を連結し、
+        最終的なMarkdown形式仕様文字列
+        \verb|markdown| を生成する。
+  \item 生成した \verb|markdown| を
+        プロジェクト管理部へ通知し、
+        ファイル更新処理
+        （\ref{sec:FileUpdateProcess}節）を要求する。
 \end{enumerate}
+
+
+\subsection{出力順序整理処理}\label{sec:ConversionOrderProcess}
+本処理では、GUI操作により更新したGUI要素リスト \verb|elements| を入力として、
+Markdown形式仕様のうち「有効ボタン一覧」および「イベント一覧」の並び順を
+GUI上の配置順序に一致するよう再構成する。
+
+なお、本整理処理では、
+GUI 要素リストに存在しないイベント記述であっても、
+Markdown 形式仕様中に記述が存在する場合は、
+仕様欠落を防ぐ目的から自動的に削除しない設計としている。
+そのため、本処理はイベント記述の削除を目的とせず、
+あくまで記述順序の整理を行うものである。
+
+本処理の流れを以下に示す。
+\begin{enumerate}
+  \item 入力として、Markdown文字列と
+        GUI要素リスト \verb|elements|を受け取る。
+  \item Markdown文字列を読み込み、行配列（実装上は \verb|lines|）として保持する。
+  \item 行配列 \verb|lines| 内から、
+        ボタン一覧見出し \verb|"### 有効ボタン一覧"| の行位置を \verb|buttonIdx| として探索し、
+        イベント一覧見出し \verb|"### イベント一覧"| の行位置を \verb|eventIdx| として探索する。
+        これにより、後続の置換対象セクション範囲を決定可能にする。
+  \item ボタン一覧の並び順キーとして、
+        \verb|BuildButtonList(elements)| を用いて \verb|buttonList| を生成する。
+        \verb|buttonList| は以下の規則で生成する。
+        \begin{itemize}
+          \item \verb|elements| から \verb|GUIElement.Type==Button| の要素のみ抽出する。
+          \item \verb|Y| 座標の昇順（\verb|OrderBy(e => e.Y)|）で整列する。
+          \item 各要素の \verb|GUIElement.Name| を順に取り出し、文字列リストとして保持する。
+        \end{itemize}
+        これにより、GUI上で上に配置されたボタンほどMarkdown上でも上に出力される。
+  \item \verb|buttonList| が空でない場合、
+        \verb|buttonIdx| の有無に応じてボタン一覧セクション（見出し＋箇条書き）を更新する。
+        \begin{itemize}
+          \item \verb|buttonIdx| が存在する場合：
+                既存のボタン一覧セクションを
+                \verb|buttonList| に基づく箇条書きへ置換する。
+          \item \verb|buttonIdx| が存在しない場合：
+                新規にボタン一覧セクションを生成し、
+                \verb|eventIdx| が存在する場合はイベント一覧見出しの直前へ挿入し、
+                存在しない場合は先頭付近の適切な位置へ挿入する。
+        \end{itemize}
+        ただし、\verb|buttonList| が空の場合は空見出し生成を避けるため、
+        ボタン一覧セクションの新規作成、および、置換を行わない。
+  \item イベント一覧の並び順キーとして、
+        \verb|BuildEventBlockOrder(elements)| を用いて \verb|blocksOrder| を生成する。
+        \verb|blocksOrder| は以下の規則で生成する。
+        \begin{itemize}
+          \item \verb|elements| から \verb|GUIElement.Type==Event| かつ \verb|GUIElement.Name| が空でない要素を抽出する。
+          \item \verb|Y| 座標の昇順（\verb|OrderBy(e => e.Y)|）で整列する。
+          \item 各要素の \verb|GUIElement.Name| を順に取り出し、文字列リストとして保持する。
+        \end{itemize}
+  \item Markdown上のイベント一覧セクションを「ブロック単位」で再構成する。
+        本処理では、イベント一覧セクション内の記述を以下の規則でブロック化する。
+        \begin{itemize}
+          \item \verb|"- "| で始まる行をブロック先頭とする。
+          \item 直後に続く行のうち、
+                先頭が2スペース以上（\verb|"  "|）またはタブ（\verb|"\t"|）で始まる行を同一ブロックに含める。
+        \end{itemize}
+        これにより、条件分岐を含むイベント（ネストされた箇条書き）も
+        1つのブロックとして保持され、並べ替え時に分割されない。
+  \item ブロックの並べ替えは、\verb|blocksOrder| の順序に従って行う。
+        Markdown文字列を走査し、\verb|blocksOrder| と一致しなかったブロックは、
+        仕様欠落を防ぐため元の順序を保ったまま末尾へ追加する。
+  \item 整理後の \verb|lines| に対し、空行を正規化する処理（\verb|NormalizeEmptyLines|）を適用し、
+        連続空行や不要な空行を除去する。
+  \item 最終的に、正規化後の \verb|lines| 出力することで、
+        GUI上の配置順序とMarkdown上の記述順序の整合を維持する。
+\end{enumerate}
+
 
 \section{描画部}\label{sec:DrawingComponent}
 描画部は、GUI要素生成部（\ref{sec:GUIElementGenerationComponent}節を参照）から受け取ったGUI要素リストをもとに、GUI表示を描画および再描画する処理部である。
@@ -662,10 +782,22 @@ GUI要素生成部で定義した規則に基づいて決定しており、
     \item GUI要素リストを走査し、各要素のノードの種類を判定する。
     \item 要素種別に応じた描画形状を決定する。
     \item 各要素の座標情報をもとに、キャンバス上へノードを描画する。
-    \item 遷移関係を表す要素については、GUI要素生成部で設定した接続情報を参照する。接続元および接続先ノードの外接矩形から矢印の開始点および終了点を算出し、矢印を描画する。
+    \item 遷移関係を表す要素については、GUI要素生成部で設定した接続情報を参照する。接続元および接続先ノードの外接矩形から矢印の開始点および終了点を算出し(式\ref{eq:arrow_points}を参照)、矢印を描画する。
     なお、条件分岐ノードについては、本体ノードを非表示とし、分岐条件ノードおよび分岐先ノードのみを描画する。
     \item 描画要素の外接矩形を記録し、ヒットテスト処理（\ref{sec:HitTestProcess}節を参照）に利用できるよう保持する。
 \end{enumerate}
+
+\subsubsection{矢印の開始点および終了点の算出}
+矢印の開始点および終了点は、接続元および接続先ノードの外接矩形情報をもとに算出する。
+具体的には、接続元ノードの右端中央を開始点とし、接続先ノードの左端中央を終了点とする。
+ここで、接続元ノードの左上座標を$(X_s, Y_s)$、幅を$W_s$、高さを$H_s$、
+接続先ノードの左上座標を$(X_t, Y_t)$、幅を$W_t$、高さを$H_t$とすると、
+開始点$(x_s, y_s)$および終了点$(x_t, y_t)$は、式\ref{eq:arrow_points}により算出する。
+\begin{align}
+(x_s, y_s) = (X_s + W_s, Y_s + \frac{H_s}{2})\\
+(x_t, y_t) = (X_t, Y_t + \frac{H_t}{2})
+\label{eq:arrow_points}
+\end{align}
 
 \subsection{再描画処理}
 再描画処理は、ユーザ操作や仕様変更に伴い、GUI表示を更新する処理である。
@@ -693,6 +825,17 @@ GUI要素リストに反映し、
 \subsection{ヒットテスト処理}\label{sec:HitTestProcess}
 ヒットテスト処理は、クリック操作監視処理およびドラッグ操作監視処理において、
 ユーザの操作座標がどのGUI要素に該当するかを判定する処理である。
+ユーザの操作座標 $(x, y)$ が GUI 要素の外接矩形内に存在するかどうかは、
+式\ref{eq:hit}により判定する。
+ここで、
+$(X, Y)$ は外接矩形の左上座標、
+$W、 H$ は矩形の幅および高さを表す。
+
+\begin{equation}\label{eq:hit}
+X \leq x \leq X + W \;\land\; Y \leq y \leq Y + H
+\end{equation}
+
+
 本処理の流れを以下に示す。
 \begin{enumerate}
     \item 描画部が保持するGUI要素の外接矩形リストを取得する。
