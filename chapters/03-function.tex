@@ -1,65 +1,65 @@
-\chapter{拡張するツールの機能}\label{cha:Function}
-本章では、拡張するツールの機能について説明する。拡張するツールは、以下3つの機能を提供する。
+\chapter{拡張部分の機能}\label{cha:Function}
+本章では、拡張部分のツールの機能について説明する。拡張部分では、以下の3つの機能を提供する。
 \begin{itemize}
   \item 仕様状態に応じたGUI操作制御機能
-  \item Condition Transition Map（CTM）（\ref{sec:CTM}で説明する）描画機能
+  \item Condition Transition Map（CTM）描画機能（CTMは\ref{sec:CTM}節で説明する）
   \item VDM\texttt{++}仕様をGUI操作によって生成する機能
 \end{itemize}
-拡張するツールは以下の2つを入力とする。
+拡張部分の入力は以下の2つとする。
 \begin{itemize}
   \item プロジェクトフォルダ
   \item ユーザ操作
 \end{itemize}
-拡張するツールは以下の4つを出力とする
+拡張部分の出力は以下の4つである。
 \begin{itemize}
   \item CTM描画
   \item \tool の記述ルールに沿ったMarkdown形式の仕様記述ファイル
   \item VDM\texttt{++}形式の仕様記述ファイル
   \item JSON形式のGUI要素配置情報ファイル
 \end{itemize}
-以降、本章ではConditionTransitionMapと各機能について詳細に説明する
+以降、ConditionTransitionMapと各機能について詳細に説明する。
 
 \section{Condition Transition Map（CTM）}\label{sec:CTM}
-Condition Transition Map（CTM）は、新たに提案する画面遷移表現ダイアグラムである。
-CTMは、画面遷移システムにおける操作と遷移の関係を、
-GUI操作および形式仕様の両方と対応付けるための中間表現として位置付ける。
-本研究では、CTM上で編集された画面遷移構造を基に、
-Markdown形式仕様およびVDM\texttt{++}形式の仕様を生成することで、
-視覚的編集と形式仕様記述との一貫性を保つことを可能としている。\\
+Condition Transition Map（CTM）は、本研究で新たに提案する画面遷移を表現するためのダイアグラムである。
+CTMは、画面遷移システムにおける操作と遷移の関係を表すダイアグラムであり、
+GUI操作、および、形式仕様の両方を対応付けるための中間表現である。
+本研究では、CTMを基に、
+Markdown形式仕様、および、VDM\texttt{++}形式仕様を生成することで、
+視覚的編集を可能としている。\\
 CTMの構成要素を以下に示す。各要素の表示例を表\ref{tab:ctm_elements}に示す。
 \begin{itemize}
-  \item 画面
+  \item 画面要素
   \begin{itemize}
-    \item 画面は、システムの各状態を表す要素であり、CTM上では矩形で表現する。
-    \item 画面要素は、画面名を保持する。
+    \item 画面要素は、システムの各状態を表す要素であり、矩形で表現する。
+    \item 画面名を保持する。
   \end{itemize}
-  \item ボタン
+  \item ボタン要素
   \begin{itemize}
-    \item ボタンは、ユーザが操作可能なインターフェース要素を表し、CTM上では画面要素内に配置する楕円で表現する。
-    \item ボタン要素は、有効ボタン名を保持する。
+    \item ボタン要素は、ユーザが操作可能なインターフェース要素を表し、CTM上では画面要素内に配置する楕円で表現する。
+    \item 有効ボタン名を保持する。
   \end{itemize}
-  \item イベント
+  \item イベント要素
   \begin{itemize}
-    \item イベントは、対象の有効ボタン押下時に発生する動作を表し、CTM上では矢印で対象ボタンからの遷移を表現する。
-    \item イベント要素は、イベント動作を保持し、画面遷移イベントの際に対象画面要素がないときには赤く強調表示する。
+    \item イベント要素は、対象の有効ボタン押下時に発生する動作を表し、CTM上では矢印で対象ボタンからの遷移を表現する。
+    \item イベント動作を保持し、画面遷移イベントの際に対象画面要素がないときには赤く強調表示する。
   \end{itemize}
-  \item 条件分岐
+  \item 条件分岐要素
   \begin{itemize}
-    \item 条件分岐は、システムの動作が特定の条件に基づいて変化することを表し、CTM上ではダイヤモンド形状で表現する。
-    \item 条件分岐要素は、条件名を保持する。
+    \item 条件分岐要素は、システムの動作が特定の条件に基づいて変化することを表し、CTM上ではダイヤモンド形状で表現する。
+    \item 条件名を保持する。
   \end{itemize}
-  \item タイムアウト
+  \item タイムアウト要素
   \begin{itemize}
-    \item タイムアウトは、一定時間内に特定の操作が行われなかった場合に発生する動作を表し、CTM上ではピンク色の矩形で表現する。
-    \item タイムアウト要素は、タイムアウト時間、タイムアウト後の動作を保持する。
+    \item タイムアウト要素は、一定時間内に特定の操作が行われなかった場合に発生する動作を表し、CTM上ではタイムアウト時間をピンク色の楕円、タイムアウト後遷移先をピンクの矩形で表現する。
+    \item タイムアウト時間、タイムアウト後の動作を保持する。
     \end{itemize}
 \end{itemize}
-各要素は、GUI上で直感的に操作、編集可能であり、
+各要素は、GUIで編集可能であり、
 画面遷移システムの全体像を把握しやすくする。\\
-CTMでは、画面内のユーザ操作を起点として、
+CTMでは、ユーザによるGUI操作を起点として、
 ボタン、条件分岐、イベントを左から右へ配置することで、
 画面遷移の流れを一方向に表現する。
-条件分岐を伴わない場合は、ボタンから直接イベントへ遷移する構造を取る。
+なお、条件分岐を伴わない場合は、条件分岐を省略する。
 
 
 \begin{table}[htbp]
@@ -82,23 +82,35 @@ CTMでは、画面内のユーザ操作を起点として、
     \hline
   \end{tabular}
 \end{table}
-\section{仕様状態に応じたGUI操作制御機能}\label{sec:GUI-operation-control-function}
-仕様状態に応じたGUI操作制御機能は、現在のMarkdown仕様記述状態に基づいて
-ツール上部に配置された操作ボタンの表示および有効状態を制御する機能である。
-この機能により、Markdown仕様記述の状態に応じて実行可能な操作のみがGUI上に提示され、
-不適切な操作の実行を防止する。\\
+\section{GUI操作制御機能}\label{sec:GUI-operation-control-function}
+GUI操作制御機能は、現在のMarkdown仕様記述状態に基づいて、
+ツールの画面上部に配置する操作ボタンの表示、および、有効状態を制御する機能である。
+この機能により、Markdown仕様記述の状態に応じて実行可能な操作のみをGUI上に表示することで、
+不適切な操作の実行を防止する。
+
 本機能では、Markdown仕様記述の解析結果を基に、
 現在の仕様状態を特定し、
-各操作ボタンの表示および有効状態を動的に更新する。
-操作ボタンの表示方法は，編集対象となっているクラスの種類に基づいて
-3種類に分類し、本研究ではこれらを表示方法A、表示方法B、表示方法Cと定義する。
+各操作ボタンの表示、および、有効状態をユーザの操作毎に更新する。
+操作ボタンの表示方法は、編集対象となっているクラスの種類に基づいて
+以下の3種類に分する。
+\begin{itemize}
+  \item 表示方法A：画面一覧クラスを編集対象として選択している状態
+  \item 表示方法B：画面クラスを編集対象として選択している状態
+  \item 表示方法C：クラス定義が存在しないMarkdownファイルを編集対象として選択している状態
+\end{itemize}
+各表示方法における操作ボタンの表示および有効状態の詳細を以下に示す。
 \subsection{表示方法A}\label{sec:Display_A}
-表示方法Aは、画面一覧クラスを編集対象として選択した場合に表示する表示方法である。
-この状態では、画面一覧に対する画面の追加を可能とし、
-画面遷移システム全体の画面状態を定義するための操作が可能となる。
-表示方法Aは、個々の画面遷移ロジックを記述する前段階に対応しており、
-画面構成の管理を行うことを目的としている。\\
 表示方法Aのツール外観を図\ref{fig:look_A}に示す。
+表示方法Aは、ユーザが画面一覧クラスを編集対象として選択した場合に表示する表示方法である。
+この状態では、ユーザは以下の操作が可能である。
+\begin{itemize}
+  \item 画面一覧に対する画面の追加、編集、および、削除
+  \item 各画面への遷移
+  \item 画面遷移システム全体の画面状態を定義するための操作
+\end{itemize}
+表示方法Aは、個々の画面遷移ロジックを記述する前段階に対応しており、
+画面構成の管理を行うことを目的としている。
+
 \begin{figure}[tp]
   \centering
   \includegraphics[width=0.7\linewidth]{./images/Look_A.png}
@@ -107,12 +119,18 @@ CTMでは、画面内のユーザ操作を起点として、
 
 \end{figure}
 \subsection{表示方法B}\label{sec:Display_B}
-表示方法Bは、個々の画面クラスを編集対象として選択した場合に表示する表示方法である。
-この状態では、対象画面に対するボタン、イベント、タイムアウトの追加を可能とし、
-画面遷移システムの各画面における操作と遷移の詳細を定義するための操作が可能となる。
-表示方法Bは、個々の画面遷移ロジックを記述する段階に対応しており、
-画面ごとの操作と遷移の管理を行うことを目的としている。\\
 表示方法Bのツール外観を図\ref{fig:look_B}に示す。
+表示方法Bは、ユーザが個々の画面クラスを編集対象として選択した場合に表示する表示方法である。
+この状態では、ユーザは以下の操作が可能である。
+\begin{itemize}
+  \item 画面に対するボタンの追加、編集、および、削除
+  \item 画面に対するタイムアウトの追加、編集、および、削除
+  \item 各ボタンに対するイベントの追加、編集、および、削除
+  \item 画面遷移システムの各画面における操作と遷移の詳細定義
+\end{itemize}
+表示方法Bは、ユーザが個々の画面遷移ロジックを記述する段階に対応しており、
+画面ごとの操作と遷移の管理を行うことを目的としている。
+
 \begin{figure}[tp]
   \centering
   \includegraphics[width=0.7\linewidth]{./images/Look_B.png}
@@ -120,13 +138,13 @@ CTMでは、画面内のユーザ操作を起点として、
   \label{fig:look_B}
 \end{figure}
 \subsection{表示方法C}\label{sec:Display_C}
+表示方法Cのツール外観を図\ref{fig:look_C}に示す。
 表示方法Cは、クラス定義が存在しないMarkdownファイルを編集対象とした場合に
-表示される表示方法である。
-この状態では、クラスの種類選択・追加のみが表示され、
+表示する表示方法である。
+この状態では、クラスの種類選択・追加のみを表示し、
 その他の編集操作は実行できない。
 表示方法Cは、仕様記述の初期状態を明確にし、
-不完全な状態での操作実行を防止することを目的としている。\\
-表示方法Cのツール外観を図\ref{fig:look_C}に示す。
+不完全な状態での操作実行を防止することを目的としている。
 \begin{figure}[tp]
   \centering 
   \includegraphics[width=0.7\linewidth]{./images/Look_C.png}
@@ -134,10 +152,10 @@ CTMでは、画面内のユーザ操作を起点として、
   \label{fig:look_C}
 \end{figure}
 
-また、各表示方法と仕様状態の対応を表\ref{tab:Look_patterns}に示す。
+また、各表示方法と編集対象の対応を表\ref{tab:Look_patterns}に、各表示方法とユーザが可能な操作を表\ref{tab:Look_patterns_operations}に示す。
 \begin{table}[htbp]
   \centering
-  \caption{操作ボタン表示方法と仕様状態の対応}
+  \caption{操作ボタン表示方法と編集対象の対応}
   \label{tab:Look_patterns}
   \begin{tabular}{|c|p{9cm}|}
     \hline
@@ -156,20 +174,53 @@ CTMでは、画面内のユーザ操作を起点として、
   \end{tabular}
 \end{table}
 
+\begin{table}[htbp]
+  \centering
+  \caption{操作ボタン表示方法とユーザが可能な操作の対応}
+  \label{tab:Look_patterns_operations}
+  \begin{tabular}{|c|p{11cm}|}
+    \hline
+    表示方法 & ユーザが可能な操作 \\
+    \hline
+    表示方法A &
+    \makecell[l]{
+    画面一覧に対する画面の追加、編集、および、削除、\\
+    各画面への遷移、\\
+    画面遷移システム全体の画面状態を定義するための操作 }
+    \\
+    \hline
+    表示方法B &
+    \makecell[l]{
+    画面に対するボタンの追加、編集、および、削除、\\
+    画面に対するタイムアウトの追加、編集、および、削除、\\
+    各ボタンに対するイベントの追加、編集、および、削除、\\
+    画面遷移システムの各画面における操作と遷移の詳細定義 }
+    \\
+    \hline
+    表示方法C &
+    クラスの種類選択・追加\\
+    \hline
+  \end{tabular}
+\end{table}
+
 \section{Condition Transition Map（CTM）描画機能}\label{sec:CTM-drawing-function}
-CTM描画機能は、コード\ref{lst:markdown_example}に示すように\tool の記述ルール（\ref{sec:Specrule}小節）に沿ったMarkdown形式の仕様記述ファイルを入力として受け取り、
-対応するCTMを自動で描画する機能である。本機能により、ユーザはテキストベースの仕様記述から視覚的な画面遷移構造を容易に把握できるようになる。\\
-本機能では、入力したMarkdown形式仕様記述ファイルを解析し、画面、ボタン、イベント、条件分岐、タイムアウトなどCTMの各要素を抽出してGUI上に描画する。
-描画の際には、定義されている要素間の関係性を考慮し、適切な位置に配置する （\ref{sec:GUIElementGenerationComponent}節で詳細に説明）ことで、
-画面遷移の流れを直感的に理解できるようにする。\\
-描画したCTMは、ユーザ操作によって選択やドラッグが可能であり、
-要素の位置関係を調整しながら画面遷移の全体像を確認できる。
-また、遷移先が未定義のイベントなど、仕様上不整合が存在する場合には、
-視覚的に識別できるよう強調表示を行う。\\
 図\ref{fig:ctm_example}に、Markdown形式仕様記述（コード\ref{lst:markdown_example}）に対応するCTM描画例を示す。
 
+CTM描画機能は、コード\ref{lst:markdown_example}に示すように、\tool の記述ルール（\ref{sec:Specrule}小節）に沿ったMarkdown形式の仕様記述ファイルを入力として受け取り、
+対応するCTMを自動で描画する機能である。
+
+本機能では、Markdown形式仕様記述ファイルを解析し、表\ref{tab:ctm_elements}に示したCTMの各要素を抽出してGUI上に描画する。
+描画の際には、定義している要素間の関係性を考慮し、適切な位置に配置する （\ref{sec:GUIElementGenerationComponent}節で詳細に説明）ことで、
+ユーザが画面遷移の流れを直感的に理解できるようにする。
+
+描画したCTMは、ユーザ操作によって選択やドラッグが可能であり、
+要素の位置関係を調整できる。
+また、遷移先が未定義のイベントなど、仕様上不整合が存在する場合には、
+視覚的に識別できるよう赤く強調表示を行う。
+
+
 \begin{figure}[tp]
-\begin{lstlisting}[caption={Markdown形式仕様の記述例}, label={lst:markdown_example}, language=markdown]
+\begin{lstlisting}[caption={Markdown形式仕様の記述例}, label={lst:markdown_example}]
   ## 画面1
   - 80 秒でタイムアウト
 
@@ -197,6 +248,7 @@ CTM描画機能は、コード\ref{lst:markdown_example}に示すように\tool 
 \end{lstlisting}
 \end{figure}
 
+
 \begin{figure}[tp]
   \centering
   \includegraphics[width=0.9\linewidth]{./images/CTM_Example.png}
@@ -204,14 +256,15 @@ CTM描画機能は、コード\ref{lst:markdown_example}に示すように\tool 
   \label{fig:ctm_example}
 \end{figure}
 
-\section{VDM\texttt{++}仕様をGUI操作によって生成する機能}\label{sec:VDM++-generation-function}
+\section{VDM\texttt{++}仕様生成機能}\label{sec:VDM++-generation-function}
 VDM\texttt{++}仕様をGUI操作によって生成する機能は、
-ツール上部のボタン操作及びCTM上でのユーザ操作に基づいて画面、ボタン、イベント、タイムアウトなどの要素を追加・編集・削除し、
-その結果を\tool の記述ルールに沿ったMarkdown形式仕様記述ファイルおよび
+ツール上部のボタン操作及びCTM上でのユーザ操作に基づいて表\ref{tab:ctm_elements}に示したCTM要素を追加、編集、および、削除し、
+その結果を\tool の記述ルールに沿ったMarkdown形式仕様記述ファイル、および、
 VDM\texttt{++}形式仕様記述ファイルとして出力する機能である。
-本機能により、ユーザは視覚的に画面遷移構造を編集しながら、
-対応する形式仕様を自動生成できる。\\
-本機能では、ツール上部のボタン操作及びCTM上でのユーザ操作を監視し、
+本機能により、ユーザは、視覚的に画面遷移構造を編集しながら、
+対応するMarkdown、および、VDM\texttt{++}形式仕様を自動生成できる。
+
+本機能では、ツール上部のボタン操作、および、GUI上でのユーザ操作を監視し、
 要素の追加、編集、削除などの操作に応じて
 内部状態を更新する。
 各操作に対応する処理を以下に示す。
@@ -264,7 +317,7 @@ Markdownファイルに対応するタイムアウト定義を更新する。
 入力された動作内容に基づいて、
 CTM上の対象ボタン要素から新たなイベント要素を生成し、
 Markdownファイルに対応するイベント一覧を更新する。
-\subsection{削除}
+\subsection{ノードの削除}
 削除は、CTM上の特定の要素（画面、ボタン、イベント）を削除する操作である。
 本操作により、不要となった要素を仕様記述から除去できるようにする。
 本操作では、ユーザが削除ボタンをクリックした際に、
@@ -273,7 +326,6 @@ CTM上で削除対象の要素を選択する。
 CTM上から該当要素を削除し、
 Markdownファイルに対応する定義を更新する。
 \subsection{クリック操作}
-
 \subsection{ノードの編集}
 \subsection{ドラッグ操作}
 \subsection{画面追加時画面一覧への自動追加}

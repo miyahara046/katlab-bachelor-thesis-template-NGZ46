@@ -63,6 +63,7 @@
 \usepackage[nameinlink]{cleveref} % 図表の自動参照（\cref）
 %\RequirePackage[l2tabu, orthodox]{nag} % これを入れると、古いコマンドを警告してくれる！なお完全には消せなかった模様
 \usepackage{array}
+\usepackage{makecell}
 
 
 \lstset{
@@ -79,12 +80,7 @@
   stepnumber=1%1行おきに行番号を
 }
 
-\lstdefinelanguage{markdown}{
-  morekeywords={},
-  sensitive=false,
-  morecomment=[l]{\#},
-  morestring=[b]"
-}
+
 
 %
 % 図表の自動参照設定
