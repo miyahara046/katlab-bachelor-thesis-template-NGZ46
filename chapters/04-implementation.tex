@@ -1,7 +1,7 @@
-\chapter{拡張部分の実装}\label{cha:Implementation}
+\chapter{拡張した2VSGの実装}\label{cha:Implementation}
 
 本章では、拡張部分の実装について説明する。
-拡張部分も既存の\tool 同様にMVVMアーキテクチャ（\ref{sec:MVVM}節を参照）を採用している。拡張部分のシステム構成を、図\ref{fig:system-architecture}に示す。
+今回拡張で追加した部分も既存の\tool 同様にMVVMアーキテクチャ（\ref{sec:MVVM}節を参照）を採用している。拡張部分のシステム構成を、図\ref{fig:system-architecture}に示す。
 拡張後の\tool は、以下の6つの主要な処理部で構成する。
 \begin{itemize}
   \item プロジェクト管理部
@@ -13,80 +13,80 @@
 \end{itemize}
 
 MVVM に基づき、各処理部は責務を明確にし、連携して動作する。
-View層 はGUI の表示およびユーザ入力の受付を担い、画面上の図を描画部により可視化する。
-ViewModel 層は、View と Model 間のデータバインディングを担当し、
-ユーザ入力をそれぞれの操作についてユーザ操作監視部で判断し、
+View 層は、GUI の表示およびユーザ入力の受付を担い、画面上の図を描画部により可視化する。
+ViewModel 層は、View 層と Model 層間のデータバインディングを担当し、
+ユーザ入力を、それぞれの操作についてユーザ操作監視部で判断し、
 Model 層の各処理部へ処理を指示する。
-Model 層はプロジェクト管理部、解析部、GUI要素生成部、変換部から構成し、
-仕様データの永続化、解析、GUI要素データの生成、および形式変換を担う。
+Model 層は、プロジェクト管理部、解析部、GUI要素生成部、変換部から構成し、
+仕様データの永続化、解析、GUI要素データの生成、およびマークダウン形式からVDM++形式への変換を担う。
 この構成により、Model 層は View 層を直接参照せず、
 ViewModel 層を介して状態のみを受け渡す。
+本ツールでは、CTM（\ref{sec:CTM}節を参照）上に表示する表示する各CTM要素が保持するデータGUIElement（\ref{sec:ParsingComponent}節を参照）の中で座標データ、および、ノードサイズデータを保持するGUIElementをGUI要素と呼ぶ。
 
 以降、各処理部の実装について、それぞれ説明する。
 
 \begin{figure}[tp]
   \centering
   \includegraphics[width=0.8\linewidth]{./images/system-architecture.png}
-  \caption{拡張部分のシステム構成図}
+  \caption{拡張した\tool のシステム構成図}
   \label{fig:system-architecture}
 \end{figure}
 
 
 \section{プロジェクト管理部}\label{sec:ProjectManagementComponent}
 
-プロジェクト管理部は、ユーザが操作するプロジェクト（フォルダ配下のMarkdown仕様群）の状態を管理し、
-解析部（\ref{sec:ParsingComponent}節を参照）および変換部（\ref{sec:ConversionComponent}節を参照）へ渡す入力データ（Markdown文字列）を準備するとともに、
+プロジェクト管理部は、ユーザが操作するプロジェクト（フォルダ配下のMarkdownファイル）の状態を管理し、
+解析部（\ref{sec:ParsingComponent}節を参照）、および、変換部（\ref{sec:ConversionComponent}節を参照）へ渡す入力データ（Markdown文字列）、
+およびGUI要素生成部（\ref{sec:GUIElementGenerationComponent}節を参照）へ渡すGUI要素の配置情報（JSONファイル）を準備するとともに、
 編集結果をファイルへ出力する処理部である。
-本処理部でのファイルシステム入出力には .NET 標準ライブラリの System.IO （\ref{sec:NET_MAUI}節を参照）を用いる。
-本処理部での入力は、ユーザ操作監視部（\ref{sec:UserOperationMonitoring}節を参照）によるユーザ操作イベント、プロジェクトフォルダであり、出力として、各処理部へ渡すMarkdown文字列および変換済みVDM++文字列を含む。
+本処理部でのファイルシステム入出力には 、.NET 標準ライブラリの System.IO （\ref{sec:NET_MAUI}節を参照）を用いる。
+本処理部の入力は、ユーザ操作監視部（\ref{sec:UserOperationMonitoring}節を参照）によるユーザ操作イベント、および、プロジェクトフォルダでる。出力は、解析部、および、変換部へ渡すMarkdown文字列および変換済みVDM++文字列である。
 
-本処理部が扱う主な内部データを以下に示す。
-
+本処理部は、以下の4つの主要な処理から構成する。
 \begin{itemize}
-  \item 選択中フォルダパス：\verb|SelectedFolderPath|
-  \item フォルダツリー表示用データ：\verb|ObservableCollection<FolderItem> FolderItems|
-  \item 選択中アイテム：\verb|SelectedItem|（ファイルまたはフォルダ）
-  \item 読み込み済みMarkdown文字列：\verb|MarkdownContent|
-  \item 変換済みVDM++文字列：\verb|VdmContent|
+  \item フォルダ選択処理
+  \item フォルダおよびファイル探索処理
+  \item ファイル読込処理
+  \item ファイル更新処理
 \end{itemize}
 
 以降、各処理について説明する。
 
 \subsection{フォルダ選択処理}\label{sec:PM_SelectFolder}
-フォルダ選択処理は、ユーザが編集対象プロジェクトフォルダを選択し、
-以後の探索、および、読込の基準パスを確定する処理である。
-本処理ではFolderPicker を用い、
-選択結果を \verb|SelectedFolderPath| に保持した上でフォルダおよびファイル探索処理（\ref{sec:PM_FolderFileSearch}節を参照）を呼び出す。
-本処理はユーザがフォルダ選択操作を行った際にユーザ操作監視部（\ref{sec:UserOperationMonitoring}節を参照）から要求を受け取る。
+フォルダ選択処理は、ユーザが編集対象のプロジェクトフォルダを選択した際、
+選択したプロジェクトフォルダの探索、および、読込の基準パスを確定する処理である。
+本処理ではFolderPicker（\ref{sec:CommunityToolkit.Maui}節を参照） を用い、
+取得したフォルダパスを \verb|SelectedFolderPath| に保持した上でフォルダおよびファイル探索処理（\ref{sec:PM_FolderFileSearch}節を参照）を呼び出す。
+プロジェクト管理部はユーザがフォルダ選択操作を行った際にユーザ操作監視部（\ref{sec:UserOperationMonitoring}節を参照）が通知する要求に応じて本処理を実行する。
 
-
-本処理の流れを以下に示す。
+本処理の流れを、以下に示す。
 \begin{enumerate}
-  \item ユーザがフォルダを選択する。
+  \item ユーザ操作監視部からのフォルダ選択要求を受け取る。
   \item 選択フォルダのパスを \verb|SelectedFolderPath| として保持する。
-  \item フォルダおよびファイル探索処理を呼び出し、フォルダツリー用データを構築する。
-  \item フォルダ内にファイル、および、フォルダが存在しない場合、\verb|SelectedItem| を選択フォルダに対応付ける。
+  \item フォルダおよびファイル探索処理を呼び出し、フォルダのツリー表示用データ構造であるFolderItems クラス（\ref{sec:PM_FolderFileSearch}節を参照）を構築する。
+  \item フォルダ内にファイル、および、フォルダが存在しない場合、現在選択しているフォルダを編集中のアイテムとして対応付ける。
 \end{enumerate}
 
 \subsection{フォルダおよびファイル探索処理}\label{sec:PM_FolderFileSearch}
-フォルダおよびファイル探索処理は、フォルダ選択処理（\ref{sec:PM_SelectFolder}節を参照）から選択するフォルダパス\verb|SelectedFolderPath|を受け取り、
-\verb|SelectedFolderPath| 配下を走査し、Markdownファイルおよびフォルダ構造を取得し、
-ツリー表示用の内部データである\verb|ObservableCollection<FolderItem> FolderItems| を構築する処理である。
+フォルダおよびファイル探索処理、ツリー表示用の内部データである\verb|ObservableCollection<FolderItem> FolderItems|を構築しする処理である。
+本処理は、フォルダ選択処理（\ref{sec:PM_SelectFolder}節を参照）から\verb|SelectedFolderPath|を入力として受け取る。そして、
+\verb|SelectedFolderPath| 配下のフォルダ、および、ファイル群を走査し、Markdownファイルおよびフォルダ構造を取得しする。
+その後、取得した情報を基に、ツリー表示用の内部データである\verb|ObservableCollection<FolderItem> FolderItems|を構築し、出力する。
 本処理では、JSONファイル、および、VDM++ファイルは探索対象外とし、Markdownファイル（拡張子 .md）、および、フォルダのみを対象として\verb|FolderItems|に格納する 。
 
-本処理の流れを以下に示す。
+本処理の流れを、以下に示す。
 
 \begin{enumerate}
-\item \verb|SelectedFolderPath| を起点として、
-ディレクトリ配下のフォルダおよびファイルを再帰的に走査する。
+\item \verb|SelectedFolderPath| が示すフォルダをルートフォルダとして、
+ルートフォルダ配下のフォルダおよびファイルを再帰的に走査する。
 走査時には、Markdown ファイル（拡張子 .md）と
 それ以外のファイルを区別し、
 フォルダと Markdown ファイルのみを抽出する。
 
 \item 取得したフォルダ情報およびファイル情報を、
 階層構造を保持可能な内部データ構造として整理する。
-ここでは，各フォルダおよびファイルを
-FolderItem クラスとして表現し，
+ここでは、各フォルダおよびファイルを
+FolderItems クラスとして表現し、
 以下の属性を保持する。
 
 \begin{itemize}
@@ -94,7 +94,7 @@ FolderItem クラスとして表現し，
 \item FullPath：ファイルまたはフォルダの絶対パス
 \item Level：ルートフォルダからの階層レベル
 \item IsExpanded：ツリー表示において展開状態かどうか
-\item IsVisible：ツリー表示において現在GUI上に可視状態かどうか
+\item IsVisible：ツリー表示において現在可視状態かどうか
 \item Children：子フォルダおよびファイルの要素リスト
 \end{itemize}
 
@@ -102,9 +102,8 @@ FolderItem クラスとして表現し，
 フォルダの展開、および、折り畳み操作に応じて、
 子要素の表示状態を動的に制御できる。
 
-\item 構築した FolderItemクラス の階層構造を
-GUI 表示用データ\verb|ObservableCollection<FolderItem> FolderItems| として保持し、
-ユーザ操作監視部からの展開、および、選択操作に即時反映できる状態として内部に保持する。
+\item 構築した FolderItemsクラス の階層構造を保持し、
+ユーザ操作監視部からの展開、および、選択操作に即時反映できる状態にする。
 \end{enumerate}
 
 \subsection{ファイル読込処理}
@@ -112,71 +111,71 @@ GUI 表示用データ\verb|ObservableCollection<FolderItem> FolderItems| とし
 ユーザがツリー上で選択したMarkdownファイルを対象として、
 その内容を読み込み、
 解析部（\ref{sec:ParsingComponent}節を参照）および変換部（\ref{sec:ConversionComponent}節を参照）
-に必要な内部状態を初期化する処理である。
+に必要なMarkdown文字列を初期化する処理である。
 本処理では、
 .NET 標準ライブラリの System.IO.File クラス（\ref{sec:NET_MAUI}節を参照）を用いて
 ファイル内容を文字列として読み込む。
-本処理では、入力として選択したMarkdownファイルパスを受け取り、
+本処理では、入力として選択したMarkdownファイルパス\verb|SelectedFilePath|を受け取り、\verb|SelectedFilePath|のMarkdownファイル内容を文字列として出力する。
 
-本処理の流れを以下に示す。
+本処理の流れを、以下に示す。
 
 \begin{enumerate}
 \item ユーザがツリー上のMarkdownファイルを選択すると、
-プロジェクト管理部は対象ファイルのパスを取得し、
+ユーザ操作監視部から\verb|SelectedFilePath|とファイル読み込み要求を取得し、
 ファイル内容をstring型のMarkdown文字列として読み込む。
 
 \item 読み込んだMarkdown文字列を内部データとして保持する。
 以降の処理、および、処理部では、Markdownファイルを直接解析、および、編集せず、
 内部データとして保持したMarkdown文字列を解析、および、編集する。
-この時点では、
-構文解析やGUI要素生成は行わない。
 
 \item 対象Markdownファイルと同名の
 JSONファイル（拡張子 .positions.json）が存在するかを確認する。
-JSONファイルが存在する場合には、
-座標情報を読み込み、
+同名のJSONファイルが存在する場合には、
+GUI要素の座標情報を読み込み、
 GUI要素生成処理（\ref{sec:GUIElementGenerationComponent}節を参照）において配置情報を復元できるようにする。
 \end{enumerate}
 
 \subsection{ファイル更新処理}\label{sec:FileUpdateProcess}
-ファイル更新処理は、ユーザによるGUI編集結果をプロジェクトファイルへ反映し、
+ファイル更新処理は、VDM\texttt{++}仕様生成機能（\ref{sec:VDM++-generation-function}節を参照）の結果をプロジェクトファイルへ反映し、
 Markdown仕様、VDM++仕様、およびGUI要素の配置情報を
-一貫した状態で永続化する処理である。
+一貫した状態で保存する処理である。
 
 本処理は、ユーザ操作監視部（\ref{sec:UserOperationMonitoring}節）からの
-保存操作、またはノード移動操作確定をトリガーとして実行する。
+ファイル更新要求、またはノード移動操作確定をトリガーとして実行する。
 
 本処理は、現在のGUI要素リスト（\ref{sec:GUIElementGenerationComponent}節を参照）、
 選択中のファイルパス\verb|SelectedFilePath|を入力として受け取り、更新後のMarkdownファイル、VDM++ファイル、JSONファイルを保存する。
 
-本処理の流れを以下に示す。
+本処理の流れを、以下に示す。
 \begin{enumerate}
       \item ユーザ操作監視部により
-      ユーザの保存操作、および、ノードの移動操作確定を検出する。
+      ファイル更新要求、または、ノードの移動操作確定通知を受け取る。
 
       \item 現在のGUI要素リストに基づいて
-      変換部で生成したMarkdown文字列を取得する。
+      変換部のGUI操作からMarkdown仕様への変換処理（\ref{sec:GUItoMarkdownConversionProcess}節を参照）に変更を加える前のMarkdown文字列を渡し、変更を加えたMarkdown文字列を取得する。
 
-      \item MarkdownおよびVDM++仕様の更新を行う。
+      \item Markdown仕様およびVDM++仕様の更新を行う。
         \begin{enumerate}[label=\roman*.]
           \item 生成したMarkdown文字列を、
                 選択中ファイルパスに対応するMarkdownファイル（.md）へ書き出し、保存する。
-          \item 保存したMarkdown文字列を変換部（\ref{sec:ConversionComponent}節を参照）へ渡し、
+          \item 保存したMarkdown文字列を変換部のMarkdown仕様からVDM++仕様への変換処理（\ref{sec:ConversionComponent}節を参照）へ渡し、
                 VDM++文字列を生成する。
           \item 生成したVDM++文字列を、
                 選択中Markdownファイルと同名のVDM++ファイル（.vdmpp）へ書き出し、保存する。
-                ファイルが存在しない場合には新規作成する。
+                ファイルが存在しない場合には、新規作成する。
       \end{enumerate}
-      \item JSONのGUI要素配置情報を更新する
+      \item JSONファイルのGUI要素配置情報を更新する
       \begin{enumerate}[label=\roman*.]
-        \item 受け取ったノードの座標情報をもとに、
+        \item 受け取った現在のGUI要素リストより、ノードの座標情報を取得する
+        
+        \item 取得した座標情報をもとに、
               要素名、X座標、Y座標の組として整理し、
               JSON形式のデータ構造を生成する。
 
         \item 生成したJSONデータを、
               選択中Markdownファイルと同名の
               .positions.json ファイルへ書き出し、保存する。
-              ファイルが存在しない場合には新規作成する。
+              ファイルが存在しない場合には、新規作成する。
       \end{enumerate}
 \end{enumerate}
 JSONファイルの出力例を、コード\ref{lst:JSON_example}に示す。このJSONファイルには、GUI要素の名称と座標情報を含み、Markdown仕様記述ルール（\ref{sec:Specrule}節を参照）に含ない位置情報のみを保持する。
@@ -209,26 +208,35 @@ GUI表示、Markdown仕様、VDM++仕様、および配置情報が
 
 \section{解析部}\label{sec:ParsingComponent}
 
-解析部は、記述ルールに従ったMarkdown仕様記述を解析し、CTM（\ref{sec:CTM}節を参照）表示および操作の基礎となる構造データを生成する処理部である。
-本処理部では、Markdown の文法構造を直接解釈するのではなく、表\ref{tab:ctm_elements}に示したCTM要素を抽出することを目的とする。
+解析部は、記述ルールに従ったMarkdown仕様記述（コード\ref{lst:markdown_example}を参照）の文字列を解析し、CTM（\ref{sec:CTM}節を参照）表示および操作の基礎となる構造データを生成する処理部である。
+本処理部では、表\ref{tab:ctm_elements}に示したCTM要素を抽出することを目的とする。
 
-本処理部では、.NET 標準ライブラリの System.Text.RegularExpressions 名前空間（\ref{sec:NET_MAUI}節を参照）を用いて Markdown行を解析する。
+本処理部では、.NET 標準ライブラリの System.Text.RegularExpressions（\ref{sec:System.Text.RegularExpressions}節を参照）を用いて Markdown文字列の各行を解析する。
 
 本処理部の入力はMarkdown文字列であり、出力はGUIElementのリストである。
-\subsection{解析処理}
+ここで、GUIElement は、各CTM 要素を構成する構造データである。
+各要素の種別、名称、遷移先、条件分岐情報、および
+CTM上での配置位置を保持する。
 
-本処理は、Markdown仕様から、画面定義、タイムアウト定義、ボタン定義、イベント定義、および条件分岐定義を抽出し、
-これらを表\ref{tb:GUIElement}に示すGUIElementとして構造化し、GUIElementのリストである\verb|elements|を出力する処理である。
+以降、処理について説明する。
+具体例に用いるMarkdown仕様記述を、コード\ref{lst:markdown_example}に示す。
+具体例に対する処理後のGUIElement一覧を表\ref{tab:gui_element_example}に、Branchesを表\ref{tab:event_branch_example}に示す。
 
-本処理は、ユーザがプロジェクト内のMarkdown仕様ファイルを選択または更新した際に
-プロジェクト管理部から呼び出される。
-解析処理はファイル単位で実行され、
+\subsection{解析処理}\label{sec:ParsingProcess}
+
+本処理は、Markdown仕様から、画面、タイムアウト、ボタン、イベント、および条件分岐を抽出し、
+これらを表\ref{tb:GUIElement}、\ref{tb:EventBranch}に示すGUIElementとして構造化し、GUIElementのリストである\verb|elements|を出力する処理である。
+
+本処理は、ユーザがプロジェクト内のMarkdown仕様ファイルを選択または更新した際に、
+プロジェクト管理部が呼び出す。
+本処理はファイル単位で実行し、
 各ファイルの内容に基づいて \verb|elements| を生成する。
 
-本処理の中では、独自の正規表現パターンを用いてMarkdown行を解析し、各要素を抽出する。
-そのため、独自の正規表現パターンを、表\ref{tab:parsing_rules}に示す。
+本処理では、独自の正規表現パターンを用いてMarkdown文字列の各行を解析し、各CTM要素を抽出する。
+各CTM要素の抽出に使用する独自の正規表現パターンを、表\ref{tab:parsing_rules}に示す。
 
 本処理の流れを、図\ref{fig:parsing-flow}と以下に示す。
+以下では具体例を用いて説明する。
 
 \begin{table}[tp]
 \centering
@@ -239,40 +247,34 @@ GUI表示、Markdown仕様、VDM++仕様、および配置情報が
 \textbf{属性名} & \textbf{型} & \textbf{説明}\\ 
 
 \hline
-Type & GuiElementType & ノードの種類（Screen, Button, Event, Timeout） \\
+Type & GuiElementType & CTM要素の種類（Screen, Button, Event, Timeout） \\
 
 \hline
-Name & string & ノードの名称 \\
+Name & string & CTM要素の名称 \\
 
 \hline
-Target & string & 遷移先となるノード名 \\
+Target & string & 遷移先となるCTM要素名 \\
 
 \hline
-X & float & ノードの X 座標 \\
+X & float & CTM上での X 座標 \\
 
 \hline
-Y & float & ノードの Y 座標 \\
+Y & float & CTM上での Y 座標 \\
 
 \hline
-Width & float & ノードの横幅 \\
+Width & float & CTM要素の横幅 \\
+  
+\hline
+Height & float & CTM要素の高さ \\
 
 \hline
-Height & float & ノードの高さ \\
-
-\hline
-IsSelected & bool & ノードがユーザにより選択されているかどうか \\
-
+IsSelected & bool & CTM要素がユーザにより選択されているかどうか \\
 \hline
 IsFixed & bool & ドラッグによる移動が不可能かどうか \\
 
 \hline
 Branches & List\textless EventBranch \textgreater & 条件分岐を表す分岐リスト \\
 
-\hline
-EventBranch.Condition & string & 分岐条件 \\
-
-\hline
-EventBranch.Target & string & 分岐条件成立時のイベント \\
 
 \hline
 IsBranch & bool & Branchesを保持しているかどうか \\
@@ -283,7 +285,23 @@ IsBranch & bool & Branchesを保持しているかどうか \\
 
 \begin{table}[tp]
 \centering
-\caption{解析部で用いる判定規則}
+\caption{EventBranchデータ構造}
+\label{tb:EventBranch}
+\begin{tabular}{|l|l|p{10cm}|}
+\hline
+\textbf{属性名} & \textbf{型} & \textbf{説明}\\ 
+\hline
+EventBranch.Condition & string & 分岐条件 \\
+
+\hline
+EventBranch.Target & string & 分岐条件成立時のイベント \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{table}[tp]
+\centering
+\caption{解析部で用いる正規表現パターン}
 \label{tab:parsing_rules}
 \begin{tabular}{|l|p{6cm}|p{6cm}|}
 \hline
@@ -292,7 +310,7 @@ IsBranch & bool & Branchesを保持しているかどうか \\
 BulletPattern
 & 箇条書き行を定義する正規表現
 （箇条書き記号と本文Textを抽出）
-& ボタン名，画面名，イベント行など，
+& ボタン名、画面名、イベント行、タイムアウト行の
 箇条書き本文の抽出判定 \\
 \hline
 EventPattern
@@ -303,7 +321,7 @@ EventPattern
 OperationPattern
 & 「Operation(押下) → Target（イベント）」形式を分解する正規表現
 & イベント一覧における
-トリガ―，イベントの抽出 \\
+トリガ―、イベントの抽出 \\
 \hline
 \end{tabular}
 \end{table}
@@ -317,97 +335,156 @@ OperationPattern
 \end{figure}
 
 \begin{enumerate}
-    \item プロジェクト管理部から入力として受け取ったMarkdown文字列を改行で分割し、
+    \item 各行の分割。 
+
+    プロジェクト管理部から入力として受け取ったMarkdown文字列を改行で分割し、
     各行を1つの要素とした配列を生成する。
     実装では、改行で分割した各行から \verb|\r| を除去し、
     \verb|List<string> lines| として保持する。
     以降の処理は、この \verb|lines| を走査対象として用いる。
 
-    \item 先頭行（\verb|lines[0]|）を判定材料として、
-    Markdown仕様記述ルール（\ref{sec:Specrule}節を参照）に則ったクラスの種類を決定する。
-    具体的には、
-    \verb|lines[0].Trim() == "# 画面一覧"| を満たす場合、
-    画面一覧クラスとして扱い（3.）の抽出処理へ進む。
-    一方で \verb|lines[0].Trim().StartsWith("## ")| を満たす場合、
+
+    \item 先頭行判定。
+    
+    先頭行（\verb|lines[0]|）を判定材料として、
+    Markdown仕様記述ルール（\ref{sec:Specrule}節を参照）に則り、「画面一覧クラス」か「画面クラス」かを決定する。
+    具体的には
+    \verb|lines[0] == "# 画面一覧"| を満たす場合、
+    画面一覧クラスとして扱い3.の画面抽出へ進む。
+    一方で、 \verb|lines[0]| が（\verb|"## "|） で始まる場合、
     画面クラスとして扱い、
-    タイムアウト（4.）、ボタン（5.）、イベント（6.）の抽出処理へ進む。
+    タイムアウト4.、ボタン5.、イベント6.の抽出へ進む。
+    
+    具体例では、先頭行 \verb|lines[0]| が
+    \verb|## 画面1| であるため、例で示すMarkdown仕様は画面クラスとして扱う。
 
-    \item 画面一覧クラスを解析する場合、
-    2行目以降を走査し、箇条書き本文を画面名として抽出する。
+    \item 画面抽出。
+    
+    画面一覧クラスを解析する場合、
+    2行目（\verb|lines[1]|）以降を走査し、箇条書き本文を画面名として抽出する。
     ここでは、抽出した画面をそれぞれ \verb|GUIElement.Type| に \verb|Screen|、
-    \verb|GUIElement.Name| に画面名を設定し、\verb|elements| に追加する。
+    \verb|GUIElement.Name| に画面名を設定したGUIElementを生成し、\verb|elements| に追加する。
 
-    \item 画面クラスを解析する場合、
+    \item タイムアウト抽出。
+
+    画面クラスを解析する場合、
     Markdown仕様記述ルール（\ref{sec:Specrule}節を参照）に基づき、タイムアウト時間は2行目に記述するため、
     2行目（\verb|lines[1]|）をタイムアウト定義行として扱い、
     箇条書き本文からタイムアウト情報を抽出する。
     ここでは、箇条書き本文中の 「\verb|で|」 を探索し、
     「\verb|で|」の前の部分をタイムアウト名として抽出する。
       抽出したタイムアウト名をもとに、
-    \verb|GUIElement.type|に \verb|Timeout|、\verb|GUIElement.Name|にタイムアウト名を設定し、\verb|elements| に追加する。
+    \verb|GUIElement.Type|に \verb|Timeout|、\verb|GUIElement.Name|にタイムアウト名を設定したGUIElementを生成し、\verb|elements| に追加する。
+    
+    具体例では、2行目の「\verb|- 80 秒でタイムアウト|」をタイムアウト定義行として解析する。
+    箇条書き本文から「\verb|で|」より前の文字列を抽出し、
+    CTM要素の種類として\verb|GUIElement.Type = Timeout|、タイムアウト名として\verb|GUIElement.Name = 80 秒|を設定したGUIElementを生成し、 \verb|elements| に追加する。
 
-    \item ボタン一覧セクションを抽出する。
+    \item ボタン抽出。
+
+    ボタン一覧セクションを抽出する。
     \begin{enumerate}[label=\roman*.]
       \item 見出し行を探索する。
-      （4.）の次行以降を走査し、行頭が（\verb|#|）から始まるかどうかを確認する。
+
+      4.の次行以降を走査し、行頭が（\verb|#|）から始まるかどうかを確認する。
       （\verb|#|）を見つけた場合、該当行の（\verb|#|）を取り除いた文字列を見出し名として抽出する。
       抽出した見出し名が「有効ボタン一覧」と一致した場合、該当行をボタン一覧セクションの開始行として扱う。
+      
+      具体例では、タイムアウトの次行である3行目\verb|lines[2]|から走査を開始し、4行目\verb|lines[3]|の見出し行\verb|### 有効ボタン一覧|を発見する。
 
       \item ボタン一覧セクションの範囲を決定する。
+
       見出し行の次行以降を走査し、ボタン一覧セクションの終了行を探索する。
-      終了業の判定は、以下のいずれかを満たす行に到達した場合とする。
+      終了行の判定は、以下のいずれかを満たす行に到達した場合とする。
       \begin{itemize}
         \item 見出し行（\verb|###| または \verb|##| で始まる行）に到達する。
         \item ファイル末尾に到達する。
       \end{itemize}
 
+      具体例では、ボタン一覧セクションの終了行は13行目\verb|lines[12]|の見出し行\verb|### イベント一覧|であるため、12行目\verb|lines[11]|までを対象とする。
+
       \item ボタン要素を抽出する。
-      ボタン一覧セクション内各行について、\verb|BulletPattern| により箇条書きかどうかを判定し、
+
+      ボタン一覧セクション内の各行について、\verb|BulletPattern| により箇条書きかどうかを判定し、
       箇条書き本文をボタン名として抽出する。
-      抽出したボタン名をstring型変数\verb|buttonName|に追加する。
       箇条書きでない行は有効ボタン定義として扱わず、スキップする。
+      
+      具体例では、5行目\verb|lines[4]|から12行目\verb|lines[11]|までの各行を走査し、
+      箇条書き本文をそれぞれボタン名として抽出する。5行目の「\verb|ボタン1|」から、
+      11行目の「\verb|確定|」までをそれぞれ抽出し、12行目は空行であるためスキップする。
 
       \item ボタン要素をGUIElementとして生成する。
-      抽出したボタン\verb|buttonName|について、\verb|HashSet<string>|（\ref{sec:NET}節を参照）を用いて重複判定を行う。
+
+      抽出したボタン名について、\verb|HashSet<string>|（\ref{sec:NET}節を参照）を用いて重複判定を行う。
       重複していない場合、\verb|GUIElement.Type|に \verb|Button|、
-      \verb|GUIElement.Name|にボタン名を設定し、\verb|elements| に追加する。
+      \verb|GUIElement.Name|にボタン名を設定したGUIElementを生成し、\verb|elements| に追加する。
       重複していた場合、該当行のボタン要素の生成をスキップする。
+      
+      具体例では、抽出した各ボタン名について重複判定を行い、
+      全て重複していないため、各ボタン名をもとに
+      \verb|GUIElement.Type = Button|、\verb|GUIElement.Name = ボタン1 ～ 確定|を設定したGUIElementを生成し、\verb|elements| に追加する
       \end{enumerate}
 
     \item イベント一覧セクションを抽出する。
       \begin{enumerate}[label=\roman*.]
       \item 見出し行を探索する。
-      （5.）同様に見出し行を探索し、
+
+      5.同様に見出し行を探索し、
       抽出した見出し名が「イベント一覧」と一致した場合、
       当該行をイベント一覧セクションの開始行として扱う。
 
+      具体例では、ボタンセクションの次行である13行目\verb|lines[12]|から走査を開始し、
+      13行目\verb|lines[12]|の見出し行\verb|### イベント一覧|を発見する。
+
       \item イベント一覧セクションの範囲を決定する。
+
       見出し行の次行以降を走査し、
       イベント一覧セクションの終了行を探索する。
       終了行の判定は、以下のいずれかを満たす行に到達した場合とする。
+
       \begin{itemize}
       \item 見出し行（\verb|###| または \verb|##| で始まる行）に到達する。
       \item ファイル末尾に到達する。
       \end{itemize}
 
+      具体例では、イベント一覧セクションの終了行はファイル末尾であるため、最後の行である23行目\verb|lines[22]|までを対象とする。
+
       \item イベント候補行を抽出する。
+
       イベント一覧セクション内の各行について、
       \verb|BulletPattern| により箇条書き行かどうかを判定する。
-      箇条書き本文をイベント候補文字列として抽出し、string型変数\verb|eventCandidate|に追加する。
+      箇条書き本文をイベント候補文字列として抽出する。
       箇条書きでない行はイベント定義ではないためスキップする。
 
+      具体例では、14行目\verb|lines[13]|から24行目\verb|lines[23]|までの各行を走査し、
+      箇条書き本文をそれぞれイベント候補文字列として抽出する。
+      14行目の「\verb|タイムアウト → 画面A へ|」から、
+      23行目の「\verb|  - 表示部に1 が入力されていない → 画面F へ|」までをそれぞれ抽出する。
+
+
       \item イベント行の書式を判定する。
-      抽出したイベント候補文字列\verb|eventCandidate|に対し、
+
+      抽出したイベント候補文字列に対し、
       まず、\verb|OperationPattern| を適用し、
       「\verb|Operation（押下）→ Target（イベント）|」形式に該当するかを判定する。
       該当する場合は、
       （\verb|押下 →|）の直前までの文字列を対象ボタン名\verb|buttonkey|、
       （\verb|→|）以降の文字列をイベント内容\verb|eventContent|としてそれぞれ抽出する。
-      上記形式に該当しない場合は、
+      上記形式に該当しない場合は、￥verb|EventPattern| を適用し、
       「左辺 \verb|→| 右辺」の形式として扱い、
       （\verb|→|）を境に左側文字列\verb|leftText|と右側文字列\verb|rightText|を抽出する。
 
+      具体例では、14行目の「\verb|タイムアウト → 画面A へ|」が
+      「\verb|EventPattern|」に該当するため、
+      左側文字列\verb|leftText|を「\verb|タイムアウト|」、
+      右側文字列\verb|rightText|を「\verb|画面A へ|」として扱う。
+      15行目の「\verb|ボタン1 押下 → 表示部に1 を追加|」が
+      「\verb|Operation（押下）→ Target（イベント）|」形式に該当するため、
+      抽出した対象ボタン名\verb|buttonkey|を「\verb|ボタン1|」、
+      イベント内容\verb|eventContent|を「\verb|表示部に1 を追加|」として扱う。
+
       \item イベント行とボタン要素の対応付けを行う。
+
       「\verb|押下 →|」形式のイベントについて、
       抽出した対象ボタン名\verb|buttonkey|をキーとして、
       \verb|elements|から既に生成済みのボタン要素を探索する。
@@ -417,33 +494,62 @@ OperationPattern
       対応するボタン要素を特定する。
       対応するボタン要素が存在する場合、
       当該イベントをそのボタンに対応するイベントとして扱う。
+      
+      具体例では、15行目の「\verb|ボタン1 押下 → 表示部に1 を追加|」に対し、
+      抽出した対象ボタン名\verb|buttonkey|である「\verb|ボタン1|」をキーとして
+      \verb|elements|から対応するボタン要素を探索し、特定する。
+      対応するボタン要素\verb|ボタン1|はelementsに存在しするため、
+      対応するボタン要素のTarget属性\verb|GUIElement.Target|にイベント内容\verb|eventContent|である\verb|表示部に1 を追加|を設定する。
+      21行目の「\verb|確定 押下 → |」に対しては、
+      抽出した対象ボタン名\verb|buttonkey|である「\verb|確定|」をキーとして
+      \verb|elements|から対応するボタン要素を探索し、特定する。
+      対応するボタン要素\verb|確定|はelementsに存在するが、
+      イベント内容\verb|eventContent|が空であるため、
+      当該イベントは条件分岐イベントとして扱い、スキップする。
 
-      \item 条件分岐イベントを検出する。\\
-      条件分岐イベントの詳細な処理規則および生成されるデータ構造については、
+
+      \item 条件分岐イベントを抽出する。\\
+      iv.で抽出した\verb|OperationPattern|に該当するイベントのうち、\verb|eventContent|が空であるものを条件分岐イベントとして扱う。
+      抽出した条件分岐イベントについては、\verb|OperationPattern|に該当した行を条件分岐イベントの親イベント行として扱い、
+      \verb|GUIElement.Type = Event|、\verb|GUIElement.Name = buttonkey|、
+      \verb|GUIElement.IsBranch = true|を設定する。
+      その後、親イベント行の直後の行から順に走査し、条件分岐行を収取し、\verb|elements|へ条件分岐イベントとして追加する。
+      収集した条件分岐行に対する詳細な処理規則および生成するデータ構造については、
       \ref{sec:ParsingBranch}節で詳しく説明する。
 
       \item 単一イベント要素を生成する。\\
       条件分岐イベントに該当しない場合、
       解析部は単一イベントとして要素生成を行う。
-      「\verb|押下 →|」形式のイベントでは，
-      （\verb|→|）以降の文字列\verb|eventContent|をイベント内容として採用し、
-      \verb|GuiElementType.Event| の要素を生成する。
+      「\verb|押下 →|」形式のイベントでは、
+      \verb|GuiElementType.Event| のイベント要素を生成する。
       このとき、
-      表示および識別に用いるため，
-      イベント内容を \verb|GUIElement.Name| および
+      表示および識別に用いるため、
+      \verb|eventContent|を \verb|GUIElement.Name| および
       \verb|GUIElement.Target| に設定し、
       \verb|elements| に追加する。
       一方で、
-      「左辺 \verb|→| 右辺」形式のイベントでは，
+      「左辺 \verb|→| 右辺」形式のイベントでは、
       左辺\verb|leftText|をイベント種別名、
       右辺\verb|rightText|を遷移先識別子として扱い、
       同様にイベント要素を生成する。
-      また、左辺文字列（\verb|leftText|）が「タイムアウト」を表す場合、
-      解析部は、既に生成済みのタイムアウト要素を
+      また、左辺文字列（\verb|leftText|）が「\verb|leftText == タイムアウト|」である場合、
+      解析部は、既に生成済みのタイムアウト要素（\verb|GUIElement.Type == Timeout|）を
       \verb|elements| から探索する。
       該当するタイムアウト要素が存在する場合、
-      \verb|GUIElement.type|に \verb|Event| 、\verb|GUIElement.Name|に\verb|rightText|、
-      \verb|GUIElement.Target| に該当するタイムアウト要素\verb|GUIElement.type == Timeout|の\verb|GUIElement.Name|を設定する。
+      \verb|GUIElement.Type|に \verb|Event| 、\verb|GUIElement.Name|に\verb|rightText|、
+      \verb|GUIElement.Target| に該当するタイムアウト要素の\verb|GUIElement.Name|を設定する。
+
+      具体例では、14行目の「\verb|タイムアウト → 画面A へ|」に対し、
+      抽出した左辺文字列\verb|leftText|が「\verb|タイムアウト|」であるため、
+      既に生成済みのタイムアウト要素\verb|80 秒|を
+      \verb|elements| から探索し、特定する。
+      該当するタイムアウト要素\verb|80 秒|はelementsに存在するため、
+      \verb|GUIElement.Type = Event|、\verb|GUIElement.Name = 画面A へ|、
+      \verb|GUIElement.Target = 80 秒|を設定したGUIElementを生成し、 \verb|elements| に追加する。
+      15行目の「\verb|ボタン1 押下 → 表示部に1 を追加|」に対し、
+      \verb|GUIElement.Type = Event|、\verb|GUIElement.Name = 表示部に1 を追加|、
+      \verb|GUIElement.Target = 表示部に1 を追加|を設定したGUIElementを生成し、 \verb|elements| に追加する。
+
 
       \end{enumerate}
 
@@ -455,33 +561,27 @@ OperationPattern
 
 \subsection{条件分岐の解析処理}\label{sec:ParsingBranch}
 
-本処理では、イベント一覧セクション内に記述する条件分岐を対象として、
+本処理では、イベント一覧セクション内に記述する条件分岐イベントを対象として、
 分岐条件と分岐先をどのように抽出し、
 GUIElementのBranchesへ格納するかを説明する。
-条件分岐は、単一のイベントに対して複数のイベントを定義する記述であり、
+条件分岐イベントは、単一のイベントに対して複数のイベントを定義する記述であり、
 通常の単一イベントとは異なる解析規則を適用する必要があるため、
 独立した処理として扱う。
 
-本処理では条件分岐を以下の形式で判定する。
+本処理では、条件分岐イベントを以下の形式で判定する。
 
 \begin{itemize}
   \item 親イベント行：\verb|- {ボタン名}押下 →|
   \item 分岐行：\verb|  - {条件} → {遷移先}|
 \end{itemize}
 
-解析部は、イベント一覧セクションの各箇条書き行を走査し、
-イベント行かどうかの判定に正規表現を用いる。
-具体的には、親イベント行を \verb|OperationPattern|
+解析部は、親イベント行を \verb|OperationPattern|
 （\verb|Operation（押下） → Target（イベント）|）で判定し、
 条件分岐行を \verb|EventPattern|（\verb|Name → Target|）で判定する。
 
 \subsubsection{親イベント行の判定と抽出}
 
-本処理は、イベント一覧セクション内の箇条書き本文を
-\verb|OperationPattern| に適用し、\verb|Target| が空である場合、
-当該行を「条件分岐を伴う親イベント行」として扱う。
-
-本処理は、\verb|Operation| により既に生成済みの対応するボタン要素を特定し、
+本処理は、 既に生成済みの対応するボタン要素を特定し、
 親イベント要素を生成するための基準情報として保持する。
 このとき、本処理はボタン名の表記ゆれに対応するため、
 抽出したボタン名に対して前後空白の除去を行い、
@@ -507,8 +607,7 @@ GUIElementのBranchesへ格納するかを説明する。
 
 この終了条件により、
 ユーザが外部エディタでインデントを崩した場合や、
-イベント一覧の記述形式が部分的に乱れた場合でも、
-解析部は分岐収集の暴走を防止できる。
+イベント一覧の記述形式が部分的に乱れた場合でも対応できる範囲が広がる。
 
 \subsubsection{分岐行の解析とBranchesへの格納}
 
@@ -529,91 +628,12 @@ GUI上の分岐表示と仕様記述の順序を一致させる。
 親イベント要素に \verb|Branches| を設定した状態で
 \verb|elements|へ追加する。
 GUI要素生成部は、この \verb|Branches| を参照し、
-条件ノードおよび分岐先ノードを生成するための入力として利用する。
-
-\subsection{解析処理の具体例}
-
-本節では、前節までに述べた処理が、
-実際のMarkdown仕様記述に対してどのように適用するかを、
-具体例を用いて説明する。
-具体例に用いるMarkdown仕様記述を、コード\ref{lst:markdown_example}に示す。
-
-\begin{enumerate}
-
-\item 入力として受け取った文字列を改行で分割し、
-各行を1要素とする文字列配列 \verb|lines| を生成する。
-本例では、先頭行 \verb|lines[0]| が
-\verb|## 画面1| であるため、例で示すMarkdown仕様は画面クラスとして扱う。
-
-\item 2行目の「\verb|- 80 秒でタイムアウト|」を
-タイムアウト定義行として解析する。
-箇条書き本文から「\verb|で|」より前の文字列を抽出し、
-タイムアウト名として
-\verb|GUIElement.Type = Timeout|、
-\verb|GUIElement.Name = 80 秒|
-を設定した要素を \verb|elements| に追加する。
-
-\item「\verb|### 有効ボタン一覧|」セクションを検出し、
-当該セクション内の箇条書き行を走査する。
-本例では、「ボタン1」から「確定」までの7つの箇条書き行を検出する。
-それぞれについて
-\verb|GUIElement.Type = Button|、
-\verb|GUIElement.Name| にボタン名を設定した
-GUIElement を生成し、\verb|elements| に追加する。
-
-\item「\verb|### イベント一覧|」セクションを解析する。
-最初の行
-「\verb|- タイムアウト → 画面A へ|」は，
-\verb|EventPattern| によって解析し、
-既に生成済みのタイムアウト要素と対応付けた
-イベント要素として扱う。
-このとき、
-\verb|GUIElement.Type = Event|、
-\verb|GUIElement.Name = 画面A|、
-\verb|GUIElement.Target = 80 秒|
-を設定したGUIElementを生成し、\verb|elements| に追加する。
-
-\item 
-「\verb|- ボタン1 押下 → 表示部に1 を追加|」
-から
-「\verb|- ボタン6 押下 → 表示部に6 を追加|」
-までの行は、
-\verb|OperationPattern| により
-「押下イベント」として解析する。
-それぞれの行について、
-抽出したボタン名を基に
-対応するボタン要素を探索し、
-単一イベントとして
-\verb|GUIElement.Type = Event|、
-\verb|GUIElement.Name = 表示部に{n} を追加|、
-\verb|GUIElement.Target = 表示部に{n} を追加|
-を設定したGUIElementを生成し、\verb|elements| に追加する。
-
-\item 
-「\verb|- 確定押下 →|」の行は、
-\verb|OperationPattern| に一致し、
-かつ \verb|Target| が空であるため、
-条件分岐を伴う親イベント行として判定する。
-判定後、この行に続くインデントされた箇条書き行を走査し、
-\begin{itemize}
-  \item 「表示部に1 が入力されている → 画面K へ」
-  \item 「表示部に1 が入力されていない → 画面F へ」
-\end{itemize}
-の2つの分岐行を検出する。
-これらの分岐行は、
-それぞれ
-\verb|EventBranch.Condition| に条件文、
-\verb|EventBranch.Target| に遷移先画面名を設定した
-\verb|EventBranch| として生成し、
-親イベント要素の \verb|Branches| に追加する。
-\end{enumerate}
-
-以上の処理によるGUIElement一覧を表\ref{tab:gui_element_example}に、Branchesを表\ref{tab:event_branch_example}に示す。
+CTM上の条件ノードおよび分岐先ノードを生成するための入力として利用する。
 
 
 \begin{table}[tp]
 \centering
-\caption{例のMarkdown仕様記述例から生成するGUIElement一覧}
+\caption{コード3.1のMarkdown仕様記述例から生成するGUIElement一覧}
 \label{tab:gui_element_example}
 \begin{tabular}{|l|l|l|l|}
 \hline
@@ -676,27 +696,32 @@ Event & 確定押下 & -- & 条件分岐を含むイベント \\
 
 \section{GUI要素生成部}\label{sec:GUIElementGenerationComponent}
 解析部（\ref{sec:ParsingComponent}節を参照）で抽出した\verb|elements|を基に、
-画面上で操作可能なGUI要素リストを生成する処理である。
-本処理の目的は、
+画面上で操作可能なCTM要素のデータリストを生成する処理である。
+本処理部の目的は、
 Markdown仕様の論理構造を、
 ユーザが直感的に把握、および操作できる視覚的表現へと変換することである。
 
 なお、本論文では解析部およびGUI要素生成部の双方において
 同一のGUIElementクラスを用いているが、
-解析部で扱うelementsはその各GUIElementの論理構造（Type、Name、Target、Branches）のみを保持した状態であり、
-本論文ではこれに表示および操作に関する属性（座標、サイズ、操作可否）を付与したものをGUI要素および、GUI要素のリストを
-GUI要素リストとして扱う。
+解析部で扱うelementsは、その各GUIElementの意味的データ（Type、Name、Target、Branches）のみを保持した状態であり、
+本論文では、このGUIElementに表示および操作に関する属性（座標、サイズ、操作可否）を付与したものをGUI要素とする。また、GUI要素のリストを
+GUI要素リストとする。
 
-本処理部では、
-表\ref{tab:ctm_elements}に示したGUI要素を生成し、
+本処理部では、GUI要素リストを生成し、
 以降の描画部（\ref{sec:DrawingComponent}節を参照）、および、ユーザ操作監視部（\ref{sec:UserOperationMonitoring}節を参照）に渡す。
 GUI要素生成部は、
 単なる要素の対応付けを行うのではなく、
 配置、サイズ、操作可否といった
 GUIとしての振る舞いを規則に基づいて決定する。
 
-通常ノードの形状と寸法を表\ref{tab:gui_node_spec}に、
-条件分岐における可視ノードの形状と寸法を表\ref{tab:gui_node_branch}に、それぞれ示す。
+通常ノードの描画仕様を表\ref{tab:gui_node_spec}に、
+条件分岐イベントにおける可視ノードの描画仕様を表\ref{tab:gui_node_branch}に、それぞれ示す。
+GUI要素の座標は、プロジェクト管理部でMarkdown仕様が入力された際に同名のJSONファイルが存在する場合、\verb|elements|
+内の\verb|GUIElement.Name|をキーとして
+JSONファイルの（コード\ref{lst:JSON_example}を参照）を走査し、該当要素の座標情報を読み込む。
+JSONファイルが存在しない場合、
+もしくは、JSONファイル内に該当要素の座標情報が存在しない場合は、
+以下に示す初期配置規則に基づき決定する。
 GUI要素の初期配置は、
 \verb|elements|内の GUIElement のノードの種類に基づいて決定する。
 画面要素（Screen）は一定間隔で縦方向に配置し、
@@ -711,22 +736,21 @@ GUI要素の初期配置は、
 解析順に付与される 0 始まりの連番を表す。
 ここで、
 $d$ は要素間の縦方向間隔を表す定数である。
-$X_0$、$Y_0$ は初期配置の基準座標を表す定数である。
-初期配置の基準座標 $X_0, Y_0$ は、
+$X_0$、$Y_0$ は初期配置の基準座標を表す定数であり、
 CTM（\ref{sec:CTM}節を参照）描画領域の左上を原点とする座標系において、
 画面端との余白を確保するために
 定数としてあらかじめ定義する値である。
 \begin{equation} \label{eq:initial_position_x}
-X_i = X_0,\quad
+X_i = X_0\quad
 \end{equation}
 \begin{equation}\label{eq:initial_position}
 Y_i = Y_0 + i \cdot d
 \end{equation}
 
-生成したGUI要素には、
+生成するGUI要素には、
 ユーザ操作に関する属性も付与する。
 例えば、タイムアウト（Timeout）要素は1画面につき単一のものとして扱うため移動不可とし、
-ボタンや遷移要素はドラッグ操作による移動を可能とする。
+ボタンやイベント要素はドラッグ操作による移動を可能とする。
 この操作可否の区別により、
 ユーザが誤って画面構造全体を崩すことを防止している。
 
@@ -734,92 +758,91 @@ Y_i = Y_0 + i \cdot d
 対象ボタンおよびイベントの関連付けを行い、
 描画部において矢印として表現できるよう、
 接続情報を内部に保持する。
+
 本処理の流れを以下に示す。
 \begin{enumerate}
   \item 解析部の出力である
         GUIElement のリスト \verb|elements| を入力として受け取る。
 
   \item \verb|elements| を先頭から順に走査し、
-        各要素について \verb|GUIElement.Type| を参照し、
-        要素種別を判定する。
+        \verb|GUIElement|について \verb|GUIElement.Type| を参照し、
+        ノードの種別を判定する。
 
-  \item Screen 要素を検出した場合、
+  \item \verb|GUIElement.Type|が\verb|Screen|だった場合、
         以下の手順で画面要素を生成する。
         \begin{enumerate}[label=\roman*.]
-          \item Screen 要素のインデックス $i$ を取得する。
+          \item 画面要素のインデックス $i$ を取得する。
           \item 表\ref{tab:gui_node_spec} に示す仕様に基づき、
-                角丸矩形形状のGUI要素を生成する。
-          \item 初期配置座標を式\ref{eq:initial_position}に基づいて算出し、
-                \verb|X| および \verb|Y| に設定する。
-          \item サイズ情報（Width, Height）を
-                Screen 要素用の既定値に設定する。
+                画面要素のGUI要素を生成する。
+          \item 初期配置座標を式\ref{eq:initial_position_x}、式\ref{eq:initial_position}に基づいて算出し、
+                生成したGUI要素の\verb|X| および \verb|Y| に設定する。
+          \item 生成したGUI要素のサイズ情報（Width, Height）を
+                画面要素用の既定値に設定する。
           \item ユーザ操作による移動を許可するため、
-                \verb|IsFixed = false| を設定する。
-          \item 生成したGUI要素を出力リストへ追加する。
+                生成したGUI要素の\verb|IsFixed |を\verb|false| に設定する。
+          \item 生成したGUI要素をGUI要素リストへ追加する。
         \end{enumerate}
 
-  \item Button 要素を検出した場合、
+  \item \verb|GUIElement.Type|が\verb|Button|だった場合、
         以下の手順でボタン要素を生成する。
         \begin{enumerate}[label=\roman*.]
             \item ボタン要素の初期配置座標を算出する。
             \item 表\ref{tab:gui_node_spec} に基づき、
-                楕円形状のGUI要素を生成する。
-            \item サイズ情報を Button 用の既定値に設定する。
+                ボタン要素のGUI要素を生成する。
+            \item 生成したGUI要素のサイズ情報をボタン要素用の既定値に設定する。
             \item ユーザ操作による移動を許可するため、
-                \verb|IsFixed = false| を設定する。
-            \item 生成したGUI要素を出力リストへ追加する。
+                生成したGUI要素の\verb|IsFixed |を\verb|false| に設定する。
+            \item 生成したGUI要素をGUI要素リストへ追加する。
         \end{enumerate}
 
-  \item Timeout 要素を検出した場合、
+  \item \verb|GUIElement.Type|が\verb|Timeout|だった場合、
         以下の手順でタイムアウト要素を生成する。
         \begin{enumerate}[label=\roman*.]
-            \item 固定配置用の初期座標を算出する。
+            \item 固定配置用のオフセットを適用し、初期座標を算出する。
             \item 表\ref{tab:gui_node_spec} に基づき、
-                楕円形状のGUI要素を生成する。
-            \item サイズ情報を Timeout 用の既定値に設定する。
+                タイムアウト要素のGUI要素を生成する。
+            \item 生成したGUI要素のサイズ情報をタイムアウト要素用の既定値に設定する。
             \item タイムアウト要素は1画面につき1つのみとするため、
-                \verb|IsFixed = true| を設定し、
+                生成したGUI要素の\verb|IsFixed |を\verb|true| に設定し、
                 ドラッグ操作による移動を禁止する。
-            \item 生成したGUI要素を出力リストへ追加する。
+            \item 生成したGUI要素をGUI要素リストへ追加する。
         \end{enumerate}
 
-  \item Event 要素を検出した場合、
+  \item \verb|GUIElement.Type|が\verb|Event|だった場合、
         以下の手順でイベント要素を生成する。
         \begin{enumerate}[label=\roman*.]
-          \item Event 要素に対応する Button または Timeout 要素を
-                \verb|Target| 情報に基づいて特定する。
+          \item イベント要素に対応するボタン要素またはタイムアウト要素を
+                それぞれの\verb|Target| 情報に基づいて特定する。
           \item 表\ref{tab:gui_node_spec} に基づき、
                 矩形形状のGUI要素を生成する。
           \item 初期配置座標を、
-                対応するButton、および、Timeoutの右側に配置されるよう算出する。
-          \item サイズ情報を Event 用の既定値に設定する。
+                対応するボタンおよびタイムアウトの右側に配置されるよう算出する。
+          \item 生成したGUI要素のサイズ情報を Event 用の既定値に設定する。
           \item ユーザ操作による移動を許可するため、
-                \verb|IsFixed = false| を設定する。
+                生成したGUI要素の\verb|IsFixed |を\verb|false| に設定する。
           \item 遷移関係を表すため、
                 接続元および接続先の関連情報を内部に保持する。
         \end{enumerate}
 
-  \item Event 要素が条件分岐情報
+  \item イベント要素が条件分岐情報
         （\verb|Branches|）を保持している場合、
         以下の処理を行う。
         \begin{enumerate}[label=\roman*.]
-          \item 当該 Event 要素を
+          \item 当該イベント要素を
                 条件分岐イベントとして判定する。
-          \item Event 親行ノードを非表示対象として設定する。
-          \item 各 \verb|EventBranch| に対応する
+          \item イベント親行ノードを非表示対象として設定する。
+          \item 各\verb|EventBranch| に対応する
                 条件ノードおよび分岐先ノード生成用の情報を保持する。
-          \item 実際の条件ノードおよび分岐先ノードの生成は、
-                描画部（\ref{sec:DrawingComponent}節）に委ねる。
         \end{enumerate}
 
   \item 全要素の走査が完了した後、
         生成したGUI要素リストを
-        描画部およびユーザ操作監視部へ出力する。
+        描画部へ出力する。
 \end{enumerate}
 
 \begin{table}[tp]
 \centering
-\caption{GUI要素の描画仕様}
+\caption{通常ノードの描画仕様}
 \label{tab:gui_node_spec}
 \begin{tabular}{|l|l|c|c|p{4.5cm}|}
 \hline
@@ -828,19 +851,19 @@ Y_i = Y_0 + i \cdot d
 Screen
 & 角丸矩形
 & 160 & 45
-& 左列に縦配置（間隔80Px）、移動可 \\
+& CTM描画領域の左列に縦配置（間隔80Px）、移動可 \\
  \hline
 
 Button
 & 楕円
 & 80 & 45
-& 左列に縦配置（間隔80Px）、移動可 \\
+& CTM描画領域の左列に縦配置（間隔80Px）、移動可 \\
  \hline
 
 Event
 & 矩形
 & 160 & 45
-& 右列に縦配置（間隔80Px）、条件分岐時は本体非表示、移動可 \\
+& CTM描画領域の右列に縦配置（間隔80Px）、条件分岐時は本体非表示、移動可 \\
  \hline
 
 Timeout
@@ -855,7 +878,7 @@ Timeout
 
 \begin{table}[tp]
 \centering
-\caption{条件分岐における可視ノードの描画仕様}
+\caption{条件分岐イベントにおける可視ノードの描画仕様}
 \label{tab:gui_node_branch}
 \begin{tabular}{|l|l|c|c|p{4cm}|}
 \hline
@@ -877,7 +900,7 @@ Target
 
 
 \section{変換部}\label{sec:ConversionComponent}
-変換部は、MarkdownおよびVDM++仕様の表現形式を相互に変換する処理部である。
+変換部は、Markdown仕様およびVDM++仕様の記述形式を相互に変換する処理部である。
 本処理部では、Markdown仕様とVDM++仕様の変換に加え、ユーザによるGUI操作結果をMarkdown仕様へ反映する処理を担う。
 Markdown仕様からVDM++仕様への変換処理については、既存の\tool のMarkdown変換部（\ref{sec:Structure}節を参照）を利用する。
 
@@ -888,93 +911,93 @@ GUI要素リストの現在状態からMarkdown仕様を全体を再生成する
 
 \subsection{GUI操作からMarkdown仕様への変換処理}\label{sec:GUItoMarkdownConversionProcess}
 本処理は、GUI要素生成部（\ref{sec:GUIElementGenerationComponent}節を参照）で生成したGUI要素リスト、および編集前のMarkdown仕様文字列を入力として、
-Markdown仕様を生成する処理である。
-まず、GUI要素を種類および関連関係に基づいて分類する。
-次に、各要素を
+編集後Markdown仕様文字列を生成する処理である。
+まず、GUI要素リストのGUI要素を、種類および関連関係に基づいて分類する。
+次に、各GUI要素を
 Markdown仕様記述として出力する順序を決定する。
 
 出力規則は\tool のMarkdown仕様記述ルール（\ref{sec:Specrule}節を参照）に準拠しており、
-画面定義、タイムアウト定義、ボタン一覧、イベント一覧、条件分岐の順に要素を出力する。
+画面定義、タイムアウト定義、ボタン一覧、イベント一覧、条件分岐の順にMarkdown仕様の要素を出力する。
 変換処理の結果として生成したMarkdown仕様は、
 プロジェクト管理部に引き渡し、
 ファイル更新処理（\ref{sec:FileUpdateProcess}節を参照）により保存する。
 これにより、
 CTM上の編集操作と仕様記述との間に
 常に一貫した対応関係が保たれる。
-本処理の流れを以下に示す。
+
+本処理の流れを、以下に示す。
 \begin{enumerate}
   \item GUI要素生成部
         （\ref{sec:GUIElementGenerationComponent}節）で生成した。
         GUI要素リストを取得する。
-  \item 取得したGUI要素リスト、Markdown文字列を
+  \item 取得したGUI要素リスト、プロジェクト管理部で取得したMarkdown仕様文字列を
         出力順序決定のために出力順序整理処理に入力する（\ref{sec:ConversionOrderProcess}節を参照）。
         
-  \item 2.の結果を用いて、出力順序整理処理より出力した\verb|lines| に格納したMarkdown仕様記述各行を連結し、
+  \item 出力順序整理処理が出力したMarkdown文字列各行を1つの要素とした配列である
+  \verb|lines| に格納したMarkdown仕様記述各行を連結し、
         最終的なMarkdown仕様文字列
         \verb|markdown| を生成する。
   \item 生成した \verb|markdown| を
-        プロジェクト管理部にわたし、
-        ファイル更新処理
-        （\ref{sec:FileUpdateProcess}節）を要求する。
+        プロジェクト管理部にわたし、ファイル更新処理により保存する。
+
 \end{enumerate}
 
 
 \subsection{出力順序整理処理}\label{sec:ConversionOrderProcess}
-本処理では、GUI操作により更新したGUI要素リスト \verb|elements| を入力として、
-Markdown仕様のうち「有効ボタン一覧」および「イベント一覧」の並び順を
+本処理では、GUI要素リスト \verb|elements| 、およびMarkdown文字列を入力として、
+Markdown文字列のうち「有効ボタン一覧」および「イベント一覧」の並び順を
 GUI上の配置順序に一致するよう再構成する。
 本処理は、Markdown仕様の内容を変更することなく、
 GUI上の配置順序とMarkdown上の記述順序を一致させることのみを目的とする。
 
 
-なお、本整理処理では、
+なお、本処理では、
 GUI 要素リストに存在しないイベント記述であっても、
 Markdown 仕様中に記述が存在する場合は、
 仕様欠落を防ぐ目的から自動的に削除しない設計としている。
-そのため、本処理はイベント記述の削除を目的とせず、
-あくまで記述順序の整理を行うものである。
 
-本処理の流れを以下に示す。
+本処理の流れを、以下に示す。
 \begin{enumerate}
   \item 入力として、Markdown文字列と
         GUI要素リストを受け取る。
-  \item Markdown文字列を読み込み、Markdown文字列各行を1つの要素とした配列（実装上は \verb|lines|）として保持する。
+  \item Markdown文字列を読み込み、Markdown文字列各行を1つの要素とした配列（\verb|lines|）として保持する。
   \item 行配列 \verb|lines| 内から、
         ボタン一覧見出し \verb|"### 有効ボタン一覧"| の行位置を \verb|buttonIdx| として探索し、
         イベント一覧見出し \verb|"### イベント一覧"| の行位置を \verb|eventIdx| として探索する。
-        これにより、後続の置換対象セクション範囲を決定可能にする。
-  \item ボタン一覧の並び順キー配列として、
+  \item ボタン一覧の並び順を表す配列として、
         \verb|buttonList| を生成する。
         \verb|buttonList| は、以下の処理で生成する。
         \begin{enumerate}[label=\roman*.]
-          \item \verb|elements| から \verb|GUIElement.Type==Button| のGUI要素のみ抽出する。
-          \item 抽出したGUI要素の\verb|Y| 座標の昇順（Y座標の値が小さい順）で整列する。
-          \item 各要素の \verb|GUIElement.Name| をⅱで整列した順に取り出し、\verb|buttonList|に格納する。
+          \item GUI要素リストから \verb|GUIElement.Type==Button| のGUI要素を抽出する。
+          \item 抽出したGUI要素を、GUI要素が保持する\verb|Y| 座標の昇順（Y座標の値が小さい順）で整列する。
+          \item 各GUI要素の \verb|GUIElement.Name| をⅱ.で整列した順に取り出し、\verb|buttonList|に格納する。
         \end{enumerate}
   \item \verb|buttonList| が空でない場合、
-        \verb|buttonIdx| の有無に応じて以下の処理を行い、Markdown文字列のボタン一覧セクション（見出しおよび箇条書き）を更新する。
+        \verb|buttonIdx| の有無に応じて以下の処理を行い、
+        Markdown文字列のボタン一覧セクション（見出しおよび箇条書き）を更新する。
         \begin{itemize}
           \item \verb|buttonIdx| が存在する場合：
                 既存のボタン一覧セクションを
                 \verb|buttonList| に基づく箇条書きへ置換する。
           \item \verb|buttonIdx| が存在しない場合：
-                新規にボタン一覧セクションを生成
+                新規にボタン一覧セクションを生成する。ボタン一覧セクションを生成する位置は、
+                \verb|eventIdx| の有無に応じて以下のように決定する。
                 \begin{itemize}
                   \item \verb|eventIdx| が存在する場合:イベント一覧見出しの直前へ挿入
                   \item \verb|eventIdx| が存在しない場合:行配列末尾へ追加
                   \end{itemize}
         \end{itemize}
-        ただし、\verb|buttonList| が空の場合は空見出し生成を避けるため、
+        ただし、\verb|buttonList| が空の場合は、空見出し生成を避けるため、
         ボタン一覧セクションの置換、および、新規作成を行わない。
-  \item イベント一覧の並び順キー配列として、
+  \item イベント一覧の並び順を表す配列として、
         \verb|blocksOrder| を生成する。
         \verb|blocksOrder| は、以下の処理で生成する。
         \begin{enumerate}[label=\roman*.]
-          \item \verb|elements| から \verb|GUIElement.Type==Event| かつ \verb|GUIElement.Name| が空でないGUI要素を抽出する。
-          \item 抽出したGUI要素の\verb|Y| 座標の昇順で整列する。
-          \item 各要素の \verb|GUIElement.Name| をⅱ.で整列した順に取り出し、\verb|blocksOrder| に格納する。
+          \item GUI要素リストから \verb|GUIElement.Type==Event| かつ \verb|GUIElement.Name| が空でないGUI要素を抽出する。
+          \item 抽出したGUI要素を、GUI要素が保持する\verb|Y| 座標の昇順で整列する。
+          \item 各GUI要素の \verb|GUIElement.Name| をⅱ.で整列した順に取り出し、\verb|blocksOrder| に格納する。
         \end{enumerate}
-  \item Markdown上のイベント一覧セクションを「ブロック単位」で再構成する。
+  \item Markdown文字列上のイベント一覧セクションを「ブロック単位」で再構成する。
         本処理では、イベント一覧セクション内の記述を、以下の処理でブロック化する。
         \begin{enumerate}[label=\roman*.]
           \item \verb|"- "| で始まる行をブロック先頭とする。
@@ -988,14 +1011,15 @@ Markdown 仕様中に記述が存在する場合は、
         仕様欠落を防ぐため元の順序を保ったまま末尾へ追加する。
   \item 整理後の \verb|lines| に対し、空行を正規化する処理を適用し、
         連続空行や不要な空行を除去する。
-  \item 最終的に、正規化後の \verb|lines|を出力することで、
-        GUI上の配置順序とMarkdown上の記述順序の整合を維持する。
+  \item 正規化後の \verb|lines|を出力する。
 \end{enumerate}
 
 
 \section{描画部}\label{sec:DrawingComponent}
-描画部は、GUI要素生成部（\ref{sec:GUIElementGenerationComponent}節を参照）から受け取ったGUI要素リストをもとに、GUI表示を描画および再描画する処理部である。
+描画部は、GUI要素生成部（\ref{sec:GUIElementGenerationComponent}節を参照）
+から受け取ったGUI要素リストをもとに、ツール上部に設置するボタンとCTM描画領域を描画および再描画する処理部である。
 本処理部の目的は、ユーザが仕様の構造を直感的に把握できる視覚的表現を提供することである。
+本描画部は、Microsoft.Maui.Graphics（\ref{sec:Microsoft.Maui.Graphics}節を参照）を用いて実装している。
 
 描画部は、
 各GUI要素を外接矩形として扱い、
@@ -1004,41 +1028,42 @@ Markdown 仕様中に記述が存在する場合は、
 GUI要素生成部で定義した規則に基づいて決定しており、
 通常ノード、および、条件分岐ノードについては、
 それぞれ表\ref{tab:gui_node_spec}、
-表\ref{tab:gui_node_branch}に示す仕様を用いる。
+表\ref{tab:gui_node_branch}に示す描画仕様を用いる。
 
 \subsection{初期描画処理}
-初期描画処理は、GUI要素生成部から受け取ったGUI要素リストをもとに、初期状態のGUI表示を生成する処理である。
-本処理の流れを以下に示す。
+初期描画処理は、GUI要素生成部から受け取ったGUI要素リストをもとに、
+初期状態のGUI表示を生成する処理である。
+
+本処理の流れを、以下に示す。
 \begin{enumerate}
     \item CTM描画領域を初期化し、背景を消去する。
     \item GUI要素リストを走査し、各GUI要素の種別を判定する。
-    \item 要素種別に応じて、矩形、楕円、菱形などの描画形状および寸法を決定する。
-    \item 各GUI要素が保持する座標情報をもとに、キャンバス上へノード本体およびラベル文字列を描画する。
+    \item 要素種別に応じて、矩形、楕円、菱形などの描画形状および描画スタイルを決定する。
+    \item 各GUI要素が保持する座標情報をもとに、CTM描画領域上へノード本体およびラベル文字列を描画する。
     \item 遷移関係を表す要素については、GUI要素生成部で設定した接続情報を参照し、
     接続元および接続先ノードの外接矩形から矢印の開始点および終了点を算出した上で、
     遷移を示す矢印を描画する。
-    \item 条件分岐を持つ要素については、通常のイベントノード本体を描画せず、条件分岐構造を展開して描画する。具体的には、以下の手順で描画を行う。
+    \item 条件分岐を持つ要素\verb|GUIElement.IsBranch == true|については、通常のイベントノード本体を描画せず、条件分岐構造を展開して描画する。具体的には、以下の手順で描画を行う。
     \begin{enumerate}[label=\roman*.]
-      \item 条件表示領域を「条件文を表示する矩形」として描画し，
+      \item 条件表示領域を「条件文を表示する矩形」として描画し、
       その右側に分岐点を示す菱形を描画する。
 
-      \item 分岐先候補の数 $n$ を取得し、
-      分岐先領域を縦方向に $n$ 個並べて配置する。
-      このとき、各分岐先領域は同一幅、同一高さの外接矩形として扱い、
+      \item \verb|Branches|の要素数 $n$ を取得し、縦方向に $n$ 個並べて配置する。
+      このとき、\verb|Branches|は同一幅、同一高さの外接矩形として扱い、
       条件表示領域のY座標を基準とし、一定の垂直間隔でオフセットを加えることで配置する。
       具体的には、基準Y座標を $Y_{\mathrm{base}}$、
-      分岐先領域間の垂直間隔を $\Delta Y$（分岐先領域の高さを含む定数）とすると、
-      $i$ 番目の分岐先領域のY座標 $Y_i$ は式\ref{eq:branch_y}により算出する。
+      \verb|Branches|の垂直間隔を $\Delta Y$（分岐先領域の高さを含む定数）とすると、
+      $i$ 番目の\verb|Branches|のY座標 $Y_i$ は式\ref{eq:branch_y}により算出する。
 
       \begin{equation}\label{eq:branch_y}
             Y_i = Y_{\mathrm{base}} + i \cdot \Delta Y
       \end{equation}
 
-      \item 分岐点から各分岐先領域へは，
+      \item 分岐条件から分岐先へは，
       外接矩形に基づき矢印の開始点および終了点を算出して接続線を描画する。
       開始点は分岐点（菱形）の右端中央、終了点は分岐先領域の左端中央とし、
       矢印を付与して分岐方向を示す。
-      分岐先が画面遷移を表す場合は、分岐先名称が画面要素として解決できるかを判定し、
+      分岐先が画面遷移を表す場合は、分岐先名称が画面要素として解釈できるかを判定し、
       解決できない場合は矢印の描画スタイルを変更して参照不整合を視覚的に示す。
 
       \item 条件分岐は編集対象の単位となるため、
@@ -1059,17 +1084,22 @@ GUI要素生成部で定義した規則に基づいて決定しており、
 具体的には、接続元ノードの右端中央を開始点とし、接続先ノードの左端中央を終了点とする。
 ここで、接続元ノードの左上座標を$(X_s, Y_s)$、幅を$W_s$、高さを$H_s$、
 接続先ノードの左上座標を$(X_t, Y_t)$、幅を$W_t$、高さを$H_t$とすると、
-開始点$(x_s, y_s)$および終了点$(x_t, y_t)$は、式\ref{eq:arrow_points}により算出する。
-\begin{align}
-(x_s, y_s) = (X_s + W_s, Y_s + \frac{H_s}{2})\\
-(x_t, y_t) = (X_t, Y_t + \frac{H_t}{2})
-\label{eq:arrow_points}
-\end{align}
+開始点$(x_s, y_s)$および終了点$(x_t, y_t)$は、式\ref{eq:arrow_points_start}、\ref{eq:arrow_points_end}により算出する。
 
+\begin{equation}\label{eq:arrow_points_start}
+      (x_s, y_s) = (X_s + W_s, Y_s + \frac{H_s}{2})
+\end{equation}
+
+
+\begin{equation}\label{eq:arrow_points_end}
+      (x_t, y_t) = (X_t, Y_t + \frac{H_t}{2})
+\end{equation}
 \subsection{再描画処理}
 再描画処理は、ユーザ操作や仕様変更に伴い、GUI表示を更新する処理である。
+ユーザ操作監視部からの再描画要求を受け取り、再描画したツール上部のボタン、およびCTM描画領域を更新する。
 この処理により、仕様の変更が即座に視覚的に反映され、ユーザが最新の状態を把握できるようにする。
-本処理の流れを以下に示す。
+
+本処理の流れを、以下に示す。
 
 \begin{enumerate}
     \item ユーザ操作監視部からの再描画要求を受信する。
@@ -1083,21 +1113,24 @@ GUI要素生成部で定義した規則に基づいて決定しており、
 
 ユーザ操作監視部は、GUI上で発生するユーザ入力を監視し、
 操作対象のGUI要素を特定した上で、必要な処理部へ処理要求を発行する統括処理部である。
-本処理部は MVVM における View と ViewModel 間の橋渡しとして振る舞い、
+本処理部は、 MVVM における View 層と ViewModel 層間の橋渡しとして振る舞い、
 描画部（\ref{sec:DrawingComponent}節）と連携してヒットテストを行い、
 プロジェクト管理部（\ref{sec:ProjectManagementComponent}節）へ更新要求をする。
 
 本処理部の入力は、 クリック座標およびドラッグ移動量のポインタイベント、
 描画部が保持するGUI要素外接矩形情報、
 GUI要素リストである。
-出力は、選択状態の更新、ノード座標更新、編集コマンド（追加、削除、編集）の要求、
+出力は、選択状態の更新要求、ノード座標更新要求、編集コマンド（追加、削除、編集）の要求、
 再描画要求、および必要に応じたファイル更新要求である。
+
+本処理部で用いるポインタ座標は、.NET MAUI （\ref{sec:NET_MAUI}）の座標系に基づいており、
+CTM描画領域の左上を原点とする座標系である
 
 以降、各ユーザ操作に対する処理を説明する。
 
 \subsection{ヒットテスト処理}\label{sec:UOM_HitTest}
 ヒットテスト処理は、ユーザの操作座標がどのGUI要素に該当するかを判定し、
-操作対象要素を確定する処理である。
+操作対象GUI要素を確定する処理である。
 
 本処理は、描画部が保持する外接矩形情報を用いて、
 操作座標が外接矩形内に含まれるかを判定する。
@@ -1108,25 +1141,59 @@ GUI要素リストである。
 X \leq x \leq X + W \;\land\; Y \leq y \leq Y + H
 \end{equation}
 
-本処理の流れを以下に示す。
+本処理の流れを、以下に示す。
 \begin{enumerate}
   \item 操作座標 $(x, y)$ を受け取る。
-  \item 描画部から外接矩形リスト \verb|hitRects| を取得する。
+  \item 描画部から外接矩形リスト \verb|hitRects| を取得する。外接矩形リスト\verb|hitRects|は、
+        表\ref{tab:hit_test_rect}に示す属性を持つ。   
   \item \verb|hitRects| を先頭から走査し、式\ref{eq:hit}により包含判定を行う。
-  \item 複数の要素がヒットする場合は、描画順序（前面優先）に基づき最前面要素を採用する。
-  \item 採用した要素を \verb|SelectedElement| として確定する。
+  \item 複数のCTM要素がヒットする場合は、描画順序（前面優先）に基づき最前面CTM要素を採用する。
+  \item 採用したCTM要素を \verb|SelectedElement| として確定する。
 \end{enumerate}
 
-\subsection{クリック操作監視処理}\label{sec:UOM_Click}
-クリック操作監視処理は、左クリックによる選択操作を検出し、
+\begin{table}[tp]
+\centering
+\caption{ヒットテスト用外接矩形情報}
+\label{tab:hit_test_rect}
+\begin{tabular}{|c|c|p{8cm}|}
+\hline
+\textbf{属性} & \textbf{型} & \textbf{説明} \\
+\hline
+Element & GuiElement &
+当該外接矩形に対応する GUI 要素。
+ヒット判定が成立した場合、選択するGUI要素。 \\
+\hline
+X & float &
+外接矩形の左上 X 座標。 \\
+\hline
+Y & float &
+外接矩形の左上 Y 座標。\\
+\hline
+W & float &
+外接矩形の幅。\\
+\hline
+H & float &
+外接矩形の高さ。\\
+\hline
+ZIndex & int &
+描画順序を表す値。
+複数の外接矩形がヒットした場合に、前面要素を判定するために用いる。 \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{左クリック操作監視処理}\label{sec:UOM_Click}
+左クリック操作監視処理は、左クリックによる選択操作を検出し、
 対象GUI要素の選択状態（\verb|IsSelected|）を更新する処理である。
 
 入力は左クリック座標、出力は選択状態更新および再描画要求である。
-本処理の流れを以下に示す。
+
+本処理の流れを、以下に示す。
 \begin{enumerate}
-  \item 左クリック座標 $(x, y)$ を受け取る。
+  \item 左クリック座標 $(x, y)$ を受け取る。座標と同時に
+        左ボタンによるクリックイベントの通知を受け取る。
   \item ヒットテスト処理（\ref{sec:UOM_HitTest}節）を呼び出し、\verb|SelectedElement| を確定する。
-  \item 既存の選択要素が存在する場合、当該要素の \verb|IsSelected| を \verb|false| に更新する。
+  \item 既存の選択GUI要素が存在する場合、当該GUI要素の \verb|IsSelected| を \verb|false| に更新する。
   \item \verb|SelectedElement| の \verb|IsSelected| を \verb|true| に更新する。
   \item 描画部へ再描画要求を発行し、強調表示状態を更新する。
 \end{enumerate}
@@ -1134,19 +1201,20 @@ X \leq x \leq X + W \;\land\; Y \leq y \leq Y + H
 \subsection{右クリック操作監視処理}\label{sec:UOM_Context}
 右クリック操作監視処理は、右クリックによる編集要求を検出し、
 対象GUI要素の種類（Screen、Button、Event、Timeout）および条件分岐に基づき、
-表示する操作候補（コンテキストメニュー）を決定し、選択結果を編集コマンドとして発行する処理である。
+表示する操作候補（コンテキストメニュー）を決定し、コンテキストメニュー内コマンドの選択結果を編集コマンドとして発行する処理である。
 
 本処理の入力は、右クリック座標と現在の GUI要素リスト、出力は編集コマンド（追加、削除、編集）である。
 本処理の流れを以下に示す。
 \begin{enumerate}
-  \item 右クリック座標 $(x, y)$ を受け取る。
-  \item ヒットテスト処理（\ref{sec:UOM_HitTest}節）により対象要素を確定する。
+  \item 右クリック座標 $(x, y)$ を受け取る。座標と同時に
+        右ボタンによるクリックイベントの通知を受け取る。
+  \item ヒットテスト処理（\ref{sec:UOM_HitTest}節）により\verb|SelectedElement|を確定する。
   \item 対象GUI要素の \verb|Type| に応じて候補操作集合を決定する。
         例えば Button 要素には「イベント追加」を含め、Screen 要素には「画面編集」「タイムアウト編集」を含める。
   \item 条件分岐イベントの場合は、分岐領域（branch）に対する右クリックを区別し、
         \verb|branchIndex|（分岐番号）を編集要求に含める。
         これにより「分岐の追加、分岐の編集、分岐の削除」を対象分岐に紐付けて実行できる。
-  \item ユーザが選択した候補操作を編集コマンドとしてプロジェクト管理部へ処理要求を発行する。
+  \item ユーザが選択した候補操作を編集コマンドとして編集コマンド実行処理（\ref{sec:UOM_EditCommand}節）へ通知する。
 \end{enumerate}
 
 \subsection{ダブルクリック操作監視処理}\label{sec:UOM_DoubleClick}
@@ -1160,17 +1228,17 @@ X \leq x \leq X + W \;\land\; Y \leq y \leq Y + H
 \subsection{ドラッグ操作監視処理}\label{sec:UOM_Drag}
 ドラッグ操作監視処理は、GUI要素の配置変更操作を検出し、
 対象GUI要素の座標 \verb|X, Y| を更新する処理である。
-入力は押下開始座標、移動量、解放座標であり、出力は更新後座標および（必要に応じた）ファイル更新要求である。
+入力は押下開始座標、ポインタ移動量、解放座標であり、出力は更新後座標および（必要に応じた）ファイル更新要求である。
 
-本処理の流れを以下に示す。
+本処理の流れを、以下に示す。
 \begin{enumerate}
-  \item 押下開始時にヒットテストを行い、ドラッグ対象 \verb|DraggingElement| を確定する。
+  \item 左クリック開始時にヒットテストを行い、ドラッグ対象 \verb|DraggingElement| を確定し、押下開始座標を取得する。
   \item 対象GUI要素の \verb|IsFixed| を参照し、移動不可である場合はドラッグを開始しない。
-  \item ドラッグ開始時点のGUI要素座標と、押下座標との差分を \verb|offsetX, offsetY| として保持する。
+  \item ドラッグ開始時点のGUI要素座標と、押下開始座標との差分を \verb|offsetX, offsetY| として保持する。
   \item ポインタ移動イベントごとに、現在座標から \verb|offset| を差し引き、
-        新しい要素座標 $(X', Y')$ を算出して \verb|DraggingElement.X, DraggingElement.Y| を更新する。
+        新しいGUI要素座標 $(X', Y')$ を算出して \verb|DraggingElement.X, DraggingElement.Y| を更新する。
   \item 座標更新ごとに描画部へ再描画要求を行い、移動結果を即時反映する。
-  \item 解放時に最終座標を確定し、配置情報の保存が必要な場合は
+  \item 解放時に開放座標を確定し、CTM要素の配置を変更した状態でスナップが入り、配置情報の保存が必要な場合は
         プロジェクト管理部のファイル更新処理（\ref{sec:FileUpdateProcess}節）を要求する。
 \end{enumerate}
 
@@ -1178,10 +1246,11 @@ X \leq x \leq X + W \;\land\; Y \leq y \leq Y + H
 
 本処理は、右クリックメニューや画面上の操作ボタン（追加、編集、削除、保存等）により確定した編集コマンドを実行し、
 必要な入力値（名称、遷移先、条件文など）をポップアップで取得した上で、
-GUI要素リスト  を更新する処理である。
+GUI要素リストを更新する処理である。
 
 本処理は、編集コマンド種別、選択中要素 \verb|SelectedElement|、GUI要素リストを入力として受け取り、
-要素の追加、更新、削除を行った上で、更新後のGUI要素リスト、描画部への再描画要求、プロジェクト管理部へのファイル更新要求、UI上の表示ボタン切替状態を出力する。
+要素の追加、更新、削除を行った上で、更新後のGUI要素リスト、描画部への再描画要求、
+プロジェクト管理部へのファイル更新要求、UI上の表示ボタン切替状態を出力する。
 
 本処理の流れを以下に示す。
 
@@ -1194,39 +1263,43 @@ GUI要素リスト  を更新する処理である。
 
   \item 入力が必要な場合、ポップアップ（入力ダイアログ）を表示し、ユーザから文字列を取得する。
   \begin{itemize}
-    \item キャンセルされた場合は処理を中断し、GUI要素リストを変更しない。
-    \item 入力値が空、または重複する場合はエラー表示（警告）を行い、再入力または中断とする。
+    \item キャンセルした場合は、処理を中断し、GUI要素リストを変更しない。
+    \item 入力値が空、または重複する場合は、エラー表示（警告）を行い、再入力または中断とする。
   \end{itemize}
 
   \item コマンド種別に応じてGUI要素リストを更新する。
-  更新規則を以下に示す。
+  更新規則を、以下に示す。
   \begin{enumerate}[label=\roman*.]
     \item \textbf{画面追加}：
-          新しいScreen要素（\verb|Type=Screen, Name=画面名|）をGUI要素リストに追加する。
-          画面一覧ファイル更新が必要な場合はプロジェクト管理部へ更新要求を発行する（\ref{sec:PM_ScreenList}節）。
+          新しい画面要素（\verb|Type=Screen, Name=画面名|）をGUI要素リストに追加する。
+          プロジェクト管理部へ更新要求を通知する（\ref{sec:FileUpdateProcess}節を参照）。
 
     \item \textbf{ボタン追加}：
-             新しいButton要素（
-          \verb|Type=Button, Name=ボタン名|）をGUI要素リストに追加する。
+             新しいボタン要素（\verb|Type=Button, Name=ボタン名|）をGUI要素リストに追加する。
           既存ボタン名と重複する場合は追加しない。
+          プロジェクト管理部へ更新要求を通知する（\ref{sec:FileUpdateProcess}節を参照）。
 
     \item \textbf{イベント追加（単一イベント）}：
           対象ボタン（Button）を特定し、イベント要素（\verb|Type=Event|）を生成して追加する。
           このとき、イベント内容を \verb|Name| と \verb|Target| に保持し、
           描画部が矢印接続を構成できるようにする。
+              プロジェクト管理部へ更新要求を通知する（\ref{sec:FileUpdateProcess}節を参照）。
 
     \item \textbf{タイムアウト追加}：
           対象画面に対するTimeout要素（\verb|Type=Timeout|）を追加または更新する。
           1画面につき1つとする規則により、既存Timeoutが存在する場合は更新（上書き）する。
+              プロジェクト管理部へ更新要求を通知する（\ref{sec:FileUpdateProcess}節を参照）。
 
     \item \textbf{条件分岐の追加}：
           条件分岐を伴う親イベント要素（\verb|Type=Event, Branches=null|）を特定し、
           取得した（Condition, Target）を \verb|EventBranch| として \verb|Branches| に追加または更新する。
+          プロジェクト管理部へ更新要求を通知する（\ref{sec:FileUpdateProcess}節を参照）。
 
     \item \textbf{削除}：
           対象GUI要素をGUI要素リストから除去する。
-          併せて、参照関係（イベントが参照するボタン／タイムアウト、分岐参照）を探索し、
-          不整合を避けるため関連要素も必要に応じて更新する。
+          併せて、参照関係（イベントが参照するボタン、タイムアウト、分岐参照）を探索し、
+          存在しないボタンにつながるイベントが発生する不整合を避けるため関連要素も必要に応じて更新する。
+              プロジェクト管理部へ更新要求を通知する（\ref{sec:FileUpdateProcess}節を参照）。
   \end{enumerate}
 
   \item GUI要素リスト更新後、GUI上の表示ボタン群（外観切替）を更新する。
@@ -1235,6 +1308,5 @@ GUI要素リスト  を更新する処理である。
 
   \item 描画部へ再描画要求を要求し、要素追加、削除、分岐表示を即時反映する。
 
-  \item 保存が必要な操作である場合、
-        プロジェクト管理部のファイル更新処理（\ref{sec:FileUpdateProcess}節）を要求する。
+  \item プロジェクト管理部のファイル更新処理（\ref{sec:FileUpdateProcess}節）を要求する。
 \end{enumerate}

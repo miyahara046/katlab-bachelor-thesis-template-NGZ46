@@ -43,9 +43,9 @@ CTMの構成要素を以下に示す。各要素の表示例を表\ref{tab:ctm_e
     \item イベント要素は、対象の有効ボタン押下時に発生する動作を表し、CTM上では矢印で対象ボタンからの遷移を表現する。
     \item イベント動作を保持し、画面遷移イベントの際に対象画面要素がないときには赤く強調表示する。
   \end{itemize}
-  \item 条件分岐要素
+  \item 条件分岐イベント要素
   \begin{itemize}
-    \item 条件分岐要素は、システムの動作が特定の条件に基づいて変化することを表し、CTM上ではダイヤモンド形状で表現する。
+    \item 条件分岐イベント要素は、システムの動作が特定の条件に基づいて変化することを表し、CTM上ではダイヤモンド形状で表現する。
     \item 条件名を保持する。
   \end{itemize}
   \item タイムアウト要素
@@ -74,11 +74,13 @@ CTMでは、ユーザによるGUI操作を起点として、
     \hline
     ボタン & \includegraphics[width=0.4\linewidth]{./images/ボタン.png} \\
     \hline
-    イベント & \includegraphics[width=0.9\linewidth]{./images/イベント.png} \\
+    イベント & \includegraphics[width=0.4\linewidth]{./images/イベント.png} \\
     \hline
     条件分岐イベント & \includegraphics[width=0.9\linewidth]{./images/条件分岐イベント.png} \\
     \hline
     タイムアウト & \includegraphics[width=0.9\linewidth]{./images/タイムアウト.png} \\
+    \hline
+    遷移先のないイベント & \includegraphics[width=0.8\linewidth]{./images/遷移エラー.png}\\
     \hline
   \end{tabular}
 \end{table}
