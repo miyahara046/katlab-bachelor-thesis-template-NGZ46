@@ -446,7 +446,7 @@ OperationPattern
 \end{figure}
 
 \begin{enumerate}
-    \item 各行の分割。 
+    \item 各行の分割 
 
     プロジェクト管理部から入力として受け取ったMarkdown文字列を改行で分割し、
     各行を1つの要素とした配列を生成する。
@@ -455,7 +455,7 @@ OperationPattern
     以降の処理は、この \verb|lines| を走査対象として用いる。
 
 
-    \item 先頭行判定。
+    \item 先頭行判定
     
     先頭行（\verb|lines[0]|）を判定材料として、
     Markdown仕様記述ルール（\ref{sec:Specrule}節を参照）に則り、「画面一覧クラス」か「画面クラス」かを決定する。
@@ -463,22 +463,28 @@ OperationPattern
     \verb|lines[0] == "# 画面一覧"| を満たす場合、
     画面一覧クラスとして扱い3.の画面抽出へ進む。
     一方で、 \verb|lines[0]| が（\verb|"## "|） で始まる場合、
-    画面クラスとして扱い、
-    タイムアウト4.、ボタン5.、イベント6.の抽出へ進む。
+    画面クラスとして扱い、4.の画面クラス抽出、
+    5.のタイムアウト抽出、6.のボタン抽出、7.のイベント抽出へ進む。
     
     具体例では、先頭行 \verb|lines[0]| が
     \verb|## 画面1| であるため、例で示すMarkdown仕様は画面クラスとして扱う。
 
-    \item 画面抽出。
+    \item 画面抽出
     
     画面一覧クラスを解析する場合、
     2行目（\verb|lines[1]|）以降を走査し、箇条書き本文を画面名として抽出する。
     ここでは、抽出した画面をそれぞれ \verb|GUIElement.Type| に \verb|Screen|、
     \verb|GUIElement.Name| に画面名を設定したGUIElementを生成し、\verb|elements| に追加する。
 
-    \item タイムアウト抽出。
+    \item 画面クラス抽出
 
     画面クラスを解析する場合、
+    先頭行（\verb|lines[0]|）の文字列を画面名として抽出する。
+    ここでは、抽出した画面 \verb|GUIElement.Type| に \verb|Screen|、
+    \verb|GUIElement.Name| に画面名を設定したGUIElementを生成し、\verb|elements| に追加する。
+
+    \item タイムアウト抽出
+
     Markdown仕様記述ルール（\ref{sec:Specrule}節を参照）に基づき、タイムアウト時間は2行目に記述するため、
     2行目（\verb|lines[1]|）をタイムアウト定義行として扱い、
     箇条書き本文からタイムアウト情報を抽出する。
@@ -491,9 +497,8 @@ OperationPattern
     箇条書き本文から「\verb|で|」より前の文字列を抽出し、
     CTM要素の種類として\verb|GUIElement.Type = Timeout|、タイムアウト名として\verb|GUIElement.Name = 80 秒|を設定したGUIElementを生成し、 \verb|elements| に追加する。
 
-    \item ボタン抽出。
+    \item ボタン抽出
 
-    ボタン一覧セクションを抽出する。
     \begin{enumerate}[label=\roman*.]
       \item 見出し行を探索する。
 
