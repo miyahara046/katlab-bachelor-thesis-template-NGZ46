@@ -1,5 +1,5 @@
-\chapter{拡張部分の機能}\label{cha:Function}
-本章では、拡張部分のツールの機能について説明する。拡張部分では、以下の3つの機能を提供する。
+\chapter{拡張した\tool の機能}\label{cha:Function}
+本章では、拡張した\tool の機能について説明する。拡張部分では、以下の3つの機能を提供する。
 \begin{itemize}
   \item 仕様状態に応じたGUI操作制御機能
   \item Condition Transition Map（CTM）描画機能（CTMは\ref{sec:CTM}節で説明する）
@@ -24,7 +24,7 @@ Condition Transition Map（CTM）は、本研究で新たに提案する画面�
 CTMは、画面遷移システムにおける操作と遷移の関係を表すダイアグラムであり、
 GUI操作、および、形式仕様の両方を対応付けるための中間表現である。
 本研究では、CTMを基に、
-Markdown形式仕様、および、VDM\texttt{++}形式仕様を生成することで、
+Markdown仕様、および、VDM\texttt{++}仕様を生成することで、
 視覚的編集を可能としている。\\
 CTMの構成要素を以下に示す。各要素の表示例を表\ref{tab:ctm_elements}に示す。
 \begin{itemize}
@@ -41,7 +41,7 @@ CTMの構成要素を以下に示す。各要素の表示例を表\ref{tab:ctm_e
   \item イベント要素
   \begin{itemize}
     \item イベント要素は、対象の有効ボタン押下時に発生する動作を表し、CTM上では矢印で対象ボタンからの遷移を表現する。
-    \item イベント動作を保持し、画面遷移イベントの際に対象画面要素がないときには赤く強調表示する。
+    \item イベント動作を保持しする。
   \end{itemize}
   \item 条件分岐イベント要素
   \begin{itemize}
@@ -53,11 +53,16 @@ CTMの構成要素を以下に示す。各要素の表示例を表\ref{tab:ctm_e
     \item タイムアウト要素は、一定時間内に特定の操作が行われなかった場合に発生する動作を表し、CTM上ではタイムアウト時間をピンク色の楕円、タイムアウト後遷移先をピンクの矩形で表現する。
     \item タイムアウト時間、タイムアウト後の動作を保持する。
     \end{itemize}
+  \item 遷移先のないイベント要素
+  \begin{itemize}
+    \item 遷移先のないイベント要素は、イベント動作に対応する画面要素が画面一覧管理クラスに存在しない場合に表示する要素であり、赤く強調表示された矩形で表現する。
+    \item イベント動作を保持する。
+    \end{itemize}
 \end{itemize}
 各要素は、GUIで編集可能であり、
 画面遷移システムの全体像を把握しやすくする。\\
 CTMでは、ユーザによるGUI操作を起点として、
-ボタン、条件分岐、イベントを左から右へ配置することで、
+ボタン、分岐条件、イベントを左から右へ配置することで、
 画面遷移の流れを一方向に表現する。
 なお、条件分岐を伴わない場合は、条件分岐を省略する。
 
@@ -78,29 +83,33 @@ CTMでは、ユーザによるGUI操作を起点として、
     \hline
     条件分岐イベント & \includegraphics[width=0.9\linewidth]{./images/条件分岐イベント.png} \\
     \hline
-    タイムアウト & \includegraphics[width=0.9\linewidth]{./images/タイムアウト.png} \\
+    タイムアウト & \includegraphics[width=0.4\linewidth]{./images/タイムアウト.png} \\
     \hline
     遷移先のないイベント & \includegraphics[width=0.8\linewidth]{./images/遷移エラー.png}\\
     \hline
   \end{tabular}
 \end{table}
+
 \section{GUI操作制御機能}\label{sec:GUI-operation-control-function}
 GUI操作制御機能は、現在のMarkdown仕様記述状態に基づいて、
 ツールの画面上部に配置する操作ボタンの表示、および、有効状態を制御する機能である。
 この機能により、Markdown仕様記述の状態に応じて実行可能な操作のみをGUI上に表示することで、
-不適切な操作の実行を防止する。
+ユーザによる不適切な操作の実行を防止する。
 
-本機能では、Markdown仕様記述の解析結果を基に、
-現在の仕様状態を特定し、
+本機能では、Markdown仕様の解析結果を基に、
+現在の選択対象Markdownファイルのクラスを特定し、
 各操作ボタンの表示、および、有効状態をユーザの操作毎に更新する。
 操作ボタンの表示方法は、編集対象となっているクラスの種類に基づいて
-以下の3種類に分する。
+以下の3種類に分類する。
+
 \begin{itemize}
   \item 表示方法A：画面一覧クラスを編集対象として選択している状態
   \item 表示方法B：画面クラスを編集対象として選択している状態
   \item 表示方法C：クラス定義が存在しないMarkdownファイルを編集対象として選択している状態
 \end{itemize}
+
 各表示方法における操作ボタンの表示および有効状態の詳細を以下に示す。
+
 \subsection{表示方法A}\label{sec:Display_A}
 表示方法Aのツール外観を図\ref{fig:look_A}に示す。
 表示方法Aは、ユーザが画面一覧クラスを編集対象として選択した場合に表示する表示方法である。
@@ -110,6 +119,7 @@ GUI操作制御機能は、現在のMarkdown仕様記述状態に基づいて、
   \item 各画面への遷移
   \item 画面遷移システム全体の画面状態を定義するための操作
 \end{itemize}
+
 表示方法Aは、個々の画面遷移ロジックを記述する前段階に対応しており、
 画面構成の管理を行うことを目的としている。
 
@@ -124,12 +134,14 @@ GUI操作制御機能は、現在のMarkdown仕様記述状態に基づいて、
 表示方法Bのツール外観を図\ref{fig:look_B}に示す。
 表示方法Bは、ユーザが個々の画面クラスを編集対象として選択した場合に表示する表示方法である。
 この状態では、ユーザは以下の操作が可能である。
+
 \begin{itemize}
   \item 画面に対するボタンの追加、編集、および、削除
   \item 画面に対するタイムアウトの追加、編集、および、削除
   \item 各ボタンに対するイベントの追加、編集、および、削除
   \item 画面遷移システムの各画面における操作と遷移の詳細定義
 \end{itemize}
+
 表示方法Bは、ユーザが個々の画面遷移ロジックを記述する段階に対応しており、
 画面ごとの操作と遷移の管理を行うことを目的としている。
 
@@ -139,7 +151,9 @@ GUI操作制御機能は、現在のMarkdown仕様記述状態に基づいて、
   \caption{表示方法Bのツール外観}
   \label{fig:look_B}
 \end{figure}
+
 \subsection{表示方法C}\label{sec:Display_C}
+
 表示方法Cのツール外観を図\ref{fig:look_C}に示す。
 表示方法Cは、クラス定義が存在しないMarkdownファイルを編集対象とした場合に
 表示する表示方法である。
@@ -147,6 +161,7 @@ GUI操作制御機能は、現在のMarkdown仕様記述状態に基づいて、
 その他の編集操作は実行できない。
 表示方法Cは、仕様記述の初期状態を明確にし、
 不完全な状態での操作実行を防止することを目的としている。
+
 \begin{figure}[tp]
   \centering 
   \includegraphics[width=0.7\linewidth]{./images/Look_C.png}
@@ -155,13 +170,14 @@ GUI操作制御機能は、現在のMarkdown仕様記述状態に基づいて、
 \end{figure}
 
 また、各表示方法と編集対象の対応を表\ref{tab:Look_patterns}に、各表示方法とユーザが可能な操作を表\ref{tab:Look_patterns_operations}に示す。
+
 \begin{table}[htbp]
   \centering
   \caption{操作ボタン表示方法と編集対象の対応}
   \label{tab:Look_patterns}
   \begin{tabular}{|c|p{9cm}|}
     \hline
-    表示方法 & 表示される条件 \\
+    表示方法 & 表示条件 \\
     \hline
     表示方法A &
     画面一覧クラスを編集対象として選択している状態 \\
@@ -206,7 +222,7 @@ GUI操作制御機能は、現在のMarkdown仕様記述状態に基づいて、
 \end{table}
 
 \section{Condition Transition Map（CTM）描画機能}\label{sec:CTM-drawing-function}
-図\ref{fig:ctm_example}に、Markdown形式仕様記述（コード\ref{lst:markdown_example}）に対応するCTM描画例を示す。
+図\ref{fig:ctm_example}に、Markdown仕様（コード\ref{lst:markdown_example}）に対応するCTM描画例を示す。
 
 CTM描画機能は、コード\ref{lst:markdown_example}に示すように、\tool の記述ルール（\ref{sec:Specrule}小節）に沿ったMarkdown形式の仕様記述ファイルを入力として受け取り、
 対応するCTMを自動で描画する機能である。
@@ -217,12 +233,12 @@ CTM描画機能は、コード\ref{lst:markdown_example}に示すように、\to
 
 描画したCTMは、ユーザ操作によって選択やドラッグが可能であり、
 要素の位置関係を調整できる。
-また、遷移先が未定義のイベントなど、仕様上不整合が存在する場合には、
+また、遷移先がないイベントなど、仕様上不整合が存在する場合には、
 視覚的に識別できるよう赤く強調表示を行う。
 
 
 \begin{figure}[tp]
-\begin{lstlisting}[caption={Markdown形式仕様の記述例}, label={lst:markdown_example}]
+\begin{lstlisting}[caption={Markdown仕様の記述例}, label={lst:markdown_example}]
   ## 画面1
   - 80 秒でタイムアウト
 
@@ -277,11 +293,14 @@ VDM\texttt{++}形式仕様記述ファイルとして出力する機能である
 画面一覧クラスまたは画面クラスを追加することで
 仕様記述の編集を開始できるようにする。
 
+本操作は、表示方法Cにおいてのみ有効である。
+
 本操作では、ユーザがクラスの種類選択・追加ボタンをクリックした際に、
 表示されるダイアログから追加するクラスの種類を選択する。
 選択されたクラスの種類に基づいて、
 Markdownファイルに対応するクラス定義を追加し、
 表示方法Cから表示方法Aまたは表示方法Bへと切り替える。
+画面一覧の
 \subsection{画面の追加}
 画面の追加は、CTM上に新たな画面要素を追加する操作である。
 本操作により、画面遷移システムに新たな画面状態を定義できるようにする。
