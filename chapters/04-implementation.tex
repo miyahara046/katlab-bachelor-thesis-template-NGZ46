@@ -1,7 +1,8 @@
 \chapter{拡張した2VSGの実装}\label{cha:Implementation}
 
 本章では、拡張部分の実装について説明する。
-本研究の拡張で追加した部分も既存の\tool 同様にMVVMアーキテクチャ（\ref{sec:MVVM}節を参照）を採用している。拡張部分のシステム構成を、図\ref{fig:system-architecture}に示す。
+本研究の拡張で追加した部分も既存の\tool 同様にMVVMアーキテクチャ（\ref{sec:MVVM}節を参照）を採用している。MVVMアーキテクチャ実装のために本研究では
+CommunityToolkit.Mvvm（\ref{sec:CommunityToolkit.Mvvm}節を参照）を使用している。拡張部分のシステム構成を、図\ref{fig:system-architecture}に示す。
 拡張後の\tool は、以下の6つの主要な処理部で構成する。なお、本研究ではすべての処理部を拡張する。
 \begin{itemize}
       \item View 層
@@ -31,113 +32,6 @@ Model 層は、プロジェクト管理部、解析部、GUI要素生成部、�
 この構成により、Model 層は View 層を直接参照せず、
 ViewModel 層を介して状態のみを受け渡す。
 
-各処理部の入出力対応について表\ref{tab:component_io}に示す。
-
-\begin{longtable}{|p{3cm}|p{5.5cm}|p{7cm}|}
-\caption{各処理部の入出力対応}
-\label{tab:component_io} \\
-\hline
-\textbf{処理部} & \textbf{入力} & \textbf{出力} \\
-\hline
-\endfirsthead
-
-\hline
-\textbf{処理部} & \textbf{入力} & \textbf{出力} \\
-\hline
-\endhead
-
-\hline
-\endfoot
-
-\hline
-\endlastfoot
-
-プロジェクト管理部 &
-\begin{itemize}
-  \item ユーザ操作監視部からの操作イベント
-  \item プロジェクトフォルダ
-  \item Markdown ファイル
-  \item VDM++ ファイル
-  \item JSONファイル
-  \item GUI 要素リスト（elements）
-\end{itemize}
-&
-\begin{itemize}
-  \item 解析部へ渡す Markdown 文字列
-  \item 変換部へ渡す Markdown 文字列
-  \item GUI 要素生成部へ渡す配置情報（JSON）
-  \item 更新後の Markdown ファイル
-  \item 更新後の VDM++ ファイル
-  \item 更新後の GUI 要素配置情報（JSON）
-  \item 表示パターンフラグ
-  \item GUI 要素リスト（elements）
-\end{itemize}
-\\
-\hline
-解析部 &
-\begin{itemize}
-  \item Markdown 文字列
-\end{itemize}
-&
-\begin{itemize}
-  \item GUI 要素リスト（elements）
-\end{itemize}
-\\
-\hline
-GUI 要素生成部 &
-\begin{itemize}
-  \item GUI 要素リスト（elements）
-  \item GUI 要素配置情報（JSON）
-\end{itemize}
-&
-\begin{itemize}
-  \item 座標、および、サイズを付与した GUI 要素リスト（elements）
-\end{itemize}
-\\
-\hline
-変換部 &
-\begin{itemize}
-  \item Markdown 文字列
-  \item GUI 要素リスト（elements）
-\end{itemize}
-&
-\begin{itemize}
-  \item VDM++ 文字列
-  \item Markdown 文字列
-\end{itemize}
-\\
-\hline
-描画部 &
-\begin{itemize}
-  \item GUI 要素リスト（elements）
-  \item 表示パターンフラグ
-\end{itemize}
-&
-\begin{itemize}
-  \item CTM 描画結果
-  \item GUI 要素外接矩形情報
-\end{itemize}
-\\
-\hline
-ユーザ操作監視部 &
-\begin{itemize}
-  \item ユーザの操作イベント
-  \item GUI 要素外接矩形情報
-  \item GUI 要素リスト
-  \item 表示パターンフラグ
-\end{itemize}
-&
-\begin{itemize}
-  \item 操作対象 GUI 要素リスト
-  \item 編集コマンド要求
-  \item ファイル更新要求
-  \item ユーザの操作イベント
-  \item 表示パターンフラグ
-\end{itemize}
-\\
-\hline
-\end{longtable}
-
 本ツールでは、CTM（\ref{sec:CTM}節を参照）上に表示する各CTM要素が保持するデータGUIElement（\ref{sec:ParsingComponent}節を参照）の中で
 以下に示すデータを保持するGUIElementをGUI要素と呼ぶ。
 \begin{itemize}
@@ -166,6 +60,7 @@ GUI 要素生成部 &
   \item ファイル読込処理
   \item ファイル更新処理
   \item 画面切り替え処理
+  \item 新規ファイル作成処理
 \end{itemize}
 
 本処理部の入力は、ユーザ操作監視部（\ref{sec:UserOperationMonitoring}節を参照）によるユーザ操作イベント、および、プロジェクトフォルダである。
@@ -175,7 +70,7 @@ GUI 要素生成部 &
 解析部（\ref{sec:ParsingComponent}節を参照）、および、変換部（\ref{sec:ConversionComponent}節を参照）へ渡す入力データ（Markdown文字列）、
 およびGUI要素生成部（\ref{sec:GUIElementGenerationComponent}節を参照）へ渡すGUI要素の配置情報（JSONファイル）を準備するとともに、
 編集結果をファイルへ出力する処理部である。
-本処理部でのファイルシステム入出力には 、.NET 標準ライブラリの System.IO （\ref{sec:NET_MAUI}節を参照）を用いる。
+本処理部でのファイルシステム入出力には 、System.IO （\ref{sec:System.IO}節を参照）を用いる。
 
 本処理部のシステム構成を、図\ref{fig:proj-system}に示す。
 
@@ -191,12 +86,12 @@ GUI 要素生成部 &
 
 フォルダ選択処理は、ユーザが編集対象のプロジェクトフォルダを選択した際に、
 選択フォルダの絶対パスを取得して状態変数 \verb| SelectedFolderPath| に保持し、
-フォルダおよびファイル探索処理（\ref{sec:PM_FolderFileSearch}節）を起動して
+フォルダおよびファイル探索処理（\ref{sec:PM_FolderFileSearch}節を参照）を起動して
 ツリー表示用データ \verb|ObservableCollection<FolderItem> FolderItems| を再構築する処理である。
 
 本処理では、
-.NET 標準ライブラリの System.IO
-（\ref{sec:NET_MAUI}節を参照）を用いて、
+System.IO
+（\ref{sec:System.IO}節を参照）を用いて、
 フォルダおよびファイルの列挙処理を行う。
 
 本処理の流れを以下に示す。
@@ -222,7 +117,7 @@ GUI 要素生成部 &
 
   \item フォルダおよびファイル探索処理の呼出し
 
-  フォルダおよびファイル探索処理を呼び出し、
+  フォルダおよびファイル探索処理へ探索要求を行い、
   \verb|SelectedFolderPath| 配下のフォルダおよび
   Markdown ファイルを走査して
   ツリー表示用データ構造である
@@ -244,15 +139,15 @@ GUI 要素生成部 &
 
 \subsection{フォルダおよびファイル探索処理}\label{sec:PM_FolderFileSearch}
 
-フォルダおよびファイル探索処理は、
+フォルダおよびファイル探索処理は、探索要求を受け取り、
 選択されたプロジェクトフォルダ配下のフォルダおよび Markdown ファイルを走査し、
 ツリー表示用の内部データ構造である
 \verb|FolderItems| を構築する処理である。
 \verb|FolderItems| は、表\ref{tb:FolderItem}に示すデータ構造を持つ。
 
 本処理では、
-.NET 標準ライブラリの System.IO
-（\ref{sec:NET_MAUI}節を参照）を用いて、
+System.IO
+（\ref{sec:System.IO}節を参照）を用いて、
 フォルダおよびファイルの列挙を行う。
 
 本処理の流れを、以下に示す。
@@ -287,12 +182,14 @@ GUI 要素生成部 &
 
   \item 画面索引辞書（\verb|screenIndex|）の設定
 
-      発見した各 Markdown ファイルについて、画面名から当該ファイルを特定できるよう、
-      画面索引辞書（\verb|screenIndex|）へ対応関係を登録する。
+      発見した各 Markdown ファイルについて、画面クラス名から当該ファイルを特定できるよう、
+      画面索引辞書（\verb|screenIndex|）へ対応関係を登録する。本研究で画面クラス名とは画面クラスのクラス名のことである。
       登録にあたり、Markdown 文字列の先頭行を取得し、
       「\verb|# 画面一覧|」である場合は画面一覧クラスとして扱うため索引登録を行わない。
       一方で、先頭行が「\verb|##|」で始まる場合は画面クラスとして扱い、
-      先頭行から抽出した画面名をキー、Markdown ファイルの絶対パスを値として登録する。
+      先頭行から抽出した画面クラス名をキー、Markdown ファイルの絶対パスを値として登録する。
+      本研究では、Markdown仕様の先頭行が「\verb|# 画面一覧|」で始まる場合は画面一覧クラスと呼び、
+      「\verb|##|」で始まる場合は画面クラスと呼ぶ。
       \verb|screenIndex| はプロジェクト管理部が保持し、
       画面切り替え処理（\ref{sec:PM_ScreenTransitionProcess}節を参照）で利用する。
 
@@ -348,8 +245,8 @@ Children & ObservableCollection\textless FolderItem\textgreater & 子要素リ�
 解析部、および、変換部で利用する内部データを初期化する処理である。
 
 本処理では、
-.NET 標準ライブラリの System.IO.File クラス
-（\ref{sec:NET_MAUI}節を参照）を用いて、
+System.IO
+（\ref{sec:System.IO}節を参照）を用いて、
 ファイル内容の読込を行う。
 
 本処理の流れを、以下に示す。
@@ -392,7 +289,7 @@ Children & ObservableCollection\textless FolderItem\textgreater & 子要素リ�
   \item 解析部の呼出し
 
   内部保持する\verb|markdownText|を入力として、
-  解析部（\ref{sec:ParsingComponent}節）を呼び出す。
+  解析部（\ref{sec:ParsingComponent}節を参照）を呼び出す。
   解析部は Markdown 文字列を解析し、
   \verb|List<GUIElement> elements| を生成しプロジェクト管理部が受け取る。
 
@@ -407,7 +304,7 @@ Children & ObservableCollection\textless FolderItem\textgreater & 子要素リ�
       \verb|.positions.json| ファイルが存在する場合は、
       そのファイルを読み込む。
       読み込んだGUI要素配置情報ファイルと解析部から受け取った\verb|elements|を入力として、
-      GUI要素生成部（\ref{sec:GUIElementGeneration}節）を呼び出す。
+      GUI要素生成部（\ref{sec:GUIElementGenerationComponent}節を参照）を呼び出す。
       GUI要素生成部は、
       \verb|elements| と \verb|.positions.json| の情報をもとに、
       GUI要素の配置情報を設定した上で、\verb|elements|をユーザ操作監視部へ渡す。
@@ -420,9 +317,9 @@ Markdown 仕様、VDM\texttt{++} 仕様、
 および GUI 要素配置情報（JSONファイル）として
 プロジェクトファイルへ反映する処理である。
 本処理では、
-.NET 標準ライブラリの System.IO.File クラス、
-および System.Text.Json
-（\ref{sec:NET_MAUI}節を参照）を用いて、
+System.IO（\ref{sec:System.IO}節を参照）、
+および System.Text.Json（\ref{sec:JSON}）
+を用いて、
 各種ファイルの保存を行う。
 
 本処理の流れを、以下に示す。
@@ -438,23 +335,24 @@ Markdown 仕様、VDM\texttt{++} 仕様、
   \verb|elements| を入力として、
   変換部の
   GUI 操作から Markdown 仕様への変換処理
-  （\ref{sec:GUItoMarkdownConversionProcess}節）を呼び出す。
+  （\ref{sec:GUItoMarkdownConversionProcess}節を参照）を呼び出す。
   変換処理により、
   更新後の Markdown 文字列
-  \verb|updatedMarkdown| を生成する
+  \verb|updatedMarkdown| を生成する。
 
   \item Markdown ファイルの保存
 
   生成した \verb|updatedMarkdown| を、
   \verb|SelectedFilePath| が示す Markdown ファイル（\verb|.md|）へ
   書き込み、保存する。
+  保存する際、画面クラス名が変わっている場合は\verb|SelectedFilePath|（\ref{sec:PM_ScreenTransitionProcess}節を参照）の画面クラス名を変更する。
 
   \item VDM\texttt{++} 仕様の生成
 
   保存した Markdown 文字列 \verb|updatedMarkdown| を入力として、
   変換部の
   Markdown 仕様から VDM\texttt{++} 仕様への変換処理
-  （\ref{sec:ConversionComponent}節）を呼び出す。
+  （\ref{sec:ConversionComponent}節を参照）を呼び出す。
   これにより、
   VDM\texttt{++} 文字列 \verb|vdmText| を生成する。
 
@@ -516,7 +414,7 @@ GUI表示、Markdown仕様、VDM++仕様、および配置情報が
 
 \subsection{画面切り替え処理}\label{sec:PM_ScreenTransitionProcess}
 
-画面切り替え処理は、ユーザ操作監視部から画面切り替え要求（\ref{sec:UOM_DoubleClick}節を参照）、および、切り替え先画面名を入力として受け取り、
+画面切り替え処理は、ユーザ操作監視部から画面切り替え要求（\ref{sec:UOM_DoubleClick}節を参照）、および、切り替え先画面クラス名を入力として受け取り、
 切り替え先Markdownファイルのパスを特定し、
 ファイル読込処理（\ref{sec:PM_FileLoadProcess}節を参照）へ
 ファイル読込要求、および、Markdownファイルパスを出力することで編集対象となる画面クラスを切り替える処理である。
@@ -525,10 +423,10 @@ GUI表示、Markdown仕様、VDM++仕様、および配置情報が
 
 \begin{enumerate}
   \item ユーザ操作監視部から画面要素のダブルクリック操作により、
-        画面切り替え要求および切り替え先画面名を受け取る。
+        画面切り替え要求および切り替え先画面クラス名を受け取る。
 
   \item プロジェクト管理部が保持している画面索引辞書（\verb|screenIndex|）を参照し、
-        切り替え先画面名\verb|GUIElement.Name|に対応する Markdown ファイルパスを特定する。
+        切り替え先画面クラス名\verb|GUIElement.Name|に対応する Markdown ファイルパスを特定する。
 
   \item 対応する Markdown ファイルが存在する場合、
         対象ファイルを次の編集対象として設定する。
@@ -538,12 +436,28 @@ GUI表示、Markdown仕様、VDM++仕様、および配置情報が
         Markdown 文字列および関連する GUI 要素を再構築する。
 \end{enumerate}
 
+\subsection{新規ファイル作成処理}\label{sec:PM_FileCreate}
+
+新規ファイル作成処理は、ユーザ操作監視部からファイル作成要求（\ref{sec:UOM_EditCommand}節を参照）、および、ファイル名を入力として受け取り、
+新規Markdownファイルを作成、および、\verb|SelectedFilePath|へ新規Markdownファイルのパスを格納し、
+ファイル読み込み処理へファイル読込要求、フォルダおよびファイル探索処理へ探索要求、および、プロジェクトフォルダへ新規Markdownファイルを出力する処理である。
+
+本処理の流れを以下に示す。
+\begin{enumerate}
+      \item ユーザ操作監視部からファイル作成要求、および、ファイル名を入力として受け取る。
+      \item \verb|SelectedFolderPath|をもとに新規Markdownファイルのパスを生成する。
+      \item \verb|SelectedFilePath|へ新規Markdownファイルのパスを格納する。
+      \item 指定したパスへ空のマークダウンファイルを作成する。
+      \item フォルダおよびファイル探索処理へ探索要求を出力する。
+      \item ファイル読み込み処理へファイル読込要求を出力する。
+\end{enumerate}
+
 \section{解析部}\label{sec:ParsingComponent}
 
 解析部は、記述ルールに従ったMarkdown仕様（コード\ref{lst:markdown_example}を参照）の文字列を解析し、CTM（\ref{sec:CTM}節を参照）表示、および、操作の基礎となる構造データを生成する処理部である。
 本処理部では、表\ref{tab:ctm_elements}に示したCTM要素を抽出することを目的とする。
 
-本処理部では、.NET 標準ライブラリの System.Text.RegularExpressions（\ref{sec:System.Text.RegularExpressions}節を参照）を用いて Markdown文字列の各行を解析する。
+本処理部では、System.Text.RegularExpressions（\ref{sec:System.Text.RegularExpressions}節を参照）を用いて Markdown文字列の各行を解析する。
 
 本処理部の入力はプロジェクト管理部から受けとるMarkdown文字列であり、出力はGUI要素生成部に渡すGUIElementのリストである\verb|elements|である。
 ここで、GUIElement は、各CTM 要素を構成する構造データである。GUIElementのデータ構造を、表\ref{tb:GUIElement}に示す。
@@ -703,7 +617,7 @@ Event & 確定押下 & -- & 条件分岐を含むイベント \\
 \hline
 BulletPattern
 & \texttt{\detokenize{@^\s*(?:-|\*|・|・)\s+(?<Text>.+?)\s*$}}
-& ボタン名、画面名、イベント行、タイムアウト行の
+& ボタン名、画面要素名、イベント行、タイムアウト行の
 箇条書き本文の抽出判定 \\
 \hline
 EventPattern
@@ -760,10 +674,10 @@ OperationPattern
                   \item 画面抽出
                   
                   画面一覧クラスを解析する場合、
-                  2行目（\verb|lines[1]|）以降を走査し、\verb|BulletPattern|によって抽出した箇条書き本文を画面名として抽出する。
+                  2行目（\verb|lines[1]|）以降を走査し、\verb|BulletPattern|によって抽出した箇条書き本文を画面要素名として抽出する。
 
                   抽出した画面につき、 \verb|GUIElement.Type| に \verb|Screen|、
-                  \verb|GUIElement.Name| に画面名を設定したGUIElementをそれぞれ生成し、\verb|elements| に追加する。
+                  \verb|GUIElement.Name| に画面要素名を設定したGUIElementをそれぞれ生成し、\verb|elements| に追加する。
 
             \end{enumerate}
 
@@ -831,7 +745,7 @@ OperationPattern
 
                         \item ボタン要素をGUIElementとして生成
 
-                        抽出したボタン名について、\verb|HashSet<string>|（\ref{sec:NET}節を参照）を用いて重複判定を行う。
+                        抽出したボタン名について、\verb|HashSet<string>|（\ref{sec:System.Collections.Generic}節を参照）を用いて重複判定を行う。
                         重複していない場合、\verb|GUIElement.Type|に \verb|Button|、
                         \verb|GUIElement.Name|にボタン名を設定したGUIElementを生成し、\verb|elements| に追加する。
                         重複していた場合、該当行のボタン要素の生成をスキップする。
@@ -1148,8 +1062,8 @@ GUIElement の \verb|Branches|（表\ref{tb:EventBranch}）へ格納する処理
 
 \section{GUI要素生成部}\label{sec:GUIElementGenerationComponent}
 
-GUI要素生成部は、解析部（\ref{sec:ParsingComponent}節）で抽出した
-\verb|elements| をプロジェクト管理部（\ref{sec:ProjectManagementComponent}節）から入力として受け取る。
+GUI要素生成部は、解析部（\ref{sec:ParsingComponent}節を参照）で抽出した
+\verb|elements| をプロジェクト管理部（\ref{sec:ProjectManagementComponent}節を参照）から入力として受け取る。
 同時に、対象とするMarkdownファイルに対応する
 GUI配置情報（JSON）をプロジェクト管理部から受け取る。
 GUI要素生成部は、この\verb|elements| 、および、GUI配置情報をもとに、
@@ -1179,7 +1093,7 @@ GUI要素生成部は、この\verb|elements| 、および、GUI配置情報を�
 
 GUI要素生成部の入力は、解析部の出力である \verb|elements| と、
 必要に応じてプロジェクト管理部から受け取る配置情報（JSON）である。
-出力は、ユーザ操作監視部（\ref{sec:UserOperationMonitoring}節）に渡すGUI要素リスト\verb|elements|である。
+出力は、ユーザ操作監視部（\ref{sec:UserOperationMonitoring}節を参照）に渡すGUI要素リスト\verb|elements|である。
 
 GUI要素生成部で用いる通常ノードの描画仕様を表\ref{tab:gui_node_spec}に、
 条件分岐イベントにおける可視ノードの描画仕様を表\ref{tab:gui_node_branch}に示す。
@@ -1280,7 +1194,7 @@ Y_i = Y_0 + i \cdot d
             具体的な描画位置、形状の頂点位置、
             および分岐線の描画に関する幾何的計算は、
             GUI要素生成部では行わない。
-            これらの計算は、描画部（\ref{sec:DrawingComponent}節）において、
+            これらの計算は、描画部（\ref{sec:DrawingComponent}節を参照）において、
             基準となるイベント要素および分岐順序に基づいて動的に決定する。
 
       \end{enumerate}
@@ -1561,7 +1475,7 @@ GUI要素生成部で定義した規則に基づいて決定しており、
 
     \item 描画したすべてのノードおよび分岐要素について、
     外接矩形情報を記録し、ヒットテスト処理
-    （\ref{sec:HitTestProcess}節）で利用可能な状態として保持する。
+    （\ref{sec:UOM_HitTest}節を参照）で利用可能な状態として保持する。
 \end{enumerate}
 
 \subsubsection{矢印の開始点および終了点の算出}
@@ -1579,7 +1493,7 @@ GUI要素生成部で定義した規則に基づいて決定しており、
       (x_t, y_t) = (X_t, Y_t + \frac{H_t}{2})
 \end{equation}
 
-\subsection{再描画処理}
+\subsection{再描画処理}\label{sec:Re-Draw}
 再描画処理は、ユーザ操作や仕様変更に伴い、CTM表示を更新する処理である。
 ユーザ操作監視部からの再描画要求を受け取り、再描画したツール上部のボタン、およびCTM描画領域を更新する。
 この処理により、仕様の変更が即座に視覚的に反映され、ユーザが最新の状態を把握できるようにする。
@@ -1634,18 +1548,18 @@ GUI要素生成部で定義した規則に基づいて決定しており、
 GUI要素リストである。
 出力は、操作対象 GUI 要素リスト、編集コマンド（追加、削除、編集）要求、ファイル更新要求、および、ユーザの操作イベントである。
 
-本処理部で用いるユーザ操作イベントのポインタ座標は、.NET MAUI （\ref{sec:NET_MAUI}）の座標系に基づいており、
+本処理部で用いるユーザ操作イベントのポインタ座標は、.NET MAUI （\ref{sec:NET_MAUI}節を参照）の座標系に基づいており、
 CTM描画領域の左上を原点とする座標系である。
 
 本処理部の主要な処理は、以下の7つである。
 \begin{itemize}
-      \item ヒットテスト処理（\ref{sec:UOM_HitTest}節）
-      \item 左クリック操作監視処理（\ref{sec:UOM_Click}節）
-      \item 右クリック操作監視処理（\ref{sec:UOM_Context}節）
-      \item 左ダブルクリック操作監視処理（\ref{sec:UOM_DoubleClick}節）
-      \item ドラッグ移動操作監視処理（\ref{sec:UOM_Drag}節）
-      \item 上部操作ボタンのクリック操作監視処理（\ref{sec:UOM_OperationButtonClick}節）
-      \item 編集コマンド実行処理（\ref{sec:UOM_EditCommand}節）
+      \item ヒットテスト処理
+      \item 左クリック操作監視処理
+      \item 右クリック操作監視処理
+      \item 左ダブルクリック操作監視処理
+      \item ドラッグ移動操作監視処理
+      \item 操作ボタンのクリック操作監視処理
+      \item 編集コマンド実行処理
 \end{itemize}
 
 以降、各ユーザ操作に対する処理を説明する。
@@ -1669,7 +1583,8 @@ X \leq x \leq X + W \;\land\; Y \leq y \leq Y + H
   \item 描画部から外接矩形リスト \verb|hitRects| を取得する。外接矩形リスト\verb|hitRects|は、
         表\ref{tab:hit_test_rect}に示す属性を持つ。   
   \item \verb|hitRects| を先頭から走査し、式\ref{eq:hit}により包含判定を行う。
-  \item 複数のGUI要素がヒットする場合は、描画順序（前面優先）に基づき最前面GUI要素を採用する。描画順序は、外接矩形情報の \verb|ZIndex| 属性を参照し、値が大きいほど前面に描画されていると判定する。
+  \item 複数のGUI要素がヒットする場合は、描画順序（前面優先）に基づき最前面GUI要素を採用する。
+      描画順序は、外接矩形情報の \verb|ZIndex| 属性を参照し、値が大きいほど前面に描画されていると判定する。
   \item 採用したGUI要素を \verb|SelectedElement| として確定する。
   \item ヒットしたGUI要素が存在しない場合、\verb|SelectedElement| を \verb|null| に設定する。
 \end{enumerate}
@@ -1715,7 +1630,7 @@ ZIndex & int &
 \begin{enumerate}
   \item 左クリック座標 $(x, y)$ を受け取る。座標と同時に
         左ボタンによるクリックイベントの通知を受け取る。
-  \item ヒットテスト処理（\ref{sec:UOM_HitTest}節）を呼び出し、\verb|SelectedElement| を確定する。
+  \item ヒットテスト処理（\ref{sec:UOM_HitTest}節を参照）を呼び出し、\verb|SelectedElement| を確定する。
   \item 既存の選択GUI要素が存在する場合、当該GUI要素の \verb|GUIElement.IsSelected| を \verb|false| に更新する。
   \item \verb|SelectedElement| の \verb|GUIElement.IsSelected| を \verb|true| に更新する。
   \item 描画部へ再描画要求を発行し、強調表示状態を更新する。強調表示状態は、
@@ -1792,7 +1707,7 @@ ZIndex & int &
         プロジェクト管理部のファイル更新処理（\ref{sec:FileUpdateProcess}節を参照）を要求する。
 \end{enumerate}
 
-\subsection{上部操作ボタンのクリック操作監視処理}\label{sec:UOM_TopBarClick}
+\subsection{操作ボタンのクリック操作監視処理}\label{sec:UOM_TopBarClick}
 
 上部操作ボタンのクリック操作監視処理は、
 ツール上部に配置した操作ボタンのクリックを検知し、
@@ -1826,7 +1741,7 @@ CTM描画領域に対する座標入力を用いるヒットテスト処理（\r
 \subsection{編集コマンド実行処理}\label{sec:UOM_EditCommand}
 
 本処理は、右クリックメニューや画面上の操作ボタン（追加、編集、削除、保存）により確定した編集コマンドを実行し、
-必要な入力値（名称、遷移先、条件文）をポップアップで取得した上で、
+必要な入力値（名称、遷移先、条件文）をダイアログで取得した上で、
 GUI要素リストを更新する処理である。
 
 本処理は、編集コマンド種別、選択中要素 \verb|SelectedElement|、GUI要素リストを入力として受け取り、
@@ -1842,87 +1757,96 @@ GUI要素リストを更新する処理である。
   例えば、ボタン追加ではボタン名、イベント追加では「対象ボタン」「イベント内容の選択」「イベント」を要求する。
   条件分岐追加では「条件文」と「イベント」を要求する。
 
-  \item 入力が必要な場合、ポップアップ（入力ダイアログ）を表示し、ユーザから文字列を取得する。
+  \item 入力が必要な場合、ダイアログを表示し、ユーザから文字列を取得する。
   \begin{itemize}
-    \item キャンセルした場合は、処理を中断し、GUI要素リストを変更しない。
+    \item キャンセルした場合は、処理を中断し、GUI要素リスト\verb|elements|を変更しない。
     \item 入力値が空、または重複する場合は、エラー表示（警告）を行い、再入力または中断とする。
   \end{itemize}
 
   \item コマンド種別に応じてGUI要素リストを更新する。
-  更新規則を、以下に示す。
+  更新パターンを、以下に示す。
   \begin{itemize}
       \item \textbf{画面追加}：
       \begin{enumerate}
-            \item 画面追加用のポップアップを表示し、画面名を取得する。
-            \item 既存画面名と重複する場合は追加しない
-            \item 新しい画面要素（\verb|Type=Screen, Name=画面名|）をGUI要素リストに追加する。
+            \item 画面追加用のダイアログを表示し、画面要素名を取得する。
+            \item 既存画面要素名と重複する場合は追加しない
+            \item 新しい画面要素（\verb|Type=Screen, Name=画面要素名|）をGUI要素リスト\verb|elements|に追加する。
             \item プロジェクト管理部へ更新要求を通知する（\ref{sec:FileUpdateProcess}節を参照）。
+            \item 描画部へ再描画要求（\ref{sec:Re-Draw}節を参照）を通知する。
       \end{enumerate}
       \item \textbf{ボタン追加}：
       \begin{enumerate}
-            \item ボタン追加用のポップアップを表示し、ボタン名を取得する。
+            \item ボタン追加用のダイアログを表示し、ボタン名を取得する。
             \item 既存ボタン名と重複する場合は追加しない
-            \item 新しいボタン要素（\verb|Type=Button, Name=ボタン名|）をGUI要素リストに追加する。
+            \item 新しいボタン要素（\verb|Type=Button, Name=ボタン名|）をGUI要素リスト\verb|elements|に追加する。
             \item プロジェクト管理部へ更新要求を通知する（\ref{sec:FileUpdateProcess}節を参照）。
+            \item 描画部へ再描画要求（\ref{sec:Re-Draw}節を参照）を通知する。
       \end{enumerate}
       \item \textbf{イベント追加}：
       \begin{enumerate}
-            \item 対象ボタン選択用のポップアップを表示し、対象ボタン名を取得する。
+            \item 対象ボタン選択用のダイアログを表示し、対象ボタン名を取得する。
             \item 対象のボタン要素に対して、すでにイベントが存在する場合は追加しない。
-            \item 条件分岐イベント選択用のポップアップを表示し、単一イベントまたは条件分岐イベントを選択する。
+            \item 条件分岐イベント選択用のダイアログを表示し、単一イベントまたは条件分岐イベントを選択する。
             \begin{itemize}
                   \item 単一イベント選択時：
                   \begin{enumerate}
-                        \item 単一イベント追加用のポップアップを表示し、イベント内容を取得する。
-                        \item 新しいイベント要素（\verb|Type=Event|）を生成して追加する。
+                        \item 単一イベント追加用のダイアログを表示し、イベント内容を取得する。
+                        \item 新しいイベント要素（\verb|Type=Event|）を生成してGUI要素リスト\verb|elements|に追加する。
                         このとき、イベント内容を \verb|Name| と \verb|Target| に保持し、
                         描画部が矢印接続を構成できるようにする。
                         \item プロジェクト管理部へ更新要求を通知する（\ref{sec:FileUpdateProcess}節を参照）。
                   \end{enumerate}
                   \item 条件分岐イベント選択時：
                   \begin{enumerate}
-                        \item 条件分岐イベント追加用のポップアップを表示し、
+                        \item 条件分岐イベント追加用のダイアログを表示し、
                         分岐条件文と遷移先イベントを取得する。
-                        \item 新しい条件分岐イベント要素（\verb|Type=Event, Branches=null|）を生成して追加する。
+                        \item 新しい条件分岐イベント要素（\verb|Type=Event, Branches=null|）を生成してGUI要素リスト\verb|elements|に追加する。
                         このとき、分岐条件文と遷移先を \verb|Branches| に保持し、
                         描画部が条件分岐表示を構成できるようにする。
                         \item プロジェクト管理部へ更新要求を通知する（\ref{sec:FileUpdateProcess}節を参照）。
                   \end{enumerate}
             \end{itemize}
+            \item 描画部へ再描画要求（\ref{sec:Re-Draw}節を参照）を通知する。
       \end{enumerate}
       \item \textbf{タイムアウト追加}：
       \begin{enumerate}
-            \item タイムアウト追加用のポップアップを表示し、タイムアウト内容を取得する。
-            \item 新しいタイムアウト要素（\verb|Type=Timeout|）を生成して追加する。
+            \item タイムアウト追加用のダイアログを表示し、タイムアウト内容を取得する。
+            \item 新しいタイムアウト要素（\verb|Type=Timeout|）を生成してGUI要素リスト\verb|elements|に追加する。
             \item タイムアウトは1画面につき1つとする規則により、既存Timeoutが存在する場合は更新（上書き）する。
             \item プロジェクト管理部へ更新要求を通知する（\ref{sec:FileUpdateProcess}節を参照）。
+            \item 描画部へ再描画要求（\ref{sec:Re-Draw}節を参照）を通知する。
       \end{enumerate}
 
       \item \textbf{削除}：
       \begin{enumerate}
-            \item 対象GUI要素の名称を確認用ポップアップで表示し、削除確認を行う。
-            \item ユーザが削除をキャンセルした場合は、処理を中断し、GUI要素リストを変更しない。
-            \item ユーザが削除を確認した場合は、GUI要素リストから対象要素を除去する。
+            \item 対象GUI要素の名称を確認用ダイアログで表示し、削除確認を行う。
+            \item ユーザが削除をキャンセルした場合は、処理を中断し、GUI要素リスト\verb|elements|を変更しない。
+            \item ユーザが削除を確認した場合は、GUI要素リスト\verb|elements|から対象要素を除去する。
             \item ボタン要素を削除する場合、当該ボタン対象とするイベント要素も同時に削除する。
             \item プロジェクト管理部が保持するMarkdown文字列を参照し、対象要素に対する記述をMarkdown文字列から除去する。
             \item プロジェクト管理部へ更新要求を通知する（\ref{sec:FileUpdateProcess}節を参照）。
+            \item 描画部へ再描画要求（\ref{sec:Re-Draw}節を参照）を通知する。
       \end{enumerate}
 
       \item \textbf{編集}：
       \begin{enumerate}
             \item 対象GUI要素の種別を判定する。
             \item 対象GUI要素の種別に応じて、現在の名称、イベント、
-            条件文をポップアップで表示し、編集用入力欄を提供する。
-            \item ユーザがキャンセルした場合は、処理を中断し、GUI要素リストを変更しない。
-            \item ユーザが編集を完了した場合、入力値を対象GUI要素に反映する。
+            条件文をダイアログで表示し、編集用入力欄を提供する。
+            \item ユーザがキャンセルした場合は、処理を中断し、GUI要素リスト\verb|elements|を変更しない。
+            \item ユーザが編集を完了した場合、入力値をGUI要素リスト\verb|elements|内の対象GUI要素に反映する。
             \item 反映後の名称が既存要素と重複する場合は処理を実行しない。
             \item プロジェクト管理部へ更新要求を通知する（\ref{sec:FileUpdateProcess}節を参照）。
+            \item 描画部へ再描画要求（\ref{sec:Re-Draw}節を参照）を通知する。
+      \end{enumerate}
+
+      \item \textbf{ファイル作成}：
+      \begin{enumerate}
+            \item ファイル名入力用ダイアログを表示しファイル名を取得する。
+            \item 取得したファイル名が\verb|FolderItems|内に存在しないか探索する。
+            \item \verb|FolderItems|内に同一のファイル名が存在する場合エラーを表示し、処理を中断する。
+            \item \verb|FolderItems|内に同一のファイル名が存在しない場合はプロジェクト管理部へ、ファイル作成要求を通知する（\ref{sec:PM_FileCreate}節を参照）。
       \end{enumerate}
   \end{itemize}
 
-  \item GUI要素リスト更新後、GUI上の表示ボタン群（外観切替）を更新する。
-        例えば、画面一覧編集モードでは「画面追加、削除」ボタンのみを表示し、
-        個別画面編集モードでは「ボタン追加、イベント追加、タイムアウト追加」を表示する。
-
-  \item 描画部へ再描画要求を要求し、要素追加、削除、分岐表示を即時反映する。
 \end{enumerate}

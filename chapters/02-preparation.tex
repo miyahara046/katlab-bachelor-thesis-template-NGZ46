@@ -17,21 +17,50 @@
 \section{VDM\texttt{++}}\label{sec:VDM++}
 
 形式手法の1つにVDM（Vienna Development Method）がある。\cite{VDM}。
+VDMは1970年代にウィーンのIBM研究所で考案され、1990年代前半にかけて開発された形式手法である。
+1996年には、形式仕様記述言語VDM-SLがISO標準となっている。\cite{vdm-1}
+VDM++とは、VDM-SLにオブジェクト指向拡張を施した形式仕様記述言語である。
+VDMには、VDMTools\cite{VDMTools}やOverture IDE\cite{Overture}などの支援ツールが揃っており、仕様の検証などを他の形式手法よりも比較的行い
+やすいという利点がある。
+
+VDM\texttt{++}は、クラス定義において、型定義や関数定義などをブロックで定義する。VDM\texttt{++}における各定義について以下で説明する。
+\begin{itemize}
+    \item 型定義
+
+    型定義では、プログラムにおけるデータ型を定義する。VDM++における型は、大きく分けて
+    基本型と合成型がある。基本型は型の最小構成要素となる定義で、合成型は基本型の組み合わせによってできる型である。
+
+    \item 定数定義
+
+    定数定義では、プログラムにおける任意の個数の定数定義を行う。
+
+    \item インスタンス変数定義
+
+    インスタンス変数定義では、各オブジェクトが中に保持する属性について定義する。
+
+    \item 関数定義
+
+    関数定義では、クラスに所属するオブジェクトのふるまいの一部を定義する。関数は引数の値だけで戻り値が定まり、インスタンス変数を使うことができない。
+    VDM\texttt{++}の関数は、関数が何をすべきかの特性をただ記述する陰関数定義と引数からどのように結果を計算すべきかアルゴリズムを示す陽関数定義の2つの定義スタイルがある。
+
+    \item 操作定義
+
+    操作定義では、クラスに所属するオブジェクトのふるまいの一部を定義する。操作は入力引数を受け取り結果を返し、そのオブジェクト内の、あるいは参照しているオブジェクトのインスタンス変数を使うことができる。
+    VDM\texttt{++}の操作は、操作の特性を記述する陰操作定義と計算アルゴリズムを示す陽操作定義の2つの定義スタイルがある。
+\end{itemize}
+
+
 \section{Markdown}\label{sec:Markdown}
-\subsection{Markdig}\label{sec:Markdig}
 \section{JSON}\label{sec:JSON}
 \section{MVVM}\label{sec:MVVM}
-\section{.NET}\label{sec:NET}
 \subsection{.NET MAUI}\label{sec:NET_MAUI}
-本ツールでは、.NET Multi-platform App UI（以下、.NET MAUI と表記する）を用いてGUI部分を実装している。
+本ツールでは、.NET Multi-platform App UI（以下、.NET MAUI と表記する）を用いて主なGUI部分を実装している。
 .NET MAUI は、C\#およびXAMLを使用してクロスプラットフォームのアプリケーションを開発するためのフレームワークである。
-本節では、実装に用いている.NET MAUI の主要なライブラリについて説明する。
-\subsection{Microsoft.Maui.Graphics}\label{sec:Microsoft.Maui.Graphics}
 \section{CommunityToolkit.Maui}\label{sec:CommunityToolkit.Maui}
-\section{CommunityToolkit.Maui.Mvvm}\label{sec:CommunityToolkit.Maui.Mvvm}
+\section{CommunityToolkit.Mvvm}\label{sec:CommunityToolkit.Mvvm}
 \section{System.Text.RegularExpressions}\label{sec:System.Text.RegularExpressions}
+\section{System.Collections.Generic}\label{sec:System.Collections.Generic}
 \section{System.IO}\label{sec:System.IO}
-\section{Overture}\label{sec:Overture}
 \section{\tool}\label{sec:2vdm-spec-generator}
 \toolFullName（以下、\tool と表記する）\cite{2vdm-spec-generator}は、
 画面遷移システムの仕様記述をMarkdown形式で作成し、
@@ -40,4 +69,3 @@
 \subsection{機能}\label{sec:Function}
 \subsection{Markdown形式仕様記述ルール}\label{sec:Specrule}
 \subsection{VDM\texttt{++}変換ルール}\label{sec:ConvRule}
-\subsection{構造}\label{sec:Structure}
