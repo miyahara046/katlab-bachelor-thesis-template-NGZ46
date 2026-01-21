@@ -2,8 +2,8 @@
 本章では、本研究を進めるにあたって必要となる基礎知識について説明する。
 \section{画面遷移システム}\label{sec:ScreenTransitionSystem}
 
-画面遷移システムとは、画面遷移図を工程成果物として持つことが可能なシステムの総称である。\cite{screen-system}。
-本研究における画面システムの定義は以下の通りである。
+画面遷移システムとは、画面遷移図を工程成果物として持つことが可能なシステムの総称である\cite{screen-system}。
+本研究における画面遷移システムの定義は、以下の通りである。
 \begin{itemize}
     \item システムに複数の画面が存在する。
     \item 1つの画面ごとに、1つ以上の内部状態が存在する。
@@ -14,15 +14,17 @@
     \end{itemize}
     \end{itemize}
 
+本研究では、対象とする画面遷移システムの仕様を記述し、
+それをもとに画面遷移を可視化およびVDM\texttt{++}仕様へ変換する。
+
 \section{VDM\texttt{++}}\label{sec:VDM++}
 
-形式手法の1つにVDM（Vienna Development Method）がある。\cite{VDM}。
+形式手法の1つにVDM(Vienna Development Method)がある\cite{VDM}。
 VDMは1970年代にウィーンのIBM研究所で考案され、1990年代前半にかけて開発された形式手法である。
-1996年には、形式仕様記述言語VDM-SLがISO標準となっている。\cite{vdm-1}
+1996年には、形式仕様記述言語VDM-SLがISO標準となっている\cite{vdm-1}。
 VDM++とは、VDM-SLにオブジェクト指向拡張を施した形式仕様記述言語である。
-VDMには、VDMTools\cite{VDMTools}やOverture IDE\cite{Overture}などの支援ツールが揃っており、仕様の検証などを他の形式手法よりも比較的行い
-やすいという利点がある。
-
+VDMには、VDMTools\cite{VDMTools}やOverture IDE\cite{Overture}などの支援ツールが揃っており、
+仕様の検証などを他の形式手法よりも比較的行いやすいという利点がある。
 VDM\texttt{++}は、クラス定義において、型定義や関数定義などをブロックで定義する。VDM\texttt{++}における各定義について以下で説明する。
 \begin{itemize}
     \item 型定義
@@ -32,40 +34,488 @@ VDM\texttt{++}は、クラス定義において、型定義や関数定義など
 
     \item 定数定義
 
-    定数定義では、プログラムにおける任意の個数の定数定義を行う。
+    定数定義では、プログラムにおける任意の個数の定数を定義する。
 
     \item インスタンス変数定義
 
-    インスタンス変数定義では、各オブジェクトが中に保持する属性について定義する。
+    インスタンス変数定義では、各オブジェクトがオブジェクト内に保持する属性について定義する。
 
     \item 関数定義
 
-    関数定義では、クラスに所属するオブジェクトのふるまいの一部を定義する。関数は引数の値だけで戻り値が定まり、インスタンス変数を使うことができない。
-    VDM\texttt{++}の関数は、関数が何をすべきかの特性をただ記述する陰関数定義と引数からどのように結果を計算すべきかアルゴリズムを示す陽関数定義の2つの定義スタイルがある。
+    関数定義では、クラスに所属するオブジェクトの振る舞いの一部を定義する。関数は引数の値だけで戻り値が定まり、インスタンス変数を使うことができない。
+    VDM\texttt{++}の関数は、関数が何をすべきかの特性をただ記述する陰関数定義と、引数からどのように結果を計算すべきかアルゴリズムを示す陽関数定義の2つの定義スタイルがある。
 
     \item 操作定義
 
-    操作定義では、クラスに所属するオブジェクトのふるまいの一部を定義する。操作は入力引数を受け取り結果を返し、そのオブジェクト内の、あるいは参照しているオブジェクトのインスタンス変数を使うことができる。
-    VDM\texttt{++}の操作は、操作の特性を記述する陰操作定義と計算アルゴリズムを示す陽操作定義の2つの定義スタイルがある。
+    操作定義では、クラスに所属するオブジェクトの振る舞いの一部を定義する。操作は入力引数を受け取り結果を返し、そのオブジェクト内の、あるいは参照しているオブジェクトのインスタンス変数を使うことができる。
+    VDM\texttt{++}の操作は、操作の特性を記述する陰操作定義と、計算アルゴリズムを示す陽操作定義の2つの定義スタイルがある。
 \end{itemize}
 
+本研究では、画面遷移システムの仕様をVDM\texttt{++}として出力し、
+ツール上で生成、および、表示する対象仕様として用いる。
 
-\section{Markdown}\label{sec:Markdown}
+\section{Markdown}\label{sec:markdown}
+
+Markdownは、2004年にJohn Gruber氏によって開発された軽量マークアップ言語である\cite{markdown}。
+Markdownを使用することで、プレーンテキストを使って簡単に文書を記述できる。
+Markdownの主な記法を以下に示す。
+\begin{itemize}
+    \item 見出し(\#の数で階層を表現)
+    \item リスト(箇条書きや番号付きリスト)
+    \item 引用(\verb|>|による引用)
+    \item コード(インデントまたはバッククォートで囲む)
+    \item 強調(アスタリスクやアンダースコアによる強調表現)
+    \item リンク(URLへの参照)
+\end{itemize}
+本研究では、画面遷移システムの仕様をMarkdownで記述し、
+Markdownで書いた画面遷移システムの仕様を解析することでGUI表示、および、VDM++仕様の生成に用いる。
+
 \section{JSON}\label{sec:JSON}
+JSON(JavaScript Object Notation)は、軽量のテキストベースのデータ交換フォーマットである。
+JSONは、データをキーと値のペアで表現し、人間にも機械にも理解しやすい構造を持っている\cite{JSON}。
+JSONはWebサービスやアプリケーションの設定ファイルとして広く利用されている。
+JSON形式データは.jsonという拡張子を持つ。
+JSONは構造化データを簡潔に表現でき、言語や環境を問わずパース(解析)、および、シリアライズ(生成)が容易である
+
+本研究では、画面遷移システムの仕様をMarkdownから解析した後、
+内部表現としてJSONを扱う。その後JSONを読み出し、および、書き込みを行い、ツールのGUIやVDM\texttt{++}仕様生成に用いる。
 \section{MVVM}\label{sec:MVVM}
-\subsection{.NET MAUI}\label{sec:NET_MAUI}
-本ツールでは、.NET Multi-platform App UI（以下、.NET MAUI と表記する）を用いて主なGUI部分を実装している。
-.NET MAUI は、C\#およびXAMLを使用してクロスプラットフォームのアプリケーションを開発するためのフレームワークである。
-\section{CommunityToolkit.Maui}\label{sec:CommunityToolkit.Maui}
+Model-View-ViewModel (MVVM)\cite{MVVM}は、Model、View、View Modelの 3 つの主要なコンポーネントからなるソフトウェアアーキテクチャの一種である。
+この3つのパターンそれぞれが異なる役割を果たす。
+3つのコンポーネントそれぞれの役割を以下に示す。
+
+\begin{itemize}
+    \item Model：アプリのデータをカプセル化する非ビジュアルクラスであり、データや業務ロジックを保持、および、提供する役割
+    \item View：ユーザーが画面に表示するものの構造、レイアウト、外観を定義する役割
+    \item Viw Model：必要なモデルクラスとビューのやりとりを調整する役割
+\end{itemize}
+
+本研究の拡張ではMVVMに基づいた実装を行う。
+
 \section{CommunityToolkit.Mvvm}\label{sec:CommunityToolkit.Mvvm}
-\section{System.Text.RegularExpressions}\label{sec:System.Text.RegularExpressions}
-\section{System.Collections.Generic}\label{sec:System.Collections.Generic}
-\section{System.IO}\label{sec:System.IO}
+CommunityToolkit.Mvvm高速モジュール式 MVVM ライブラリである。本ライブラリは、アプリを構築するための最初の実装を提供する、
+標準型、自己完結型、軽量型のコレクションにアクセスするために使用する\cite{MVVMtool}。
+
+本返球では、CommunityToolkit.MvvmのRelayCommandを主に使用している。
+各メソッドにRelayCommand属性を付与することにより、本ツール内でそのメソッドが非同期実行のコマンドとして扱える。
+
+\section{.NET MAUI}\label{sec:NET_MAUI}
+本ツールでは、.NET Multi-platform App UI(以下、.NET MAUI と表記する)を用いて主なGUI部分を実装している。
+.NET MAUI は、C\#およびXAMLを使用してクロスプラットフォームのアプリケーションを開発するためのフレームワークである\cite{NET_MAUI}。
+本研究の拡張で使用する.NET MAUIの標準ライブラリを以下に示す。
+
+\begin{itemize}
+    \item Microsoft.Maui.Controls：
+
+    GUI を構成するための基本的な UI コンポーネントを提供する名前空間である。
+    本研究では、ContentPageを各画面の基底クラスとして使用し、ボタン、ラベル、入力欄などのUI要素を配置することで、
+    仕様編集画面や操作画面を構成している。
+    また、Shellを用いてスタートページと仕様編集ページ間の画面遷移を管理している。
+
+    \item Microsoft.Maui.Controls.Xaml：
+
+    XAML による UI 定義を可能にする名前空間である。
+    本研究では、画面レイアウトを XAML ファイルにより宣言的に記述し、画面構造と処理ロジックの分離を実現している。
+
+    \item Microsoft.Maui.Graphics：
+
+    クロスプラットフォームな 2D 描画 API を提供する名前空間である。
+    本研究では、GraphicsViewとIDrawableを用いて、
+    画面遷移システムのノードや遷移関係を図として描画する処理を実装している。
+
+    \item Microsoft.Maui.ApplicationModel：
+
+    アプリケーションの実行環境やデバイス機能へのアクセスを提供する名前空間である。
+    本研究では、非同期処理後に UI を更新するため、
+    MainThreadを用いたUIスレッド上での処理制御に利用している。
+
+    \item Microsoft.Maui.Storage：
+
+    アプリケーションで使用するファイルや設定情報を扱うための機構を提供する名前空間である。
+    本研究では、ユーザが選択したプロジェクトフォルダやファイルパスを管理する処理に関連して使用している。
+
+    \item Microsoft.Maui.Input：
+
+    タッチ、クリック、ドラッグなどの入力イベントを扱うための名前空間である。
+    本研究では、クリックやドラッグ操作を検出し、GUI要素の選択や移動といったユーザ操作を取得するために用いている。
+
+    \item Microsoft.Maui.Layouts：
+
+    UI 要素の配置を制御するレイアウトコンテナを提供する名前空間である。
+    本研究では、GridやStackLayoutを用いて、レイアウトを構成している。
+\end{itemize}
+
+\section{.NET}
+.NET は、Microsoft によって開発されたマルチプラットフォーム対応のアプリケーション開発基盤である\cite{NET}。
+C\#を主なプログラミング言語として用い、デスクトップアプリケーション、Web アプリケーション、モバイルアプリケーションなど、さまざまな形態のソフトウェアを統一的な環境で開発できる。
+.NET では、実行環境とともに、基本クラスライブラリと呼ばれる標準ライブラリ群が提供されている。
+
+本研究で用いる.NETの標準ライブラリを以下に示す。
+\begin{itemize}
+    \item System.Text.RegularExpressions：
+
+    正規表現による文字列解析機能を提供する.NET 標準ライブラリ。本研究で、Markdown 形式で記述された画面遷移システム仕様を解析する際に用いている。
+    \item System.Collections.Generic：
+
+    ジェネリックコレクションを提供する.NET 標準ライブラリ。本研究では内部表現を管理するために用いている。
+    \item System.IO：
+
+    ファイルおよびディレクトリ操作を行うための .NET 標準ライブラリ。本研究では、Markdown 仕様ファイルの読み込み、JSON 形式の中間データの保存、および、生成した VDM\texttt{++} 仕様ファイルの書き込みに用いている。
+\end{itemize}
+\section{Windows.Storage.Pickers}\label{sec:Windows.Storage.Pickers}
+
+Windows.Storage.Pickersは、Windows プラットフォームにおいて、
+ユーザにフォルダを選択させるための標準的なピッカーAPIを提供する名前空間である\cite{FolderPicker}。
+本ライブラリは、フォルダ選択ダイアログを通じて、
+ユーザ操作によるパス取得を安全かつ統一的に行うための機構を提供する。
+
+本研究で拡張するツールでは、ユーザが画面遷移システム仕様を管理するプロジェクトフォルダを選択する際に用いる。
 \section{\tool}\label{sec:2vdm-spec-generator}
-\toolFullName（以下、\tool と表記する）\cite{2vdm-spec-generator}は、
-画面遷移システムの仕様記述をMarkdown形式で作成し、
-その記述に基づいてVDM\texttt{++}仕様を自動生成するツールである。
-本節では、\tool の機能、仕様記述ルール、VDM\texttt{++}変換ルール、および構造について説明する。
-\subsection{機能}\label{sec:Function}
-\subsection{Markdown形式仕様記述ルール}\label{sec:Specrule}
+\tool(2vdm-spec-generator)\cite{2vdm-spec-generator}は、
+画面遷移システムの自然言語仕様からVDM\texttt{++}仕様を作成するための
+仕様記述作成手法を内部に持ち、
+ユーザが記述したMarkdown形式の仕様に対して、
+当該手法に基づく解析および変換処理を行うツールである。
+本節では、まず、\tool が採用している
+画面遷移システムを対象としたVDM\texttt{++}仕様記述作成手法について説明し、
+その後、ツールとしての機能について述べる。
+\subsection{画面遷移システムを対象としたVDM++仕様記述作成手法}\label{spec:way-of-convert}
+本手法では、画面遷移システムの仕様を一定の構造で記述することを前提とし、
+その構造に基づいてVDM\texttt{++}仕様記述への変換を行う。
+\tool で支援を行う画面遷移システム仕様の構成を、以下に示す。
+
+\begin{itemize}
+\item システムに存在する画面の名前をすべて記載した、画面一覧仕様が存在すること。
+\item 各画面に1対1で対応した、画面仕様が存在すること。
+\end{itemize}
+本手法では、画面遷移システムのVDM++仕様を作成するために、以下の3つのルールを定義する。
+\begin{itemize}
+    \item 自然言語仕様記述ルール\\
+    画面遷移システム仕様の自然言語仕様記述ルール。
+    \item VDM++仕様記述への2つの変換ルール\\
+    自然言語仕様記述ルールに基づいた画面遷移システム仕様から、VDM++仕様記述への変換ルール。
+    以下の2つのルールがある。
+    \begin{itemize}
+        \item 変換ルールA\\
+        画面一覧仕様から画面管理クラスへの変換ルール。
+        \item 変換ルールB\\
+        画面仕様から画面に対応するクラスへの変換ルール。
+    \end{itemize}
+\end{itemize}
+提案手法の画面遷移システムの仕様記述作成手順を、以下に示す。
+\begin{enumerate}
+  \item[手順1] 自然言語仕様記述ルールに基づいて、画面遷移システム仕様を作成する。
+  \item[手順2] 変換ルールAを用いて、手順1で作成した画面一覧仕様から、画面管理クラスのVDM++仕様記述を作成する。
+  \item[手順3] 表示部クラスのVDM++仕様記述を作成する。
+  \item[手順4] 変換ルールBを用いて、手順1で作成した各画面仕様から、画面に対応するクラスのVDM++仕様記述をそれぞれ作成する。
+\end{enumerate}
+
+\subsection{自然言語仕様記述ルール}\label{sec:Specrule}
+本手法で画面遷移システムの仕様記述作成に必要な、自然言語仕様記述ルールについて説明する。
+画面一覧仕様の自然言語仕様記述ルールを、以下に示す。
+\begin{itemize}
+\item Markdown記法で記述していること。
+\item "画面一覧" をタイトルとしたレベル1見出しに続けて、システムに存在する画面の名前をアイテムとしたリストを記述していること。
+このリスト記述範囲を、画面一覧フィールドとする。
+\end{itemize}
+画面一覧仕様の自然言語仕様記述ルールに基づいた画面一覧仕様の記述例を、図\ref{fig:specRuleA}に示す。
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.4\linewidth]{./images/specRuleA.png}
+    \caption{画面一覧仕様の記述例}
+    \label{fig:specRuleA}
+\end{figure}
+
+画面それぞれに対応する画面仕様の自然言語仕様記述ルールを以下に示す。
+
+\begin{itemize}
+    \item Markdown記法で記述していること。
+    \item 画面の名前をタイトルとしたレベル2見出しを記述していること。
+    このタイトル記述範囲を、画面名記述フィールドとする。
+    \item 対象画面にタイムアウト時間が存在する場合、
+    レベル2見出しに続けてタイムアウト時間をアイテムとしたリストを記述していること。
+    このリスト記述範囲を、タイムアウト記述フィールドとする。
+    \item "有効ボタン一覧" をタイトルとしたレベル3見出しに続けて、
+    対象画面に存在するボタンの名前をアイテムとしたリストを記述していること。
+    このリスト記述範囲を、有効ボタン記述フィールドとする。
+    \item "イベント一覧" をタイトルとしたレベル3見出しに続けて、
+    対象画面に存在するイベントをアイテムとしたリストを記述していること。
+    このリスト記述範囲を、イベント記述フィールドとする。
+    \item イベント記述フィールドにおいて分岐が存在する場合、
+    分岐条件と遷移先をアイテムとしたサブリストを記述していること。
+    このリスト記述範囲を、イベント時分岐記述フィールドとする。
+\end{itemize}
+
+画面仕様の自然言語仕様記述ルールに基づいた画面仕様の記述例を図\ref{fig:specRuleB}に示す。
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\linewidth]{./images/specRuleB.png}
+    \caption{画面仕様の記述例}
+    \label{fig:specRuleB}
+\end{figure}
+図\ref{fig:specRuleB}に示すように、各画面仕様には、その画面の名前を画面名記述フィールドに、
+タイムアウト時間をタイムアウト記述フィールドに、有効ボタンを有効ボタン記述フィールドにリスト形式で記述し、想定するイベントをイベント記述フィールドにリスト形式で記述する必要がある。
+
 \subsection{VDM\texttt{++}変換ルール}\label{sec:ConvRule}
+本節では、画面遷移システム仕様からVDM++仕様記述への変換ルールA、および、
+変換ルールBを用いてMarkdown仕様からVDM\texttt{++}仕様への変換について説明する。
+画面遷移システムを対象としたVDM++仕様記述作成手法では、現在の表示を管理する画面管理クラスと、システムにおける表示部を表現する表示部クラス、画面それぞれに対応する画面仕様を表現するクラスのVDM\texttt{++}仕様を作成する。
+
+\subsubsection{表示部クラス}
+
+表示部クラスは、システムにおける表示部を表現するクラスであり、画面遷移システムにおける入力フォーム等の機能を表現する。表示部クラスは、対象の仕様書の内容にかかわらず一定のものとして定義する。
+表示部クラスのVDM++仕様記述を、図\ref{code:hyougibu}に示す.
+
+\begin{figure}[t]
+    \begin{lstlisting}
+    class 「表示部」
+
+    types
+      「入力値」 = token;
+      「表示」 = [「入力値」];
+
+    instance variables
+      入力値: 「入力値」;
+      表示: 「表示」;
+
+    operations
+      public
+        入力操作: 「入力値」 ==> ()
+        入力操作(入力値) ==
+          is not yet specified;
+      public
+        削除操作: () ==> ()
+        削除操作() ==
+          is not yet specified;
+
+    end 「表示部」
+    \end{lstlisting}
+    \caption{表示部クラス}
+    \label{code:hyougibu}
+\end{figure}
+
+\subsubsection{画面管理クラス}
+画面管理クラスは、現在画面の状態を管理するクラスであり、画面管理を表現する。
+画面遷移システム仕様からVDM++仕様記述へ変換を行う際、画面一覧仕様から画面管理クラスへの変換ルール(変換ルールA)に則って、記述を行う。
+この変換ルールAを、表\ref{tab:gamenichiran}に示す。
+表\ref{tab:gamenichiran}における【】で囲まれた部分は、対象とする画面一覧仕様の記述に依存する部分であることを表す。
+
+\begin{table*}[t]
+    \centering
+    \caption{画面一覧仕様から画面管理クラスへの変換ルール(変換ルールA)}
+    \label{tab:gamenichiran}
+    \begin{tabular}{|c|c|c|}
+        \hline
+        変換ルール & 画面一覧仕様表記 & 画面管理クラスのVDM++仕様記述\\
+        \hline \hline
+    A-1 &
+    \begin{tabular}{l}
+    \# 画面一覧\\
+    - 【画面A】\\
+    - 【画面B】\\
+    - 【画面C】\\
+    ...
+    \end{tabular} & 
+    \begin{tabular}{l}
+        class 「画面管理」\\
+        types\\
+        \hspace{4pt}「画面状態」 = 【画面A】\textbar【画面B】\textbar【画面C】...;\\
+        instance variables\\
+        \hspace{4pt}static 現在画面 : 「画面状態」 := new 「【画面A】」();\\
+        end 「画面管理」
+    \end{tabular} \\ \hline
+    
+    \end{tabular}
+\end{table*}
+
+\subsubsection{画面に対応するクラス}
+画面に対応するクラスは、画面一つ一つの仕様に基づく画面定義を表現する。
+画面遷移システム仕様からVDM++仕様記述へ変換を行う際、画面仕様から画面に対応するクラスへの変換ルール(変換ルールB)に則って、記述を行う。
+この変換ルールBを、表\ref{tab:kakugamen}に示す。表\ref{tab:kakugamen}における【】で囲まれた部分は、対象とする画面仕様の記述に依存する部分であることを表している。
+
+\begin{table*}[tp]
+    \centering
+    \scriptsize
+    \renewcommand{\arraystretch}{0.8}
+    \caption{画面仕様から画面に対応するクラスへの変換ルール(変換ルールB)}
+    \label{tab:kakugamen}
+    \begin{tabularx}{168mm}{|p{1mm}|p{59mm}|X|}
+        \hline
+    \multicolumn{1}{|c|}{変換ルール} & \multicolumn{1}{c|}{画面仕様表記} & \multicolumn{1}{c|}{画面に対応するクラスのVDM++仕様記述}\\
+        \hline \hline
+
+    \multicolumn{1}{|c|}{B-1} &
+    \begin{tabular}{l}
+    \#\#【画面の名前】
+    \end{tabular} & 
+    \begin{tabular}{l}
+        class 【画面の名前】 is subclass of 「画面管理」\\
+        ...\\
+        end 【画面の名前】\\
+    \end{tabular} \\ \hline
+
+    \multicolumn{1}{|c|}{B-2} &
+    \begin{tabular}{l}
+    \#\#\# 有効ボタン一覧\\
+    - 【ボタン1】\\
+    - 【ボタン2】\\
+    ...
+    \end{tabular} &
+    \begin{tabular}{l}
+        types\\
+        \hspace{4pt}「ボタン状態」 = \verb|<|非押下\verb|>| \hspace{1pt}\textbar\hspace{1pt} \verb|<|\hspace{-4pt}【ボタン1】\hspace{-4pt}\verb|>| \textbar\hspace{1pt} \verb|<|\hspace{-4pt}【ボタン2】\hspace{-4pt}\verb|>|...;\\
+        instance variables\\
+        \hspace{4pt} 押下ボタン: 「ボタン状態」 =: \verb|<|非押下\verb|>|;\\
+    \end{tabular} \\ \hline
+
+    \multicolumn{1}{|c|}{B-3} &
+    \begin{tabular}{l}
+    \#\#\# イベント一覧\\
+    - 【ボタン1】押下 → 表示部に【追加値】を追加\\
+    - 【ボタン2】押下 → 表示部から値を削除\\
+    - 【ボタン3】押下 →\\
+    \hspace{8pt} - 【操作時分岐条件1】 → 【画面A】へ\\
+    \hspace{8pt} - 【操作時分岐条件2】 → 【画面B】へ\\
+    - 【ボタン4】押下 → 【画面C】へ\\
+    ...\\
+    ※ タイムアウトを除く
+    \end{tabular} &
+    \begin{tabular}{l}
+    instance variables\\
+    \hspace{4pt} 表示部 =: new 「表示部」();\\
+    operations\\
+    \hspace{4pt}private\\
+    \hspace{8pt} 押下時操作: 「ボタン状態」 ==\hspace{-4pt}\verb|>| ()\\
+    \hspace{8pt} 押下時操作(押下ボタン) ==\\
+    \hspace{12pt} cases 押下ボタン:\\
+    \hspace{16pt} \verb|<|\hspace{-4pt}【ボタン1】\hspace{-4pt}\verb|>| -\verb|>| 表示部\hspace{1pt}.入力操作(\hspace{-4pt}【追加値】\hspace{-4pt}),\\
+    \hspace{16pt} \verb|<|\hspace{-4pt}【ボタン2】\hspace{-4pt}\verb|>| -\verb|>| 表示部\hspace{1pt}.削除操作(),\\
+    \hspace{16pt} \verb|<|\hspace{-4pt}【ボタン3】\hspace{-4pt}\verb|>| -\verb|>| if 【操作時分岐条件1】\hspace{-4pt}() then \\
+    \hspace{76pt} 「画面管理」`現在画面 := new「【画面A】」\hspace{-4pt}()\\
+    \hspace{76pt} if 【操作時分岐条件2】\hspace{-4pt}() then \\
+    \hspace{76pt} 「画面管理」`現在画面 :=new「【画面B】」\hspace{-4pt}(),\\
+    \hspace{16pt} \verb|<|\hspace{-4pt}【ボタン4】\hspace{-4pt}\verb|>| -\verb|>| 「画面管理」`現在画面 := new「【画面C】」\hspace{-4pt}(),\\
+    \hspace{16pt} ...,\\
+    \hspace{16pt} others -\verb|>| skip\\
+    \hspace{12pt} end\\
+    \hspace{8pt} pre 押下ボタン \verb|<|\verb|>| \verb|<|非押下\verb|>|\\
+    \hspace{8pt} post 押下ボタン = \verb|<|非押下\verb|>|;\\
+    \end{tabular} \\ \hline
+
+    \multicolumn{1}{|c|}{B-4} &
+    \begin{tabular}{l}
+    \#\#\# イベント一覧\\
+    ...\\
+    - 【ボタン2】押下 →\\
+    \hspace{8pt} - 【操作時分岐条件1】 → 【画面A】へ\\
+    \hspace{8pt} - 【操作時分岐条件2】 → 【画面B】へ\\
+    ...\\
+    \end{tabular} &
+    \begin{tabular}{l}
+    operations\\
+    \hspace{4pt}private\\
+    \hspace{8pt} 【操作時分岐条件1】: () ==\hspace{-4pt}\verb|>| bool\\
+    \hspace{8pt} 【操作時分岐条件1】() ==\\
+    \hspace{12pt} is not yet specified;\\
+    \hspace{4pt}private\\
+    \hspace{8pt} 【操作時分岐条件2】: () ==\hspace{-4pt}\verb|>| bool\\
+    \hspace{8pt} 【操作時分岐条件2】() ==\\
+    \hspace{12pt} is not yet specified;\\
+    \end{tabular} \\ \hline
+
+    \multicolumn{1}{|c|}{B-5} &
+    \begin{tabular}{l}
+    - 【タイムアウト時間】秒でタイムアウト\\
+    ...\\
+    \#\#\# イベント一覧\\
+    ...\\
+    - タイムアウト → 【画面Dへ】\\
+    \end{tabular} &
+    \begin{tabular}{l}
+    values\\
+    \hspace{4pt} タイムアウト時間 := 【タイムアウト時間】;\\
+    operations\\
+    \hspace{4pt} private\\
+    \hspace{8pt} タイムアウト時画面遷移: () ==\hspace{-4pt}\verb|>| ()\\
+    \hspace{8pt} タイムアウト時画面遷移() ==\\
+    \hspace{12pt} 「画面管理」`現在画面 :=new「【画面D】」\hspace{-4pt}();
+    \end{tabular} \\ \hline
+    
+    \end{tabularx}
+\end{table*}
+
+\subsection{機能}\label{sec:Function}
+既存の\tool の外観を、図\ref{fig:old2VSG} に示す。
+既存の\tool は、画面遷移システムの仕様作成を支援するため、
+以下の機能を提供する。
+\begin{figure}[tp]
+  \centering
+  \includegraphics[width= 1.0\linewidth]{./images/old2vsg.png}
+  \caption{既存の\tool の外観}
+  \label{fig:old2VSG}
+
+\end{figure}
+
+\begin{itemize}
+    \item Markdown形式で記述された画面遷移システム仕様の編集機能
+    \item 変換ルールAおよび変換ルールBに基づくVDM\texttt{++}仕様記述への変換機能
+    \item 生成したVDM\texttt{++}仕様記述の表示および保存機能
+\end{itemize}
+
+以降に各機能について説明する
+\subsubsection{Markdown形式で記述された画面遷移システム仕様の編集機能}
+本機能は、
+自然言語仕様記述ルールに基づいた画面遷移システム仕様を
+Markdown形式で記述および編集する機能である。
+\tool は、
+画面一覧仕様および各画面に対応する画面仕様を
+Markdownファイルとして管理し、
+ユーザに対して編集領域を提供することで、
+仕様記述の作成および修正を可能にする。
+
+ユーザは、
+ツール上の編集領域を用いて、
+画面一覧仕様および画面仕様を直接記述し、
+自然言語仕様記述ルールに従った構造化仕様を作成する。
+また、
+Markdownファイルの新規作成、
+既存ファイルの編集、
+および保存といった基本的なファイル操作を
+ツール上から実行できるため、
+仕様記述作成作業を一元的に管理できる。
+
+\subsubsection{VDM\texttt{++}仕様記述への変換機能}
+本機能は、
+Markdown形式の画面遷移システム仕様に対して、
+変換ルールAおよび変換ルールBを適用し、
+VDM\texttt{++}仕様記述を生成する機能である。
+
+\tool は、
+画面一覧仕様に対して変換ルールAを適用し、
+現在画面の状態を管理する画面管理クラスを生成する。
+また、
+各画面に対応する画面仕様に対して変換ルールBを適用し、
+表示部クラスを利用した画面固有の振る舞いと、
+画面遷移を記述する画面クラスを生成する。
+
+この処理により、
+自然言語で記述した画面遷移システム仕様から、
+VDM\texttt{++}仕様への変換を
+規則に基づいて一貫して実行できる。
+その結果、
+仕様記述作成における記述漏れや解釈の不整合を抑制できる。
+
+\paragraph{生成したVDM\texttt{++}仕様記述の表示および保存機能}
+本機能は、
+VDM\texttt{++}仕様記述への変換機能によって生成したVDM\texttt{++}仕様記述を表示し、
+ファイルとして保存する機能である。
+
+\tool は、
+Markdown仕様の編集領域とは独立した表示領域を設け、
+変換後のVDM\texttt{++}仕様記述を即座に表示する。
+これにより、
+ユーザは、
+仕様記述の編集と変換結果の確認を
+同一画面内で繰り返し行える。
