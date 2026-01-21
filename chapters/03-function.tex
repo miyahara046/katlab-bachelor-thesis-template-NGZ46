@@ -1,80 +1,60 @@
-\chapter{拡張した\tool の機能}\label{cha:Function}
-本章では、拡張した\tool の機能について説明する。拡張部分では、以下の4つの機能を提供する。
-\begin{itemize}
-  \item Markdown記述ページとGUI操作による仕様編集のページ切り替え機能
-  \item 仕様状態に応じたGUI操作制御機能
-  \item Condition Transition Map（CTM）描画機能（CTMは\ref{sec:CTM}節で説明する）
-  \item VDM\texttt{++}仕様をGUI操作によって生成する機能
-\end{itemize}
-拡張部分の入力は以下の2つとする。
-\begin{itemize}
-  \item プロジェクトフォルダ
-  \item ユーザ操作
-\end{itemize}
-拡張部分の出力は以下の4つである。
-\begin{itemize}
-  \item CTM描画
-  \item \tool の記述ルールに沿ったMarkdown形式の仕様記述ファイル
-  \item VDM\texttt{++}形式の仕様記述ファイル
-  \item JSON形式のGUI要素配置情報ファイル
-\end{itemize}
-以降、ConditionTransitionMap（CTM）と各機能について詳細に説明する。
+\chapter{拡張した\tool の外観と機能}\label{cha:Function}
+本章では、本研究で新たに提案する、Condition Transition Map(CTM)、および、拡張した\tool の外観と機能について説明する。
 
-\section{Condition Transition Map（CTM）}\label{sec:CTM}
-Condition Transition Map（CTM）は、本研究で新たに提案する画面遷移を表現するためのダイアグラムである。
-CTMは、画面遷移システムにおける操作と遷移の関係を表すダイアグラムであり、
-GUI操作、および、形式仕様の両方を対応付けるための中間表現である。
-本研究では、CTMを基に、
+\section{Condition Transition Map(CTM)}\label{sec:CTM}
+Condition Transition Map(CTM)は、本研究で新たに提案する、画面遷移を表現するためのダイアグラムである。
+具体的には、CTMは、画面遷移システムにおけるボタンとイベントの関係を表すダイアグラムである。
+本研究では、ユーザによるCTMの操作を基に、
 Markdown仕様、および、VDM\texttt{++}仕様を生成することで、
-視覚的編集を可能としている。\\
-CTMの構成要素を以下に示す。各要素の表示例を表\ref{tab:ctm_elements}に示す。
+VDM\texttt{++}仕様の視覚的編集を可能とする。
+
+CTMの6つの構成要素を、以下に示す。また、各要素の表示例を、表\ref{tab:ctm_elements}に示す。
 \begin{itemize}
   \item 画面要素
   \begin{itemize}
-    \item 画面要素は、システムの各状態を表す要素であり、矩形で表現する。
+    \item 画面要素は、システムの画面を表す要素であり、角丸矩形で表現する。
     \item 画面名を保持する。
   \end{itemize}
   \item ボタン要素
   \begin{itemize}
-    \item ボタン要素は、ユーザが操作可能なインターフェース要素を表し、CTM上では画面要素内に配置する楕円で表現する。
-    \item 有効ボタン名を保持する。
+    \item ボタン要素は、ある画面遷移システムにおいて、ユーザが操作可能なインターフェース要素を表し、楕円で表現する。
+    \item ボタン名を保持する。
   \end{itemize}
   \item イベント要素
   \begin{itemize}
-    \item イベント要素は、対象の有効ボタン押下時に発生する動作を表し、CTM上では矢印で対象ボタンからの遷移を表現する。
-    \item イベント動作を保持しする。
+    \item イベント要素は、ある画面遷移システムにおいて、対象の有効ボタン押下時に発生する動作を表し、矩形で表現する。
+    \item イベント動作名を保持する。
   \end{itemize}
   \item 条件分岐イベント要素
   \begin{itemize}
-    \item 条件分岐イベント要素は、システムの動作が特定の条件に基づいて変化することを表し、CTM上ではダイヤモンド形状で表現する。
-    \item 条件名を保持する。
+    \item 条件分岐イベント要素は、分岐条件をダイヤモンド形状、分岐先イベントを角丸矩形で表現する。
+    \item 分岐条件名、および、分岐先イベント動作名を保持する。
   \end{itemize}
   \item タイムアウト要素
   \begin{itemize}
     \item タイムアウト要素は、一定時間内に特定の操作が行われなかった場合に発生する動作を表し、CTM上ではタイムアウト時間をピンク色の楕円、タイムアウト後遷移先をピンクの矩形で表現する。
-    \item タイムアウト時間、タイムアウト後の動作を保持する。
+    \item タイムアウト時間、および、タイムアウト後の動作名を保持する。
     \end{itemize}
   \item 遷移先のないイベント要素
   \begin{itemize}
-    \item 遷移先のないイベント要素は、イベント動作に対応する画面要素が画面一覧管理クラスに存在しない場合に表示する要素であり、赤く強調表示された矩形で表現する。
-    \item イベント動作を保持する。
+    \item 遷移先のないイベント要素は、イベント動作に対応する画面要素が画面一覧管理クラスに存在しない場合に表示する要素であり、赤の矩形で強調して表現する。
+    \item イベント動作名を保持する。
     \end{itemize}
 \end{itemize}
-各要素は、GUIで編集可能であり、
-画面遷移システムの全体像を把握しやすくする。\\
-CTMでは、ユーザによるGUI操作を起点として、
+
+CTMでは、
 ボタン、分岐条件、イベントを左から右へ配置することで、
 画面遷移の流れを一方向に表現する。
 なお、条件分岐を伴わない場合は、条件分岐を省略する。
 
 
 \begin{table}[tp]
-  \caption{Condition Transition Map（CTM）を構成する要素表示例}
+  \caption{CTMを構成する要素表示例}
   \centering
   \label{tab:ctm_elements}
-  \begin{tabular}{|>{\centering\arraybackslash}m{3.5cm}|>{\centering\arraybackslash}m{6cm}|}
+  \begin{tabular}{|>{\centering\arraybackslash}m{5cm}|>{\centering\arraybackslash}m{6cm}|}
     \hline
-    要素名 & 図 \\
+    \textbf{要素名} & \textbf{図} \\
     \hline
     画面 & \includegraphics[width=0.5\linewidth]{./images/画面.png} \\
     \hline
@@ -91,212 +71,97 @@ CTMでは、ユーザによるGUI操作を起点として、
   \end{tabular}
 \end{table}
 
-\section{Markdown記述ページとGUI操作による仕様編集のページ切り替え機能}\label{sec:Page-switching-function}
-Markdown記述ページとGUI操作による仕様編集のページ切り替え機能は、
-ツールの初めに表示するスタートページから
-Markdown記述ページとGUI操作による仕様編集ページへの切り替えを行う機能である。
-本機能により、ユーザは、Markdown形式での仕様記述と
-GUI操作による視覚的編集の両方を選択的に利用できる。
-本機能では、スタートページにおいて、
-Markdown記述ページとGUI操作による仕様編集ページへの切り替えボタンを表示し、
-ユーザの選択に応じて各ページへ遷移する。
-各ページからスタートページへ戻るためのボタンも提供する。
-スタートページを図\ref{fig:start_page}に示す。
-Markdown記述ページに追加したスタートページに戻るボタンを図\ref{fig:return_button}に示す。
-また、GUI操作による仕様編集ページへの切り替え後初期の表示を図\ref{fig:initial_display}に示す。
-図\ref{fig:start_page}に示すスタートページでは、
-ユーザは、起動モードをMarkdown、または、NoCodeから選択できる。
-Markdownモードを選択した場合は、図\ref{fig:return_button}に示すマークダウン記述ページに遷移し、
-NoCodeモードを選択した場合は、図\ref{fig:initial_display}に示すGUI操作による仕様編集ページに遷移する。
-GUI操作による仕様編集ページに遷移した際に利用可能なボタンは以下の2つである。数字は図\ref{fig:initial_display}中の数字に対応する。
-\begin{enumerate}
-  \item[①] スタートページに戻るボタン
-  \item[②] フォルダの選択ボタン
-\end{enumerate}
+\section{スタートページ}\label{sec:start-page}
+
+「スタートページ」は、本研究の拡張で新たに追加する画面である。
+「スタートページ」の外観を、図\ref{fig:start_page}に示す。
 
 \begin{figure}[tp]
   \centering
-  \includegraphics[width=0.7\linewidth]{./images/StartPage.png}
+  \includegraphics[width=1.0\linewidth]{./images/StartPage.png}
   \caption{スタートページ}
   \label{fig:start_page}
 \end{figure}
+
+「スタートページ」は、\tool の起動時に最初に表示する画面である。
+「スタートページ」は「Markdown仕様記述ページ」と「GUI操作によるVDM\texttt{++}仕様編集ページ」へ遷移する以下の2つの切り替えボタンを表示し、
+ユーザの選択に応じて各ページへ遷移する機能を持つ。
+
+\begin{itemize}
+  \item Markdown：「Markdown仕様記述ページ」へ遷移する
+  \item NoCode：「GUI操作によるVDM\texttt{++}仕様編集ページ」へ遷移する
+\end{itemize}
+
+「Markdown」ボタンを押した場合は、図\ref{fig:return_button}に示す、既存の\tool にある「Markdown仕様記述ページ」に遷移する。また、
+「NoCode」ボタンを押した場合は、図\ref{fig:initial_display}に示す、本研究の拡張で新たに追加する「GUI操作によるVDM\texttt{++}仕様編集ページ」に遷移する。
+
+
 \begin{figure}[tp]
   \centering
-  \includegraphics[width=0.7\linewidth]{./images/MainPage.png}
-  \caption{Markdown記述ページに追加したスタートページに戻るボタン}
+  \includegraphics[width=1.0\linewidth]{./images/MainPage.png}
+  \caption{Markdown仕様記述ページへ遷移直後の画面}
   \label{fig:return_button}
 \end{figure}
 \begin{figure}[tp]
   \centering
-  \includegraphics[width=0.7\linewidth]{./images/NoCodePage.png}
-  \caption{GUI操作による仕様編集ページへ遷移後初期の表示}
+  \includegraphics[width=1.0\linewidth]{./images/NoCodePage.png}
+  \caption{GUI操作によるVDM\texttt{++}仕様編集ページへ遷移直後の画面}
   \label{fig:initial_display}
 \end{figure}
 
-\section{GUI操作制御機能}\label{sec:GUI-operation-control-function}
-GUI操作制御機能は、現在のMarkdown仕様記述状態に基づいて、
-ツールの画面上部に配置する操作ボタンの表示、および、有効状態を制御する機能である。
-この機能により、Markdown仕様記述の状態に応じて実行可能な操作のみをGUI上に表示することで、
-ユーザによる不適切な操作の実行を防止する。
+\section{Markdown仕様記述ページ}
 
-本機能では、Markdown仕様の解析結果を基に、
-現在の選択対象Markdownファイルのクラスを特定し、
-各操作ボタンの表示、および、有効状態をユーザの操作毎に更新する。
-操作ボタンの表示方法は、編集対象となっているクラスの種類に基づいて
-以下の3種類に分類する。
+「Markdown仕様記述ページ」は既存の\tool が保持している画面であり、既存部分の詳細は\ref{sec:2vdm-spec-generator}節に示す。
+本研究の拡張では、既存の「Markdown仕様記述ページ」に「スタートページに戻る」ボタンを追加する(図\ref{fig:return_button}を参照)。
+
+ユーザは「スタートページに戻る」を押すことで「Markdown仕様記述ページ」から「スタートページ」へ遷移できる。
+
+\section{GUI操作によるVDM\texttt{++}仕様編集ページ}
+
+「GUI操作によるVDM\texttt{++}仕様編集ページ」は、本研究の拡張で新たに追加するページである。
+図\ref{fig:initial_display}に示した「GUI操作によるVDM\texttt{++}仕様編集ページ」の外観に、説明文を加えたものを図\ref{fig:NoCodePageScreen}に示す。
+「GUI操作によるVDM\texttt{++}仕様編集ページ」は、以下の5つの領域で構成する。
 
 \begin{itemize}
-  \item 表示方法A：画面一覧クラスを編集対象として選択している状態
-  \item 表示方法B：画面クラスを編集対象として選択している状態
-  \item 表示方法C：クラス定義が存在しないMarkdownファイルを編集対象として選択している状態
+  \item フォルダツリー表示領域
+  \item CTM領域
+  \item VDM\texttt{++}仕様表示領域
+  \item 操作ボタン領域
+  \item メニューバー
 \end{itemize}
-すべての表示方法法において共通する表示領域、メニュバー、および、操作ボタンを以下に示す。
-数字は図\ref{fig:initial_display}、および、図\ref{fig:look_A}中の数字に対応する。
-\begin{enumerate}
-  \item[①] スタートページに戻るボタン
-  \item[③] フォルダーツリー表示領域
-  \item[④] CTM表示領域
-  \item[⑤] VDM\texttt{++}記述表示領域
-  \item[⑥] メニューバー
-  \item[⑦] 削除ボタン
-\end{enumerate}
-
-各表示方法における操作ボタンの表示および有効状態の詳細を以下に示す。
-
-\subsection{表示方法A}\label{sec:Display_A}
-表示方法Aのツール外観を図\ref{fig:look_A}に示す。
-表示方法Aは、ユーザが画面一覧クラスを編集対象として選択した場合に表示する表示方法である。
-この状態では、ユーザは以下の操作が可能である。
-\begin{itemize}
-  \item 画面一覧に対する画面の追加、編集、および、削除
-  \item 各画面への遷移
-  \item 画面遷移システム全体の画面状態を定義するための操作
-\end{itemize}
-
-表示方法Aは、個々の画面遷移ロジックを記述する前段階に対応しており、
-画面構成の管理を行うことを目的としている。表示方法Aのみの操作ボタンは、以下の通りである。
-
-\textcircled{\scriptsize 8} 画面の追加ボタン
 
 \begin{figure}[tp]
   \centering
-  \includegraphics[width=0.7\linewidth]{./images/Look_A.png}
-  \caption{表示方法Aのツール外観}
-  \label{fig:look_A}
-
+  \includegraphics[width=0.7\linewidth]{./images/NoCodePagescreen.png}
+  \caption{GUI操作によるVDM\texttt{++}仕様編集ページの外観に説明文を加えたもの}
+  \label{fig:NoCodePageScreen}
 \end{figure}
-\subsection{表示方法B}\label{sec:Display_B}
-表示方法Bのツール外観を図\ref{fig:look_B}に示す。
-表示方法Bは、ユーザが個々の画面クラスを編集対象として選択した場合に表示する表示方法である。
-この状態では、ユーザは以下の操作が可能である。
 
+「GUI操作によるVDM\texttt{++}仕様編集ページ」の各機能について、以下で詳細に示す。
+\subsection{描画機能}
+描画機能は、以下の4つの機能からなる。
 \begin{itemize}
-  \item 画面に対するボタンの追加、編集、および、削除
-  \item 画面に対するタイムアウトの追加、編集、および、削除
-  \item 各ボタンに対するイベントの追加、編集、および、削除
-  \item 画面遷移システムの各画面における操作と遷移の詳細定義
+  \item CTM描画機能
+  \item フォルダツリー描画機能
+  \item VDM\texttt{++}仕様描画機能
+  \item 操作ボタン描画機能
 \end{itemize}
 
-表示方法Bは、ユーザが個々の画面遷移ロジックを記述する段階に対応しており、
-画面ごとの操作と遷移の管理を行うことを目的としている。表示方法Bのみの操作ボタンは、以下の通りである。
-\begin{enumerate}
-  \item[⑨] ボタンの追加ボタン
-  \item[⑩] イベントの追加ボタン
-  \item[⑪] タイムアウトの追加ボタン
-  \item[⑫] クラス名（画面名）の変更ボタン
-\end{enumerate}
-\begin{figure}[tp]
-  \centering
-  \includegraphics[width=0.7\linewidth]{./images/Look_B.png}
-  \caption{表示方法Bのツール外観}
-  \label{fig:look_B}
-\end{figure}
+以降に、各機能の詳細について述べる。
+\subsubsection{CTM描画機能}\label{sec:CTM-drawing-function}
+CTM描画機能は、\tool の記述ルール(\ref{sec:Specrule}小節)に沿ったMarkdown形式に
+対応するCTMを自動でCTM領域に描画する機能である。本機能はユーザがファイルの選択を行った際に描画する。
 
-\subsection{表示方法C}\label{sec:Display_C}
-
-表示方法Cのツール外観を図\ref{fig:look_C}に示す。
-表示方法Cは、クラス定義が存在しないMarkdownファイルを編集対象とした場合に
-表示する表示方法である。
-この状態では、クラスの種類選択・追加のみを表示し、
-その他の編集操作は実行できない。
-表示方法Cは、仕様記述の初期状態を明確にし、
-不完全な状態での操作実行を防止することを目的としている。表示方法Cのみの操作ボタンは、以下の通りである。
-
-\textcircled{\scriptsize 13} クラスの種類選択・追加ボタン
-
-\begin{figure}[tp]
-  \centering 
-  \includegraphics[width=0.7\linewidth]{./images/Look_C.png}
-  \caption{表示方法Cのツール外観}
-  \label{fig:look_C}
-\end{figure}
-
-また、各表示方法と編集対象の対応を表\ref{tab:Look_patterns}に、各表示方法とユーザが可能な操作を表\ref{tab:Look_patterns_operations}に示す。
-
-\begin{table}[tp]
-  \centering
-  \caption{操作ボタン表示方法と編集対象の対応}
-  \label{tab:Look_patterns}
-  \begin{tabular}{|c|p{9cm}|}
-    \hline
-    表示方法 & 表示条件 \\
-    \hline
-    表示方法A &
-    画面一覧クラスを編集対象として選択している状態 \\
-    \hline
-    表示方法B &
-    画面クラスを編集対象として選択している状態 \\
-    \hline
-    表示方法C &
-    クラス定義が存在しないMarkdownファイルを
-    編集対象として選択している状態 \\
-    \hline
-  \end{tabular}
-\end{table}
-
-\begin{table}[tp]
-  \centering
-  \caption{操作ボタン表示方法とユーザが可能な操作の対応}
-  \label{tab:Look_patterns_operations}
-  \begin{tabular}{|c|p{11cm}|}
-    \hline
-    表示方法 & ユーザが可能な操作 \\
-    \hline
-    表示方法A &
-    \makecell[l]{
-    画面一覧に対する画面の追加、編集、および、削除、\\
-    各画面への遷移、\\
-    画面遷移システム全体の画面状態を定義するための操作 }
-    \\
-    \hline
-    表示方法B &
-    \makecell[l]{
-    画面に対するボタンの追加、編集、および、削除、\\
-    画面に対するタイムアウトの追加、編集、および、削除、\\
-    各ボタンに対するイベントの追加、編集、および、削除、\\
-    画面遷移システムの各画面における操作と遷移の詳細定義 }
-    \\
-    \hline
-    表示方法C &
-    クラスの種類選択・追加\\
-    \hline
-  \end{tabular}
-\end{table}
-
-\section{Condition Transition Map（CTM）描画機能}\label{sec:CTM-drawing-function}
-図\ref{fig:ctm_example}に、Markdown仕様（コード\ref{lst:markdown_example}）に対応するCTM描画例を示す。
-
-CTM描画機能は、コード\ref{lst:markdown_example}に示すように、\tool の記述ルール（\ref{sec:Specrule}小節）に沿ったMarkdown形式の仕様記述ファイルを入力として受け取り、
-対応するCTMを自動で描画する機能である。
+Markdown形式の仕様記述ファイルの記述例をコード\ref{lst:markdown_example}に、対応するCTMを図\ref{fig:ctm_example}にそれぞれ示す。
 
 本機能では、Markdown形式仕様記述ファイルを解析し、表\ref{tab:ctm_elements}に示したCTMの各要素を抽出してGUI上に描画する。
-描画の際には、定義している要素間の関係性を考慮し、適切な位置に配置する （\ref{sec:GUIElementGenerationComponent}節で詳細に説明）ことで、
+描画の際には、定義している要素間の関係性を考慮し、適切な位置に配置する (\ref{sec:GUIElementGenerationComponent}節で詳細に説明)ことで、
 ユーザが画面遷移の流れを直感的に理解できるようにする。
 
-描画したCTMは、ユーザ操作によって選択やドラッグが可能であり、
-要素の位置関係を調整できる。
+描画したCTMは、ユーザ操作によってクリックやドラッグが可能であり、
+CTM要素のプロパティの編集、および、位置関係を調整できる。
 また、遷移先がないイベントなど、仕様上不整合が存在する場合には、
-視覚的に識別できるよう赤く強調表示を行う。
+視覚的に識別できるよう赤色で強調表示を行う。
 
 
 \begin{figure}[tp]
@@ -332,44 +197,280 @@ CTM描画機能は、コード\ref{lst:markdown_example}に示すように、\to
 \begin{figure}[tp]
   \centering
   \includegraphics[width=0.9\linewidth]{./images/CTM_Example.png}
-  \caption{Markdown形式仕様記述（コード\ref{lst:markdown_example}）に対応するCTM描画例}
+  \caption{Markdown形式仕様記述(コード\ref{lst:markdown_example})に対応するCTM描画例}
   \label{fig:ctm_example}
 \end{figure}
 
-\section{VDM\texttt{++}仕様生成機能}\label{sec:VDM++-generation-function}
-VDM\texttt{++}仕様をGUI操作によって生成する機能は、
-ツール上部のボタン操作及びCTM上でのユーザ操作に基づいて表\ref{tab:ctm_elements}に示したCTM要素を追加、編集、および、削除し、
+\subsubsection{フォルダツリー描画機能}
+フォルダツリー描画機能は、フォルダツリー表示領域に、ユーザが選択したプロジェクトフォルダのアイテムをツリー形式で描画する機能である。
+本機能は、ユーザがフォルダを選択した際にフォルダツリーを描画し、ユーザのフォルダツリーに対する操作に応じて再描画する。
+
+フォルダツリー表示領域に表示するアイテムの対象は、ディレクトリ、および、拡張子が.mdのファイルである。
+ツリーに表示するディレクトリには、ディレクトリ名の左側にディレクトリアイコンを表示する。
+フォルダツリー表示領域の表示例を、図\ref{fig:folder}に示す。
+
+フォルダツリー表示領域に表示するアイテムはユーザにより選択可能であり、ディレクトリの展開、編集対象Markdownファイルの選択が可能である。
+\ref{sec:VDM++-generation-function}節で説明するフォルダの選択、新規ファイルの作成を行った際に、フォルダの表示を更新する。
+
+
+\begin{figure}[tp]
+  \centering
+  \includegraphics[width=0.5\linewidth]{./images/ディレクトリ例}
+  \caption{フォルダツリー表示領域の表示例}
+  \label{fig:folder}
+\end{figure}
+
+\subsubsection{VDM\texttt{++}仕様描画機能}
+VDM\texttt{++}仕様描画機能は、VDM\texttt{++}仕様表示領域に、ユーザが編集対象に選択したMarkdown仕様ファイルに対応するVDM++仕様ファイルを描画する機能である。
+本機能は、CTM描画機能と同タイミングで描画を行う。
+
+VDM\texttt{++}仕様表示領域に表示するVDM\texttt{++}仕様は、フォルダツリー表示領域でユーザが選択したファイルに対応したVDM\texttt{++}仕様である。
+\tool を操作することによるVDM++仕様への変更は即時反映し、常に最新状態のVDM\texttt{++}仕様をVDM\texttt{++}仕様表示領域に描画する。
+VDM\texttt{++}仕様表示領域の表示例を図\ref{fig:VDMEX}に示す。
+
+\begin{figure}[tp]
+  \centering
+  \includegraphics[width=0.8\linewidth]{./images/VDMEX}
+  \caption{VDM\texttt{++}仕様表示領域の表示例}
+  \label{fig:VDMEX}
+\end{figure}
+\subsubsection{操作ボタン描画機能}\label{sec:GUI-operation-control-function}
+操作ボタン描画機能は、操作ボタン領域に操作ボタンを描画する機能である。
+この機能により、ユーザが選択したMarkdown仕様の種類に応じて実行可能な操作ボタンを操作ボタン領域に描画し、ユーザによる不適切な操作の実行を防止する。
+本機能は「GUI操作によるVDM\texttt{++}仕様編集ページ」に遷移したタイミングから描画し、スタートページに遷移するまで描画し続ける。
+
+本機能では、Markdown仕様の解析結果を基に、
+ユーザが現在選択しているMarkdownファイルのクラスを特定し、
+各操作ボタンの表示、および、有効状態をユーザの操作ごとに更新する。
+操作ボタンの表示パターンは、「GUI操作によるVDM\texttt{++}仕様編集ページ」への遷移直後、および、編集対象となっているクラスの種類に基づいて、
+以下の4種類に分類する。
+
+\begin{itemize}
+  \item 表示パターンA
+  \item 表示パターンB
+  \item 表示パターンC
+  \item 表示パターンD
+\end{itemize}
+
+各表示パターンの操作ボタン領域の表示を、図\ref{fig:hyouzi}に示す。
+各表示パターンと編集対象の対応を表\ref{tab:Look_patterns}に、各ボタンと動作の対応を表\ref{tab:Look_patterns_operations}にそれぞれ示す。
+
+各表示パターンについて、以下で説明する。
+
+\paragraph{表示パターンA}
+
+表示パターンAは、「スタートページ」から「GUI操作によるVDM\texttt{++}仕様編集ページ」への遷移直後、で編集対象となるプロジェクトフォルダを選択していない場合に表示する表示パターンである。
+表示パターンAは、ユーザによる編集対象となるプロジェクトフォルダの設定を目的としている。
+表示パターンAに表示する操作ボタンは、以下の通りである。
+
+\begin{itemize}
+  \item 「スタートページに戻る」ボタン
+  \item 「フォルダの選択」ボタン
+  \item 「削除」ボタン
+\end{itemize}
+
+\paragraph{表示パターンB}
+
+表示パターンBは、ユーザが画面管理クラスを編集対象として選択した場合に表示する表示パターンである。
+表示パターンBは、ユーザによる画面構成の管理を行い、画面管理クラス仕様の作成を行うことを目的としている。表示パターンBに表示する操作ボタンは、以下の通りである。
+
+\begin{itemize}
+  \item 「スタートページに戻る」ボタン
+  \item 「画面の追加」ボタン
+  \item 「削除」ボタン
+\end{itemize}
+
+\paragraph{表示パターンC}
+
+表示パターンCは、ユーザが個々の画面クラスを編集対象として選択した場合に表示する表示パターンである。
+表示パターンCは、ユーザによる画面ごとの操作と遷移の管理を行い、
+それぞれの画面クラス仕様の作成を行うことを目的としている。
+表示パターンCに表示する操作ボタンは、以下の通りである。
+
+\begin{itemize}
+  \item 「スタートページに戻る」ボタン
+  \item 「ボタンの追加」ボタン
+  \item 「イベントの追加」ボタン
+  \item 「タイムアウトの追加」ボタン
+  \item 「クラス名(画面名)の変更」ボタン
+  \item 「削除」ボタン
+\end{itemize}
+
+\paragraph{表示パターンD}
+
+表示パターンDは、クラス定義が存在しないMarkdownファイルを編集対象とした場合に
+表示する表示パターンである。
+表示パターンDは、ユーザによる不完全な状態での操作実行を防止することを目的としている。
+表示パターンDに表示する操作ボタンは、以下の通りである。
+
+\begin{itemize}
+  \item 「スタートページに戻る」ボタン
+  \item 「クラスの種類選択および追加」ボタン
+  \item 「削除」ボタン
+\end{itemize}
+
+\begin{figure}[tp]
+  \centering
+  \includegraphics[width=0.8\linewidth]{./images/表示方法.png}
+  \caption{各表示パターンの操作ボタン領域の表示}
+  \label{fig:hyouzi}
+\end{figure}
+
+\begin{table}[tp]
+  \centering
+  \caption{操作ボタン表示パターンと編集対象の対応}
+  \label{tab:Look_patterns}
+  \begin{tabular}{|c|p{9cm}|}
+    \hline
+    \textbf{表示パターン} & \textbf{表示条件} \\
+    \hline
+    表示パターンA&
+    「GUI操作によるVDM\texttt{++}仕様編集ページ」への遷移直後\\
+    \hline
+    表示パターンB &
+    画面管理クラスを編集対象として選択している状態 \\
+    \hline
+    表示パターンC &
+    画面クラスを編集対象として選択している状態 \\
+    \hline
+    表示パターンD &
+    クラス定義が存在しないMarkdownファイルを
+    編集対象として選択している状態 \\
+    \hline
+  \end{tabular}
+\end{table}
+
+
+\begin{table}[tp]
+  \centering
+  \caption{操作ボタンと動作の対応}
+  \label{tab:Look_patterns_operations}
+  \begin{tabular}{|c|p{10cm}|}
+    \hline
+    \textbf{ボタン} & \textbf{動作} \\
+    \hline
+    フォルダの選択 &
+    編集対象となるプロジェクトフォルダを選択し、フォルダツリー表示を更新する。 \\
+    \hline
+    画面の追加 &
+    画面管理クラスに新しい画面要素を追加する。 \\
+    \hline
+    ボタンの追加 &
+    選択中の画面にボタン要素を追加する。 \\
+    \hline
+    イベントの追加 &
+    選択中のボタンに対するイベントを追加する。 \\
+    \hline
+    タイムアウトの追加 &
+    選択中の画面にタイムアウトイベントを追加する。 \\
+    \hline
+    クラス名(画面名)の変更 &
+    選択中の画面クラス名を変更する。 \\
+    \hline
+    クラスの種類選択および追加 &
+    画面管理クラスか画面クラスかを選択、仕様のクラス名を定義する。 \\
+    \hline
+    削除 &
+    選択中の要素を削除し、関連する記述を更新する。 \\
+    \hline
+    スタートページへ戻る &
+    スタートページへ遷移する。 \\
+    \hline
+  \end{tabular}
+\end{table}
+
+\subsection{GUI操作による仕様編集機能}\label{sec:VDM++-generation-function}
+GUI操作による仕様編集機能は、以下の３つの機能からなる
+\begin{itemize}
+\item メニューバーの操作による仕様生成補助機能
+\item 操作ボタン領域のボタン操作によるVDM\texttt{++}仕様生成機能
+\item CTM領域上でのユーザ操作によるCTM編集機能
+\end{itemize}
+
+GUI操作による仕様編集機能は、この3つの機能に基づいて表\ref{tab:ctm_elements}に示したCTM要素を追加、編集、および、削除し、
 その結果を\tool の記述ルールに沿ったMarkdown形式仕様記述ファイル、および、
 VDM\texttt{++}形式仕様記述ファイルとして出力する機能である。
-本機能により、ユーザは、視覚的に画面遷移構造を編集しながら、
-対応するMarkdown、および、VDM\texttt{++}形式仕様を自動生成できる。
 
-本機能では、ツール上部のボタン操作、および、GUI上でのユーザ操作を監視し、
-要素の追加、編集、削除などの操作に応じて
-内部状態を更新する。
+以降各機能の詳細を示す。
 
-各機能に対応する処理を以下に示す。
+\subsubsection{メニューバーの操作による仕様生成補助機能}
+メニューバーの操作によるVDM\texttt{++}仕様生成補助機能は、メニューバーに表示するVDM\texttt{++}仕様生成に必要なファイル、および、フォルダに関する機能を操作することで、VDM\texttt{++}仕様生成の補助を行う機能である。
+メニューバーは、ファイル、および、フォルダに関する機能をまとめたメニューである。メニューバーの項目を押すことで開くドロップダウンメニューから、機能を使用することが可能である。
+メニューバーを押すことで開くドロップダウンメニューを、図\ref{fig:drop}に示す。
+\begin{figure}[tp]
+  \centering
+  \includegraphics[width=0.3\linewidth]{./images/drop.png}
+  \caption{ドロップダウンメニュー}
+  \label{fig:drop}
+\end{figure}
+ドロップダウンメニューで表示する項目は、以下の2つである。
+\begin{itemize}
+  \item フォルダを選択
+  \item 新規ファイル作成
+\end{itemize}
+以下に各機能について説明する。
 
-\subsection{クラスの種類選択・追加}
-クラスの種類選択・追加は、Markdownファイルに対して
-画面一覧クラスまたは画面クラスを追加する操作である。
-本操作により、Markdownファイルにクラス定義が存在しない場合でも、
-画面一覧クラスまたは画面クラスを追加することで
-仕様記述の編集を開始できるようにする。
+\paragraph{フォルダを選択}
 
-本操作は、表示方法Cにおいてのみ有効である。
+「フォルダを選択」機能は、操作ボタンの「フォルダの選択」ボタンと同様の機能である。
+本操作では、ユーザが「フォルダを選択」ボタンを押した際に、図\ref{fig:fo}に示すインターフェースを表示する。
+\begin{figure}[tp]
+  \centering
+  \includegraphics[width=0.7\linewidth]{./images/fo.png}
+  \caption{フォルダ選択インターフェース}
+  \label{fig:fo}
+\end{figure}
 
-本操作では、ユーザがクラスの種類選択・追加ボタンをクリックした際に、
-表示するダイアログから追加するクラスの種類を選択する。クラスの種類選択ダイアログは図\ref{fig:class_type_dialog}に示す。
-選択したクラスの種類に基づいて、
+インターフェースで操作対象のプロジェクトフォルダを選択し、フォルダツリー表示領域に選択したプロジェクトフォルダのアイテムを表示する。
+この操作で選択したプロジェクトフォルダに関して、本\tool では編集を行う。
+
+\paragraph{新規ファイル作成}
+
+新規ファイル作成機能は、空のMarkdownファイルを作成し、プロジェクトフォルダに追加する機能である。
+本操作では、ユーザが「新規ファイルの作成」を押した際に、新規ファイル作成ダイアログを表示する。
+新規ファイル作成ダイアログを、図\ref{fig:createFile}に示す。
+
+\begin{figure}[tp]
+  \centering
+  \includegraphics[width=0.4\linewidth]{./images/createFile.png}
+  \caption{新規ファイル作成ダイアロググ}
+  \label{fig:createFile}
+\end{figure}
+
+新規ファイルを作成した直後は、作成した新規ファイルを、現在の編集対象のMarkdown仕様に設定する。
+
+\subsubsection{操作ボタン領域のボタン操作によるCTM編集機能}
+操作ボタン領域のボタン操作によるCTM編集機能は、操作ボタン領域のボタンを操作することでCTM領域に表示するCTMを編集する機能である。
+また、本機能によりCTMを編集した直後、Markdow仕様、および、VDM\texttt{++}仕様を最新のCTMに対応したものに更新する。
+
+操作ボタン領域のボタン操作によるVDM\texttt{++}仕様生成機能は、以下の9つの機能から成る。
+\begin{itemize}
+  \item クラスの種類選択および追加
+  \item 画面の追加
+  \item ボタンの追加
+  \item タイムアウトの追加
+  \item イベントの追加
+  \item クラス名（画面名）の変更
+  \item 削除
+  \item フォルダの選択
+  \item スタートページに戻る
+\end{itemize}
+\paragraph{クラスの種類選択および追加}
+クラスの種類選択および追加は、プロジェクトフォルダに、
+画面管理クラス、または、画面クラスを追加する機能である。
+なお、本機能は、表示パターンDにおいてのみ有効である。
+
+ユーザは、「クラスの種類選択・追加」ボタンをクリックした際に
+表示するダイアログから、追加するクラスの種類を選択する。クラスの種類選択ダイアログを、図\ref{fig:class_type_dialog}に示す。
+ユーザが選択したクラスの種類に基づいて、
 Markdownファイルに対応するクラス定義を追加し、
-表示方法Cから表示方法Aまたは表示方法Bへと切り替える。
-画面一覧クラスの追加を選択した場合は対象のVDM++仕様のクラス名を「画面管理」とし、表示方法Aへ遷移する。
-画面クラスの追加を選択した場合は画面名入力ダイアログを表示する。画面名入力ダイアログは図\ref{fig:screen_name_dialog}に示す。
-画面名を入力後、「OK」をクリックすることで対象のVDM++仕様のクラス名として入力した画面名を追加し、表示方法Bへ遷移する。
+表示パターンDから表示パターンB、または、表示パターンCへと切り替える。
+ユーザが「画面管理クラスの追加」を選択した場合は対象のVDM++仕様のクラス名を「画面管理」とし、表示パターンBへ切り替える。
+ユーザが「画面クラスの追加」を選択した場合は、画面クラス追加ダイアログを表示する。画面クラス追加ダイアログを、図\ref{fig:screen_name_dialog}に示す。
+ユーザが画面名を入力後、「OK」をクリックすることで、編集対象のVDM++仕様のクラス名として入力した画面名を追加し、表示パターンCへ切り替える。
 
-画面一覧クラスがすでにプロジェクト内に存在する場合は、クラスの種類選択ダイアログの表示は行わず、
-直接画面名入力ダイアログを表示する。画面名の入力を完了すると
+画面管理クラスであるMarkdown仕様ファイル、および、VDM\texttt{++}仕様ファイルがすでにプロジェクトフォルダ内に存在する場合は、クラスの種類選択ダイアログの表示は行わず、
+直接画面クラス追加ダイアログを表示する。ユーザが画面名の入力を完了すると、画面管理クラスの仕様に同様の画面を追加する。
 \begin{figure}[tp]
   \centering
   \begin{minipage}[c]{0.45\linewidth}
@@ -381,42 +482,39 @@ Markdownファイルに対応するクラス定義を追加し、
   \begin{minipage}[c]{0.45\linewidth}
     \centering
     \includegraphics[width=0.8\linewidth]{./images/1-02.png}
-    \caption{画面名入力ダイアログ}
+    \caption{画面クラス追加ダイアログ}
     \label{fig:screen_name_dialog}
   \end{minipage}
 \end{figure}
 
-\subsection{画面の追加}
-画面の追加は、画面一覧クラスのCTM上に新たな画面要素を追加する操作である。
-本操作により、画面遷移システムに新たな画面状態を定義できる。
+\paragraph{画面の追加}
+画面の追加は、画面管理クラスのCTM上に新たな画面要素を追加する機能である。
+本機能により、画面遷移システムに新たな画面要素を定義できる。
+なお、本機能は、表示パターンBにおいてのみ有効である。
 
-本操作は、表示方法Aにおいてのみ有効である。
-
-本操作では、ユーザが画面の追加ボタンをクリックした際に、
-表示するダイアログに追加する画面の名称を入力する。画面名入力ダイアログは図\ref{fig:screen_name_dialog_add}に示す。
-
-画面名入力後、「OK」をクリックすることで、
+ユーザは「画面の追加」ボタンをクリックした際に
+表示するダイアログに、追加する画面の名称を入力し、「OK」をクリックすることで、
 入力した画面名称に基づいて、
 CTM上に新たな画面要素を生成し、
-VDM\texttt{++}仕様に対応する画面定義を追加する。
+VDM\texttt{++}仕様にも対応する画面定義を追加する。画面追加ダイアログを、図\ref{fig:screen_name_dialog_add}に示す。
+
 
 \begin{figure}[tp]
   \centering
   \includegraphics[width=0.4\linewidth]{./images/2-01.png}
-  \caption{画面名入力ダイアログ}
+  \caption{画面追加ダイアログ}
   \label{fig:screen_name_dialog_add}
 \end{figure}
 
-\subsection{ボタンの追加}
-ボタンの追加は、画面クラスのCTM上に対新たなボタン要素を追加する操作である。
-本操作により、特定の画面におけるユーザ操作を定義できるようにする。
+\paragraph{ボタンの追加}
+ボタンの追加は、画面クラスのCTM上に対新たなボタン要素を追加する機能である。
+本機能により、特定の画面におけるユーザ操作を定義できるようにする。
+なお、本機能は、表示パターンCにおいてのみ有効である。
 
-本操作は、表示方法Bにおいてのみ有効である。
+ユーザは「ボタンの追加」ボタンをクリックした際に、
+表示するダイアログから追加するボタンの名称を入力する。ボタン追加ダイアログを、図\ref{fig:button_name_dialog}に示す。
 
-本操作では、ユーザがボタン追加ボタンをクリックした際に、
-表示するダイアログから追加するボタンの名称を入力する。ボタン名入力ダイアログは図\ref{fig:button_name_dialog}に示す。
-
-ボタン名入力後、「OK」をクリックすることで、
+ユーザが、ボタン名入力後、「OK」をクリックすることで、
 入力したボタン名称に基づいて、
 CTM上に新たなボタン要素を生成し、
 VDM\texttt{++}仕様に対応するボタン定義を追加する。
@@ -424,52 +522,57 @@ VDM\texttt{++}仕様に対応するボタン定義を追加する。
 \begin{figure}[tp]
   \centering
   \includegraphics[width=0.4\linewidth]{./images/3-01.png}
-  \caption{ボタン名入力ダイアログ}
+  \caption{ボタン追加ダイアログ}
   \label{fig:button_name_dialog}
 \end{figure}
 
-\subsection{タイムアウトの追加}
-タイムアウトの追加は、CTM上に新たなタイムアウト要素を追加する操作である。
-本操作により、特定の画面におけるタイムアウト動作を定義できるようにする。
+\paragraph{タイムアウトの追加}
+タイムアウトの追加は、CTM上に新たなタイムアウト要素を追加する機能である。
+本機能により、特定の画面におけるタイムアウト動作を定義できるようにする。
+なお、本機能は、表示パターンCにおいてのみ有効である。
 
-本操作は、表示方法Bにおいてのみ有効である。
+本機能では、ユーザがタイムアウト追加ボタンをクリックした際に
+表示するダイアログから、タイムアウト時間およびタイムアウト後の動作を入力する。タイムアウト設定ダイアログを、図\ref{fig:timeout_setting_dialog}に示す。
 
-本操作では、ユーザがタイムアウト追加ボタンをクリックした際に、
-表示するダイアログからタイムアウト時間およびタイムアウト後の動作を入力する。タイムアウト設定ダイアログは図\ref{fig:timeout_setting_dialog}に示す。
-
-タイムアウト時間およびタイムアウト後の動作を入力後、「OK」をクリックすることで、
+ユーザが、タイムアウト時間およびタイムアウト後の動作を入力後、「OK」をクリックすることで、
 入力した情報に基づいて、
 CTM上に新たなタイムアウト要素を生成し、
 VDM\texttt{++}仕様に対応するタイムアウト定義を追加する。
-
 タイムアウト設定時、タイムアウト時間の入力を省略した状態で「OK」をクリックした場合は、入力エラーを返すが、
 タイムアウト後の動作の入力を省略した状態で「OK」をクリックした場合は、タイムアウト後の動作を「なし」としてCTM上にタイムアウト要素を生成し、
-VDM\texttt{++}仕様にタイムアウト後の動作を未定義として追加する。
+VDM\texttt{++}仕様にタイムアウト後の動作を未定義として追加する。タイムアウト設定時の入力エラーを、図\ref{fig:timeoutError}に示す。
 
 また、画面クラスのVDM\texttt{++}仕様にはタイムアウトの定義は単一のものであるため、
-タイムアウト要素がすでに存在する画面に対して本操作を実行した場合は、
+タイムアウト要素がすでに存在する画面に対して本機能を実行した場合は、
 そのタイムアウト要素を更新する。
 
 \begin{figure}[tp]
   \centering
-  \includegraphics[width=0.4\linewidth]{./images/4-01.png}
-  \caption{タイムアウト設定ダイアログ}
-  \label{fig:timeout_setting_dialog}
+  \begin{minipage}[c]{0.45\linewidth}
+    \centering
+    \includegraphics[width=0.8\linewidth]{./images/4-01.png}
+    \caption{タイムアウト設定ダイアログ}
+    \label{fig:timeout_setting_dialog}
+  \end{minipage}
+  \begin{minipage}[c]{0.45\linewidth}
+    \centering
+    \includegraphics[width=0.8\linewidth]{./images/4-02.png}
+    \caption{タイムアウト設定時の入力エラー}
+    \label{fig:timeoutError}
+  \end{minipage}
 \end{figure}
 
-
-\subsection{イベントの追加}
+\paragraph{イベントの追加}
 イベントの追加は、CTM上の特定のボタン要素に対して
-新たなイベント要素を追加する操作である。
-本操作により、ユーザ操作に対するイベント動作を定義できるようにする。
+新たなイベント要素を追加する機能である。
+本機能により、ユーザ操作に対するイベント動作を定義できるようにする。
+なお、本機能は、表示パターンCにおいてのみ有効である。
 
-本操作は、表示方法Bにおいてのみ有効である。
-
-本操作では、ユーザがイベントの追加ボタンをクリックした際に、
-まず、対象ボタン選択ダイアログを表示する。対象ボタン選択ダイアログは図\ref{fig:target_button_selection_dialog}に示す。
-対象ボタン選択後、条件分岐イベント選択ダイアログを表示する。条件分岐イベント選択ダイアログは図\ref{fig:branch_event_selection_dialog}に示す。
-ユーザが条件分岐イベント選択ダイアログで「はい」を選択した場合は、条件分岐イベント入力ダイアログを表示する。条件分岐イベント入力ダイアログは図\ref{fig:branch_event_input_dialog}に示す。
-ユーザが条件分岐イベント選択ダイアログで「いいえ」を選択した場合は、単一イベント入力ダイアログを表示する。単一イベント入力ダイアログは図\ref{fig:normal_event_input_dialog}に示す。
+ユーザが「イベントの追加」ボタンをクリックした際に
+まず、対象ボタン選択ダイアログを表示する。対象ボタン選択ダイアログを、図\ref{fig:target_button_selection_dialog}に示す。
+ユーザが対象ボタン選択後、条件分岐イベント選択ダイアログを表示する。条件分岐イベント選択ダイアログを、図\ref{fig:branch_event_selection_dialog}に示す。
+ユーザが条件分岐イベント選択ダイアログで「はい」を選択した場合は、条件分岐イベント入力ダイアログを表示する。条件分岐イベント入力ダイアログを、図\ref{fig:branch_event_input_dialog}に示す。
+ユーザが条件分岐イベント選択ダイアログで「いいえ」を選択した場合は、単一イベント入力ダイアログを表示する。単一イベント入力ダイアログを、図\ref{fig:normal_event_input_dialog}に示す。
 条件分岐イベント入力ダイアログでは、イベント種類の選択、分岐条件、および、イベント動作を入力する。
 単一イベント入力ダイアログでは、イベント種類の選択、および、イベント動作を入力する。
 
@@ -482,11 +585,11 @@ VDM\texttt{++}仕様にタイムアウト後の動作を未定義として追加
 \end{itemize}
 
 遷移は対象ボタン押下後に特定の画面へ遷移する動作を表し、
-追加は対象ボタン押下後に表示部へ指定した文字列を追加する動作を表し、
+追加は対象ボタン押下後に表示部(\ref{sec:2vdm-spec-generator}節を参照)へ、指定した文字列を追加する動作を表し、
 削除は対象ボタン押下後に表示部から文字列を削除する動作を表し、
 その他はこれら3つ以外の動作を表す。
 
-イベント情報を入力後、「OK」をクリックすることで、
+ユーザがイベント情報を入力後、「OK」をクリックすることで、
 入力した情報に基づいて、
 CTM上に新たなイベント要素を生成し、
 VDM\texttt{++}仕様に対応するイベント定義を追加する。
@@ -511,25 +614,25 @@ VDM\texttt{++}仕様に対応するイベント定義を追加する。
   \centering
   \begin{minipage}[c]{0.45\linewidth}
     \centering
-    \includegraphics[width=0.8\linewidth]{./images/5-03.png}
+    \includegraphics[width=0.9\linewidth]{./images/5-03.png}
     \caption{条件分岐イベント入力ダイアログ}
     \label{fig:branch_event_input_dialog}
   \end{minipage}
   \begin{minipage}[c]{0.45\linewidth}
     \centering
-    \includegraphics[width=0.8\linewidth]{./images/5-04.png}
+    \includegraphics[width=0.9\linewidth]{./images/5-04.png}
     \caption{単一イベント入力ダイアログ}
     \label{fig:normal_event_input_dialog}
   \end{minipage}
 \end{figure}
 
-条件分岐イベントの入力の際、「OK」をクリック後、別の条件分岐イベント追加確認ダイアログを表示する。別の条件分岐イベント追加確認ダイアログは図\ref{fig:another_branch_event_dialog}に示す。
+ユーザが条件分岐イベントの入力の際、「OK」をクリック後、別の条件分岐イベント追加確認ダイアログを表示する。別の条件分岐イベント追加確認ダイアログを、図\ref{fig:another_branch_event_dialog}に示す。
 ユーザが別の条件分岐イベント追加確認ダイアログで「はい」を選択した場合は、再度条件分岐イベント入力ダイアログを表示する。
 ユーザが別の条件分岐イベント追加確認ダイアログで「いいえ」を選択した場合は、イベントの追加操作を終了する。
-条件分岐の数に制限はなく、必要に応じて複数の条件分岐イベントを追加できる。
+条件分岐の数に制限はなく、ユーザは必要に応じて複数の条件分岐イベントを追加できる。
 
 単一イベントを追加する際、対象ボタンにすでに単一イベントを定義している場合、
-エラーを表示し、処理を中断する。
+エラーを表示し、処理を中断する。単一イベント追加時のエラー表示を、図\ref{fig:Eventerror}に示す。
 
 \begin{figure}[tp]
   \centering
@@ -538,19 +641,24 @@ VDM\texttt{++}仕様に対応するイベント定義を追加する。
   \label{fig:another_branch_event_dialog}
 \end{figure}
 
-\subsection{クラス名（画面名）の変更}
-クラス名（画面名）の変更は、ユーザがクラス名（画面名）の変更ボタンをクリックした際に、
-編集対象にしている画面のクラス名（画面名）を変更する操作である。
+\begin{figure}[tp]
+  \centering
+  \includegraphics[width=0.7\linewidth]{./images/イベント追加エラー.png}
+  \caption{単一イベント追加時のエラー表示}
+  \label{fig:Eventerror}
+\end{figure}
 
-本操作は、表示部Bにおいてのみ有効である
+\paragraph{クラス名(画面名)の変更}
+クラス名(画面名)の変更は、ユーザがクラス名(画面名)の変更ボタンをクリックした際に、
+編集対象にしている画面のクラス名(画面名)を変更する機能である。本機能は、表示パターンCにおいてのみ有効である
 
-本操作では、ユーザがクラス名（画面名）の変更ボタンをクリックした際に、
-表示するダイアログから変更後のクラス名（画面名）を入力する。クラス名変更ダイアログは図\ref{fig:class_dialog}に示す。
+ユーザは「クラス名(画面名)の変更」ボタンをクリックした際に
+表示するダイアログから、変更後のクラス名(画面名)を入力する。クラス名変更ダイアログを、図\ref{fig:class_dialog}に示す。
 
-変更後のクラス名（画面名）を入力後、「OK」をクリックすることで、
+ユーザが変更後のクラス名(画面名)を入力後、「OK」をクリックすることで、
 入力した情報に基づいて、変更を行う。VDM\texttt{++}仕様上のクラス名も変更後のクラス名に変更する。
 
-変更前、画面一覧クラスに編集対象の画面を定義している場合には画面一覧クラス内も変更後のクラス名（画面名）へと自動で変更を行う
+変更前、画面管理クラスに編集対象の画面を定義している場合には、画面管理クラス内も変更後のクラス名(画面名)へと自動で変更を行う
 
 \begin{figure}[tp]
   \centering
@@ -560,55 +668,153 @@ VDM\texttt{++}仕様に対応するイベント定義を追加する。
 \end{figure}
 
 
-\subsection{要素の削除}
-削除は、CTM上の特定の要素を削除する操作である。
-本操作により、不要となったCTM上の要素をVDM\texttt{++}仕様からも除去できるようにする。
-本操作では、CTM上の要素を左クリックし削除対象とする要素を設定する。設定後、削除ボタンをクリックすることでCTM上、および、VDM\texttt{++}仕様上から削除を行う。
-イベントの削除を行う際は、イベントのみを削除する。条件分岐イベントに関しては分岐条件ごとに削除が可能である。
-ボタン、および、タイムアウトの削除を行う際は、そのボタン、および、タイムアウトに関連するイベントも同時に削除する。
+\paragraph{削除}
+削除は、CTM領域上の特定の要素を削除する機能である。
+機能により、ユーザは、不要なCTMの要素をCTM領域から削除し、また、その要素に対応するMarkdown要素、および、 VDM++ 仕様を削除できる。
 
-CTMでの削除実行後、VDM\texttt{++}仕様上の対象とする要素を定義している箇所にも削除を反映する。
+ユーザはCTM領域上の要素を左クリックし削除対象とする要素を設定する。削除対象とする要素を設定後、「削除」ボタンをクリックすることでCTM領域上、Markdow仕様、および、VDM\texttt{++}仕様上から削除を行う。
+イベント要素、および、タイムアウト要素の削除を行う際は、その要素のみを削除する。条件分岐イベント要素に関しては分岐条件ごとに削除が可能である。
+また、ボタン要素の削除を行う際は、そのボタン要素に関連するイベントも同時に削除する。
 
-\subsection{右クリック操作}
-右クリック操作は、CTM 上の要素に対して文脈に応じた編集機能を提供する操作である。
-本操作により、ユーザは対象要素の種類に応じて追加、編集、削除、および、コピーを効率的に実行できる。
-右クリックを行った場合、対象の要素の種類、および、条件分岐の有無に基づき、表示する操作候補（コンテキストメニュー）を決定する。コンテキストメニューの表示例を図\ref{fig:context}に示す。
+
+\paragraph{フォルダの選択}
+「フォルダの選択」は、メニューバーの操作による仕様生成補助機能で表記した「フォルダを選択」と同様の機能である。本機能は表示パターンDにおいてのみ有効である。
+
+ユーザは「フォルダを選択」ボタンを押した際に図\ref{fig:fo}に示すインターフェースをより、編集対象とするプロジェクトフォルダを選択する。
+ユーザが選択後、フォルダツリー表示領域に選択したプロジェクトフォルダのアイテムを表示する。
+\paragraph{スタートページに戻る}
+スタートページに戻るは、「GUI操作によるVDM\texttt{++}仕様編集ページ」から「スタートページ」へ遷移する機能である。
+
+ユーザが「スタートページに戻る」ボタンを押した際に「GUI操作によるVDM\texttt{++}仕様編集ページ」から「スタートページ」へ遷移する。
+\subsubsection{CTM領域上でのユーザ操作による仕様生成機能}
+CTM領域上でのユーザ操作によるVDM\texttt{++}仕様生成補助機能は、CTM領域内でCTM要素それぞれに対するユーザ操作によるCTMを編集する機能である。
+本機能は以下の3つの機能からなる
+\begin{itemize}
+  \item 右クリック操作
+  \item ドラッグ操作
+  \item 画面一覧から対象画面への遷移
+\end{itemize}
+
+各機能について以下で説明する。
+
+\paragraph{右クリック操作}
+右クリック操作は、CTM 領域上の要素に対してCTM要素に応じた編集機能を提供する機能である。
+本機能により、ユーザは対象要素の種類に応じて追加、編集、削除、および、コピーを効率的に実行できる。
+右クリックを行った場合、対象の要素の種類、および、条件分岐の有無に基づき、表示する操作候補(コンテキストメニュー)を決定する。各要素に対するコンテキストメニューの表示例を、
+図\ref{fig:context}、図\ref{fig:1context}、図\ref{fig:2context}、図\ref{fig:3context}、図\ref{fig:4context}にそれぞれ示す。
 条件分岐イベントの場合は、分岐領域に対する右クリックを区別し、特定分岐に対する編集や削除を可能とする。
 なお、右クリック操作は上部の操作ボタンと同等の編集機能を提供し、利用者の操作導線を増やす役割を持つ。
-右クリックのコンテキストメニューからイベントの追加をした際には、対象ボタンは選択している状態であるため、
-対象ボタン選択ダイアログをスキップし、条件分岐イベント選択ダイアログからイベントの追加が始まる。
-また、右クリック操作でのみ提供する操作がある。それは以下の2つである。
+なお、右クリックのコンテキストメニューからイベントの追加する際は、対象ボタンを選択していることが前提であるため、
+対象ボタン選択ダイアログの表示を省略し、条件分岐イベント選択ダイアログのみを表示する。
+さらに、ユーザは、右クリック操作でのみ、以下の2つの機能を利用できる。
 \begin{itemize}
   \item 要素の編集
   \item コピー\&ペースト
 \end{itemize}
 
+
 \begin{figure}[tp]
   \centering
-  \includegraphics[width=0.4\linewidth]{./images/context.png}
-  \caption{ボタンに対するコンテキストメニュー}
-  \label{fig:context}
+  \begin{minipage}[c]{0.45\linewidth}
+    \centering
+    \includegraphics[width=0.8\linewidth]{./images/context.png}
+    \caption{ボタン要素のコンテキストメニュー}
+    \label{fig:context}
+  \end{minipage}
+  \begin{minipage}[c]{0.45\linewidth}
+    \centering
+    \includegraphics[width=0.8\linewidth]{./images/1context.png}
+    \caption{イベント要素のコンテキストメニュー}
+    \label{fig:1context}
+  \end{minipage}
 \end{figure}
-\subsubsection{要素の編集}
-要素の編集は、各要素の追加を行う際に表示するダイアグラムと同様のダイアグラムに編集後の内容を入力することで、
-対象とする要素の内容を編集する操作である。
-各ダイアグラムを表示する際、編集前の内容を入力欄に記入した状態で表示する。
-入力後「OK」をクリックすることで編集内容を適用する。
-「キャンセル」をクリックすると編集操作を中断する。
-\subsubsection{コピー\&ペースト}
-コピー\&ペーストはボタン要素に対してのみ行うことができる操作である。
-コンテキストメニュー内のコピーを選択し貼り付けをクリックすることで対象のボタン要素を複製する。
-複製の際、ボタン名を定義するためボタン名入力ダイアログを表示する。また、ボタン要素にイベント要素が関連づいている場合そのイベントもコピーして複製する。
-ただし、イベント名、は「コピー」として複製する
+\begin{figure}[tp]
+  \centering
+  \begin{minipage}[c]{0.45\linewidth}
+    \centering
+    \includegraphics[width=0.8\linewidth]{./images/2context.png}
+    \caption{タイムアウト要素のコンテキストメニュー}
+    \label{fig:2context}
+  \end{minipage}
+  \begin{minipage}[c]{0.45\linewidth}
+    \centering
+    \includegraphics[width=0.8\linewidth]{./images/3context.png}
+    \caption{条件分岐イベント要素のコンテキストメニュー}
+    \label{fig:3context}
+  \end{minipage}
+\end{figure}
+\begin{figure}[tp]
+  \centering
+  \includegraphics[width=0.4\linewidth]{./images/4context.png}
+  \caption{画面要素のコンテキストメニュー}
+  \label{fig:4context}
+\end{figure}
+以降にコンテキストメニューが提供する機能について説明する
+\subparagraph{要素の編集}
 
-\subsection{ドラッグ操作}
-ドラッグ操作はCTM要素を左クリックしている間移動可能な要素に限り、移動できる操作である。
+「要素の編集」は、各要素の追加を行う際に表示するダイアグラムと同様のダイアグラムに編集後の内容を入力することで、
+対象とする要素の内容を編集する機能である。
+各ダイアグラムを表示する際、編集前の内容を入力欄に記入した状態で表示する。
+ユーザが入力後「OK」をクリックすることで編集内容を適用する。
+「キャンセル」をクリックすると編集機能を中断する。
+
+\subparagraph{コピー\&ペースト}
+
+「コピー\&ペースト」は、ボタン要素、および、画面要素に対してのみ行うことができる機能である。
+コンテキストメニュー内の「コピー」を選択し、「貼り付け」をクリックすることで対象要素を複製する。
+複製の際、名称を定義するため要素の名称を入力するダイアログを表示する。それぞれのダイアログを、図\ref{fig:copyB}、図\ref{fig:copyS}にそれぞれ示す。
+また、ボタン要素にイベント要素が関連づいている場合、そのイベントも自動で複製する。
+ただし、イベント名は、「コピー」として複製する。
+
+\begin{figure}[tp]
+  \centering
+  \begin{minipage}[c]{0.45\linewidth}
+    \centering
+    \includegraphics[width=0.8\linewidth]{./images/10-1.png}
+    \caption{コピー時ボタン名入力ダイアログ}
+    \label{fig:copyB}
+  \end{minipage}
+  \begin{minipage}[c]{0.45\linewidth}
+    \centering
+    \includegraphics[width=0.8\linewidth]{./images/10-2.png}
+    \caption{コピー時ボタンイベント名入力ダイアログ}
+    \label{fig:copyS}
+  \end{minipage}
+\end{figure}
+
+\paragraph{左クリック操作}
+左クリック操作は、CTM 領域上の要素に対して以下の3つの機能を提供する。
+\begin{itemize}
+  \item 編集対象CTM要素選択
+  \item ドラッグ操作
+  \item 画面一覧から対象画面への遷移
+\end{itemize}
+
+以降に左クリック操作が提供する機能について説明する
+
+\subparagraph{編集対象CTM要素選択}
+編集対象CTM要素選択は、左クリックにより対象要素を選択状態とし、
+以降の編集操作の対象を確定する機能である。
+選択したCTM要素は枠線の色や太さを変更して強調表示し、
+ユーザに現在の編集対象を視覚的に示す。強調表示の例を、図\ref{fig:pick}に示す。
+要素が存在しない領域をクリックした場合は選択状態を解除する。
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.4\linewidth]{./images/Pick.png}
+  \caption{ボタン1選択時の強調表示}
+  \label{fig:pick}
+\end{figure}
+
+\subparagraph{ドラッグ操作}
+
+ドラッグ操作は、CTM要素を左クリックしている間移動可能な要素に限り、移動できる機能である。
 このドラッグ操作の結果はVDM\texttt{++}仕様上での定義の順序に関係しており、ドラッグ操作による要素の新しい配置情報はJSONファイルとして出力する。
 
-\subsection{画面一覧から対象画面への遷移}
-画面一覧から対象画面への遷移は画面一覧クラスのCTM要素である画面要素を左ダブルクリックすると対象の画面の編集画面へと遷移する操作である。
-これは画面一覧ので定義する名称と画面クラスで定義しているクラス名（画面名）が完全に一致している場合に可能である。
-画面一覧クラスには定義しているが、画面クラスとして存在していない場合には図\ref{fig:error}に示すエラーを表示し、操作を中断する。
+\subparagraph{画面一覧から対象画面への遷移}
+画面一覧から対象画面への遷移は、画面管理クラスのCTM要素である画面要素を左ダブルクリックすると対象の画面の編集画面へと遷移する機能である。
+なお、本機能は、画面一覧で定義する名称と、画面クラスで定義しているクラス名 (画面名) が完全に一致している場合に限り、使用可能である。
+画面管理クラスには定義しているが、画面クラスとして存在していない場合には図\ref{fig:error}に示すエラーを表示し、機能を中断する。
 \begin{figure}
   \centering
   \includegraphics[width=0.4\linewidth]{./images/error.png}
