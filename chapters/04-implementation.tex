@@ -443,7 +443,7 @@ System.IO(\ref{sec:NET}節を参照)、
   プロジェクト管理部内で保持する、\verb|markdownText|に、2.で生成した \verb|updatedMarkdown|を保存する。
 \end{enumerate}
 
-JSONファイルの出力例を、コード\ref{lst:JSON_example}に示す。このJSONファイルには、GUI要素の名称とCTM領域での座標情報を含み、自然言語仕様記述ルール(\ref{sec:Specrule}節を参照)に含まない位置情報のみを保持する。
+JSONファイルの出力例を、リスト\ref{lst:JSON_example}に示す。このJSONファイルには、GUI要素の名称とCTM領域での座標情報を含み、自然言語仕様記述ルール(\ref{sec:Specrule}節を参照)に含まない位置情報のみを保持する。
 
 この処理により、
 GUI表示、Markdown仕様、VDM++仕様、および配置情報が
@@ -514,7 +514,7 @@ GUI表示、Markdown仕様、VDM++仕様、および配置情報が
 
 \section{解析部}\label{sec:ParsingComponent}
 
-解析部は、記述ルールに従ったMarkdown仕様(コード\ref{lst:markdown_example}を参照)の文字列を解析し、CTM(\ref{sec:CTM}節を参照)表示、および、操作の基礎となる構造データを生成する処理部である。
+解析部は、記述ルールに従ったMarkdown仕様(リスト\ref{lst:markdown_example}を参照)の文字列を解析し、CTM(\ref{sec:CTM}節を参照)表示、および、操作の基礎となる構造データを生成する処理部である。
 本処理部では、表\ref{tab:ctm_elements}に示した各CTM要素を構成するデータを抽出することを目的とする。
 
 本処理部では、.NETの標準ライブラリであるSystem.Text.RegularExpressions(\ref{sec:NET}節を参照)を用いて Markdown文字列の各行を解析する。
@@ -523,8 +523,8 @@ GUI表示、Markdown仕様、VDM++仕様、および配置情報が
 ここで、GUIElement は、各CTM 要素を構成する構造データである。GUIElementのデータ構造を、表\ref{tb:GUIElement}に示す。
 また、条件分岐イベント要素はGUIElementに加え、分岐条件とイベントを格納するリスト\verb|EventBranch|を用いてデータを保持する。\verb|EventBranch|のデータ構造を、表\ref{tb:EventBranch}に示す。
 
-具体例として、コード\ref{lst:markdown_example}に示したMarkdown仕様を活用する。
-コード\ref{lst:markdown_example}のMarkdown仕様に対して本処理部が生成する
+具体例として、リスト\ref{lst:markdown_example}に示したMarkdown仕様を活用する。
+リスト\ref{lst:markdown_example}のMarkdown仕様に対して本処理部が生成する
 GUIElement一覧を表\ref{tab:gui_element_example}に、\verb|EventBranch|を表\ref{tab:event_branch_example}にそれぞれ示す。
 本ツールでは、自然言語仕様記述ルール(\ref{sec:Specrule}節を参照)に基づき、Markdown仕様中で「\verb|###|」で始まる行を見出し行と呼ぶ。
 
@@ -609,7 +609,7 @@ EventBranch.Target & string & 分岐条件成立時のイベント \\
 
 \begin{table}[tp]
 \centering
-\caption{コード3.1のMarkdown仕様記述例から生成するGUIElement一覧}
+\caption{リスト3.1のMarkdown仕様記述例から生成するGUIElement一覧}
 \label{tab:gui_element_example}
 \begin{tabular}{|l|l|l|l|}
 \hline
@@ -654,7 +654,7 @@ Event & 確定押下 & -- & 条件分岐を含むイベント \\
 
 \begin{table}[tp]
 \centering
-\caption{コード3.1のMarkdown仕様記述例から生成するEventBranch}
+\caption{リスト3.1のMarkdown仕様記述例から生成するEventBranch}
 \label{tab:event_branch_example}
 \begin{tabular}{|l|l|}
 \hline

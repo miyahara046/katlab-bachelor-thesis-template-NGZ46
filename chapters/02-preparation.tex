@@ -268,8 +268,8 @@ Windows.Storage.Pickersは、Windows プラットフォームにおいて、
 表示部クラスは、システムにおける表示部を表現するクラスであり、画面遷移システムにおける入力フォーム等の機能を表現する。表示部クラスは、対象の仕様書の内容にかかわらず一定のものとして定義する。
 表示部クラスのVDM++仕様記述を、図\ref{code:hyougibu}に示す.
 
-\begin{figure}[t]
-    \begin{lstlisting}
+\begin{figure}[tp]
+    \begin{lstlisting}[caption={表示部クラス}, label={lst:JSON_example}, language={VDM_PP}]
     class 「表示部」
 
     types
@@ -292,7 +292,6 @@ Windows.Storage.Pickersは、Windows プラットフォームにおいて、
 
     end 「表示部」
     \end{lstlisting}
-    \caption{表示部クラス}
     \label{code:hyougibu}
 \end{figure}
 
@@ -302,7 +301,7 @@ Windows.Storage.Pickersは、Windows プラットフォームにおいて、
 この変換ルールAを、表\ref{tab:gamenichiran}に示す。
 表\ref{tab:gamenichiran}における【】で囲まれた部分は、対象とする画面一覧仕様の記述に依存する部分であることを表す。
 
-\begin{table*}[t]
+\begin{table*}[tp]
     \centering
     \caption{画面一覧仕様から画面管理クラスへの変換ルール(変換ルールA)}
     \label{tab:gamenichiran}
