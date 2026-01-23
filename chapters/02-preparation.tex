@@ -5,14 +5,15 @@
 画面遷移システムとは、画面遷移図を工程成果物として持つことが可能なシステムの総称である\cite{screen-system}。
 本研究における画面遷移システムの定義は、以下の通りである。
 \begin{itemize}
-    \item システムに複数の画面が存在する。
-    \item 1つの画面ごとに、1つ以上の内部状態が存在する。
-    \item 1つの画面ごとに、以下のいずれか1つに変化する。
-    \begin{itemize}
-        \item 他の画面状態
-        \item 条件と変化先の内部状態
-    \end{itemize}
-    \end{itemize}
+\item システムが複数の画面を有する。
+\item 各画面は、その画面内での動作や入力状況の違いを表す複数の内部状態を持ち、それぞれは区別可能な状態として定義する。
+\item 各画面における内部状態は、トリガに応じて他の状態へ遷移する。この遷移は以下のいずれかの形式を取る。
+\begin{itemize}
+\item 同一画面内の別状態への変化
+\item 別の画面状態への遷移
+\item 条件付きで変化先が決定される内部状態または画面状態への遷移
+\end{itemize}
+\end{itemize}
 
 本研究では、対象とする画面遷移システムの仕様を記述し、
 それをもとに画面遷移を可視化およびVDM\texttt{++}仕様へ変換する。
@@ -25,7 +26,9 @@ VDMは1970年代にウィーンのIBM研究所で考案され、1990年代前半
 VDM++とは、VDM-SLにオブジェクト指向拡張を施した形式仕様記述言語である。
 VDMには、VDMTools\cite{VDMTools}やOverture IDE\cite{Overture}などの支援ツールが揃っており、
 仕様の検証などを他の形式手法よりも比較的行いやすいという利点がある。
-VDM\texttt{++}は、クラス定義において、型定義や関数定義などをブロックで定義する。VDM\texttt{++}における各定義について以下で説明する。
+VDM\texttt{++}は、クラス定義において、型定義や関数定義などをブロックで定義する。
+
+VDM\texttt{++}における各定義について、以下で説明する。
 \begin{itemize}
     \item 型定義
 
@@ -34,7 +37,7 @@ VDM\texttt{++}は、クラス定義において、型定義や関数定義など
 
     \item 定数定義
 
-    定数定義では、プログラムにおける任意の個数の定数を定義する。
+    定数定義では、プログラムにおける定数を定義する。
 
     \item インスタンス変数定義
 
@@ -42,12 +45,12 @@ VDM\texttt{++}は、クラス定義において、型定義や関数定義など
 
     \item 関数定義
 
-    関数定義では、クラスに所属するオブジェクトの振る舞いの一部を定義する。関数は引数の値だけで戻り値が定まり、インスタンス変数を使うことができない。
-    VDM\texttt{++}の関数は、関数が何をすべきかの特性をただ記述する陰関数定義と、引数からどのように結果を計算すべきかアルゴリズムを示す陽関数定義の2つの定義スタイルがある。
+    関数定義では、オブジェクトの振る舞いの一部を定義する。関数は引数の値だけで戻り値が定まり、インスタンス変数を参照することができない。
+    VDM\texttt{++}の関数は、関数が何をすべきかの特性のみを記述する陰関数定義と、引数からどのように結果を計算すべきかアルゴリズムを示す陽関数定義の2つの定義スタイルがある。
 
     \item 操作定義
 
-    操作定義では、クラスに所属するオブジェクトの振る舞いの一部を定義する。操作は入力引数を受け取り結果を返し、そのオブジェクト内の、あるいは参照しているオブジェクトのインスタンス変数を使うことができる。
+    操作定義では、オブジェクトの振る舞いの一部を定義する。操作は入力引数を受け取り結果を返し、そのオブジェクト内の、あるいは参照しているオブジェクトのインスタンス変数を参照することができる。
     VDM\texttt{++}の操作は、操作の特性を記述する陰操作定義と、計算アルゴリズムを示す陽操作定義の2つの定義スタイルがある。
 \end{itemize}
 
@@ -58,15 +61,44 @@ VDM\texttt{++}は、クラス定義において、型定義や関数定義など
 
 Markdownは、2004年にJohn Gruber氏によって開発された軽量マークアップ言語である\cite{markdown}。
 Markdownを使用することで、プレーンテキストを使って簡単に文書を記述できる。
-Markdownの主な記法を以下に示す。
-\begin{itemize}
-    \item 見出し(\#の数で階層を表現)
-    \item リスト(箇条書きや番号付きリスト)
-    \item 引用(\verb|>|による引用)
-    \item コード(インデントまたはバッククォートで囲む)
-    \item 強調(アスタリスクやアンダースコアによる強調表現)
-    \item リンク(URLへの参照)
-\end{itemize}
+Markdownの主な記法を表\ref{tab:Markdown_Example}
+
+\begin{table}[tp]
+\centering
+\caption{Markdownの主な記法}
+\label{tab:Markdown_Example}
+\begin{tabular}{|>{\raggedright\arraybackslash}p{0.18\linewidth}|>{\raggedright\arraybackslash}p{0.78\linewidth}|}
+\hline
+\textbf{表現の種類} & \textbf{記法の例} \\
+\hline
+見出し & \texttt{\# 見出し} \\
+\hline
+強調 & \texttt{**強調**} \\
+\hline
+箇条書き&
+\parbox[t][8.0ex][t]{\linewidth}{%
+\texttt{- 箇条書き1}\\
+\texttt{- 箇条書き2}
+} \\
+\hline
+引用 & \texttt{> 引用} \\
+\hline
+リンク & \texttt{[リンク名](リンクURL)} \\
+\hline
+コード & \texttt{`}コード\texttt{`} \\
+\hline
+コードブロック &
+\parbox[t][12.0ex][t]{\linewidth}{%
+\texttt{\string`\string`\string`}\\
+\texttt{コードブロック}\\
+\texttt{\string`\string`\string`}
+} \\
+\hline
+\end{tabular}
+\end{table}
+
+
+
 本研究では、画面遷移システムの仕様をMarkdownで記述し、
 Markdownで書いた画面遷移システムの仕様を解析することでGUI表示、および、VDM++仕様の生成に用いる。
 
@@ -386,15 +418,15 @@ Windows.Storage.Pickersは、Windows プラットフォームにおいて、
     \hspace{4pt} 表示部 =: new 「表示部」();\\
     operations\\
     \hspace{4pt}private\\
-    \hspace{8pt} 押下時操作: 「ボタン状態」 ==\hspace{-4pt}\verb|>| ()\\
+    \hspace{8pt} 押下時操作: 「ボタン状態」 \texttt{==>} ()\\
     \hspace{8pt} 押下時操作(押下ボタン) ==\\
     \hspace{12pt} cases 押下ボタン:\\
     \hspace{16pt} \verb|<|\hspace{-4pt}【ボタン1】\hspace{-4pt}\verb|>| -\verb|>| 表示部\hspace{1pt}.入力操作(\hspace{-4pt}【追加値】\hspace{-4pt}),\\
     \hspace{16pt} \verb|<|\hspace{-4pt}【ボタン2】\hspace{-4pt}\verb|>| -\verb|>| 表示部\hspace{1pt}.削除操作(),\\
     \hspace{16pt} \verb|<|\hspace{-4pt}【ボタン3】\hspace{-4pt}\verb|>| -\verb|>| if 【操作時分岐条件1】\hspace{-4pt}() then \\
-    \hspace{76pt} 「画面管理」`現在画面 := new「【画面A】」\hspace{-4pt}()\\
+    \hspace{76pt} 「画面管理」\texttt{`}現在画面 := new「【画面A】」\hspace{-4pt}()\\
     \hspace{76pt} if 【操作時分岐条件2】\hspace{-4pt}() then \\
-    \hspace{76pt} 「画面管理」`現在画面 :=new「【画面B】」\hspace{-4pt}(),\\
+    \hspace{76pt} 「画面管理」\texttt{`}現在画面 :=new「【画面B】」\hspace{-4pt}(),\\
     \hspace{16pt} \verb|<|\hspace{-4pt}【ボタン4】\hspace{-4pt}\verb|>| -\verb|>| 「画面管理」`現在画面 := new「【画面C】」\hspace{-4pt}(),\\
     \hspace{16pt} ...,\\
     \hspace{16pt} others -\verb|>| skip\\
@@ -415,11 +447,11 @@ Windows.Storage.Pickersは、Windows プラットフォームにおいて、
     \begin{tabular}{l}
     operations\\
     \hspace{4pt}private\\
-    \hspace{8pt} 【操作時分岐条件1】: () ==\hspace{-4pt}\verb|>| bool\\
+    \hspace{8pt} 【操作時分岐条件1】: () \texttt{==>} bool\\
     \hspace{8pt} 【操作時分岐条件1】() ==\\
     \hspace{12pt} is not yet specified;\\
     \hspace{4pt}private\\
-    \hspace{8pt} 【操作時分岐条件2】: () ==\hspace{-4pt}\verb|>| bool\\
+    \hspace{8pt} 【操作時分岐条件2】: () \texttt{==>} bool\\
     \hspace{8pt} 【操作時分岐条件2】() ==\\
     \hspace{12pt} is not yet specified;\\
     \end{tabular} \\ \hline
@@ -437,9 +469,9 @@ Windows.Storage.Pickersは、Windows プラットフォームにおいて、
     \hspace{4pt} タイムアウト時間 := 【タイムアウト時間】;\\
     operations\\
     \hspace{4pt} private\\
-    \hspace{8pt} タイムアウト時画面遷移: () ==\hspace{-4pt}\verb|>| ()\\
+    \hspace{8pt} タイムアウト時画面遷移: () \texttt{==>} ()\\
     \hspace{8pt} タイムアウト時画面遷移() ==\\
-    \hspace{12pt} 「画面管理」`現在画面 :=new「【画面D】」\hspace{-4pt}();
+    \hspace{12pt} 「画面管理」\texttt{`}現在画面 :=new「【画面D】」\hspace{-4pt}();
     \end{tabular} \\ \hline
     
     \end{tabularx}
