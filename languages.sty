@@ -1,6 +1,12 @@
+% lstlisting のキャプションとコードの間隔設定
+\usepackage{caption}
+\captionsetup[lstlisting]{skip=10pt}
+
 \renewcommand{\lstlistingname}{コード}
 \lstset{
   language={Java},
+  abovecaptionskip=10pt,  % キャプションの上のスペース
+  belowcaptionskip=10pt,  % キャプションの下（コードとの間）のスペース
   frame=tlBR,%フレーム線の指定，上右下左の順，大文字は二重線
 %  frameround=tttt,%角の指定，右上|右下|左下|左上の順，tは丸角，fは四角
   framesep=5pt,%本文からframeまでの間隔
