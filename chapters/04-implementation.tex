@@ -2,17 +2,17 @@
 本章では、拡張した\tool の実装について説明する。以下に実装の詳細について説明する。
 
 \section{スタートページの実装}
-本節では、本研究の拡張として新たに追加したスタートページの実装について説明する。
-スタートページは、ツール起動時に最初に表示する画面であり、
-Markdown形式による仕様記述を行うページ、
-および、GUI操作によってVDM\texttt{++}仕様を編集するページの
-二つの編集方式へ遷移するための入口として機能する。
+本節では、本研究の拡張として新たに追加した「スタートページ」の実装について説明する。
+「スタートページ」は、ツール起動時に最初に表示する画面であり、
+「Markdown仕様記述ページ」、
+および、「GUI操作によるVDM\texttt{++}仕様編集ページ」の
+2つのページへ遷移するための入口として機能する。
 
-スタートページには、
+「スタートページ」には、
 ツール名を示すタイトル表示領域と、
 「Markdown仕様記述ページ」、
 「GUI操作によるVDM\texttt{++}仕様編集ページ」
-へ遷移する二つのボタンを配置している。
+へ遷移する2つのボタンを配置している。
 これにより、ユーザはツール起動直後に、
 自身が採用したい仕様編集方式を明示的に選択できる。
 
@@ -20,42 +20,52 @@ Markdown形式による仕様記述を行うページ、
 画面遷移コマンドを割り当てている。
 これらのコマンドは、
 .NET MAUIのインタフェースを用いて実装しており、
-ボタン押下時に \texttt{Shell.Current.GoToAsync} を呼び出すことで、
+ボタン押下時に.NET MAUIの標準ライブラリであるMicrosoft.Maui.Controls(\ref{sec:NET_MAUI}節を参照)にある
+画面遷移全体を管理するためのクラスであるShellと、ShellベースのナビゲーションAPIであるGoToAsyncを呼び出すことで、
 対応するページへの画面遷移を実現している。
 このとき、各ページは、
-それぞれShellのルーティング機構を用いて識別し、、
+それぞれShellのルーティング機構を用いて識別し、
 アプリケーション全体で一貫した遷移管理を行う。
 
 また、それぞれのページには、
 「スタートページに戻る」ためのボタンを実装している。
 このボタン操作を検知した場合も、
 同様にShellを用いた画面遷移要求を発行し、
-スタートページへ戻る処理を行う。
+「スタートページ」へ戻る処理を行う。
 これにより、ユーザは編集方式を切り替えたい場合でも、
 ツールを再起動することなく、
-任意のタイミングでスタートページへ戻ることが可能である。
+任意のタイミングで「スタートページ」へ戻ることが可能である。
 
 以上のように、
 スタートページはツール全体の起点として、
 編集方式の選択および画面遷移の統一的管理を担う。
 
-本処理の流れを以下に示す。
+本処理の流れを、以下に示す。
 \begin{enumerate}
-  \item ツール起動時にスタートページを初期画面として表示する。
-  \item ユーザが「Markdown」ボタンを押下した場合、
-  Markdown仕様記述ページへ遷移する。
-  \item ユーザが「NoCode」ボタンを押下した場合、
-  GUI操作によるVDM\texttt{++}仕様編集ページへ遷移する。
-  \item 各編集ページにおいて「スタートページに戻る」ボタンが押下された場合、
-  スタートページへの遷移要求を受け付け、
-  スタートページへ画面を遷移する。
+  \item ツール起動時、Shell により定義した、
+  「スタートページ」を初期画面として生成し表示する。
+
+  \item ユーザがスタートページ上の「Markdown」ボタンを押下した場合、
+  ボタンのクリックイベントをトリガとして、Shellのナビゲーション機構を用いて、
+  「Markdown仕様記述ページ」に対応するルートへ遷移する。
+  遷移先ページはContentPageとして生成する
+
+  \item ユーザがスタートページ上の「NoCode」ボタンを押下した場合も同様に、
+  ボタンのクリックイベントをトリガとして
+  Shellのナビゲーション機構を用いて、
+  「GUI操作によるVDM\texttt{++}仕様編集ページ」に対応するルートへ遷移する。
+  遷移先ページはContentPageとして生成する
+
+  \item 「Markdown仕様記述ページ」、または、「GUI操作によるVDM\texttt{++}仕様編集ページ」において、
+  ユーザが「スタートページに戻る」ボタンを押下した場合、
+  押下イベントをトリガとしてShellのナビゲーション機構を用いて、「スタートページ」のルートへ遷移し、
+  再び「スタートページ」上で遷移先を選択できる状態とする。
 \end{enumerate}
 
-
 \section{GUI操作によるVDM\texttt{++}仕様編集ページの構成}
-以降の節では、GUI操作によるVDM\texttt{++}仕様編集ページについて説明する。
-本研究の拡張で追加した部分もGUI操作によるVDM\texttt{++}仕様編集ページ既存の\tool 同様にMVVMアーキテクチャ(\ref{sec:MVVM}節を参照)を採用している。MVVMアーキテクチャ実装のために本研究では
-CommunityToolkit.Mvvm(\ref{sec:CommunityToolkit.Mvvm}節を参照)を使用している。拡張部分のシステム構成を、図\ref{fig:system-architecture}に示す。
+以降の節では、「GUI操作によるVDM\texttt{++}仕様編集ページ」について説明する。
+本研究の拡張で追加した部分も既存の\tool 同様にMVVMアーキテクチャ(\ref{sec:MVVM}節を参照)を採用している。MVVMアーキテクチャ実装のために、本研究では
+CommunityToolkit.Mvvm(\ref{sec:CommunityToolkit.Mvvm}節を参照)を使用している。拡張した\tool のシステム構成を、図\ref{fig:system-architecture}に示す。
 拡張後の\tool は、以下の6つの主要な処理部で構成する。
 \begin{itemize}
       \item View 層
@@ -81,7 +91,7 @@ ViewModel 層は、View 層と Model 層間のデータバインディングを�
 ユーザ監視部は、ユーザ入力を、それぞれの操作について判断し、
 Model 層の各処理部へ処理を指示する。
 Model 層は、プロジェクト管理部、解析部、GUI要素生成部、変換部から構成し、
-仕様データの永続化、解析、GUI要素データの生成、および、マークダウン形式からVDM++形式への変換を担う。
+仕様データの永続化、解析、GUI要素データの生成、および、Markdown形式からVDM++形式への変換を担う。
 この構成により、Model 層は View 層を直接参照せず、
 ViewModel 層を介して状態のみを受け渡す。
 
@@ -443,7 +453,7 @@ System.IO(\ref{sec:NET}節を参照)、
   プロジェクト管理部内で保持する、\verb|markdownText|に、2.で生成した \verb|updatedMarkdown|を保存する。
 \end{enumerate}
 
-JSONファイルの出力例を、コード\ref{lst:JSON_example}に示す。このJSONファイルには、GUI要素の名称とCTM領域での座標情報を含み、自然言語仕様記述ルール(\ref{sec:Specrule}節を参照)に含まない位置情報のみを保持する。
+JSONファイルの出力例を、リスト\ref{lst:JSON_example}に示す。このJSONファイルには、GUI要素の名称とCTM領域での座標情報を含み、自然言語仕様記述ルール(\ref{sec:Specrule}節を参照)に含まない位置情報のみを保持する。
 
 この処理により、
 GUI表示、Markdown仕様、VDM++仕様、および配置情報が
@@ -507,31 +517,31 @@ GUI表示、Markdown仕様、VDM++仕様、および配置情報が
       \item ユーザ操作監視部からファイル作成要求、および、ファイル名を入力として受け取る。
       \item プロジェクト管理部内で保持する、\verb|SelectedFolderPath|をもとに新規Markdownファイルのパスを生成する。
       \item プロジェクト管理部内で保持する、\verb|SelectedFilePath|へ新規Markdownファイルのパスを格納する。
-      \item 2.で作成したパスへ空のマークダウンファイルを作成する。
+      \item 2.で作成したパスへ空のMarkdownファイルを作成する。
       \item フォルダおよびファイル探索処理へ探索要求を出力する。
       \item ファイル読み込み処理へファイル読込要求を出力する。
 \end{enumerate}
 
 \section{解析部}\label{sec:ParsingComponent}
 
-解析部は、記述ルールに従ったMarkdown仕様(コード\ref{lst:markdown_example}を参照)の文字列を解析し、CTM(\ref{sec:CTM}節を参照)表示、および、操作の基礎となる構造データを生成する処理部である。
+解析部は、記述ルールに従ったMarkdown仕様(リスト\ref{lst:markdown_example}を参照)の文字列を解析し、CTM(\ref{sec:CTM}節を参照)表示、および、操作の基礎となる構造データを生成する処理部である。
 本処理部では、表\ref{tab:ctm_elements}に示した各CTM要素を構成するデータを抽出することを目的とする。
 
 本処理部では、.NETの標準ライブラリであるSystem.Text.RegularExpressions(\ref{sec:NET}節を参照)を用いて Markdown文字列の各行を解析する。
 
 本処理部の入力はプロジェクト管理部から受けとるMarkdown文字列であり、出力はプロジェクト管理部に渡すGUIElementのリストである\verb|elements|である。
 ここで、GUIElement は、各CTM 要素を構成する構造データである。GUIElementのデータ構造を、表\ref{tb:GUIElement}に示す。
-また、条件分岐イベント要素はGUIElementに加え、分岐条件とイベントを格納するリスト\verb|EventBranch|を用いてデータを保持する。\verb|EventBranch|のデータ構造を、表\ref{tb:EventBranch}に示す。
+また、分岐イベント要素はGUIElementに加え、分岐条件とイベントを格納するリスト\verb|EventBranch|を用いてデータを保持する。\verb|EventBranch|のデータ構造を、表\ref{tb:EventBranch}に示す。
 
-具体例として、コード\ref{lst:markdown_example}に示したMarkdown仕様を活用する。
-コード\ref{lst:markdown_example}のMarkdown仕様に対して本処理部が生成する
+具体例として、リスト\ref{lst:markdown_example}に示すMarkdown仕様を活用する。
+リスト\ref{lst:markdown_example}のMarkdown仕様に対して本処理部が生成する
 GUIElement一覧を表\ref{tab:gui_element_example}に、\verb|EventBranch|を表\ref{tab:event_branch_example}にそれぞれ示す。
 本ツールでは、自然言語仕様記述ルール(\ref{sec:Specrule}節を参照)に基づき、Markdown仕様中で「\verb|###|」で始まる行を見出し行と呼ぶ。
 
 以降、本処理部の解析処理について説明する。
 \subsection{解析処理}\label{sec:ParsingProcess}
 
-本処理は、Markdown仕様から、CTM要素である、画面要素、タイムアウト要素、ボタン要素、イベント要素、および条件分岐イベント要素を抽出し、
+本処理は、Markdown仕様から、CTM要素である、画面要素、タイムアウト要素、ボタン要素、イベント要素、および分岐イベント要素を抽出し、
 抽出したCTM要素をGUIElementとして構造化し、GUIElementのリストである\verb|elements|を出力する処理である。
 
 本処理は、ユーザがプロジェクト内のMarkdown仕様ファイルを選択または更新した際に、
@@ -544,6 +554,35 @@ GUIElement一覧を表\ref{tab:gui_element_example}に、\verb|EventBranch|を�
 本処理部では正規表現パターンの1つである\verb|BulletPattern|によって抽出した文字列を箇条書き本文と呼ぶ。
 
 本処理の流れを、図\ref{fig:parsing-flow}と以下に示す。
+
+\begin{figure}[tp]
+\begin{lstlisting}[caption={Markdown仕様の記述例}, label={lst:markdown_example}]
+  ## 画面1
+  - 80 秒でタイムアウト
+
+  ### 有効ボタン一覧
+  - ボタン1
+  - ボタン2
+  - ボタン3
+  - ボタン4
+  - ボタン5
+  - ボタン6
+  - 確定
+
+  ### イベント一覧
+  - タイムアウト → 画面A へ
+  - ボタン1 押下 → 表示部に1 を追加
+  - ボタン2 押下 → 表示部に2 を追加
+  - ボタン3 押下 → 表示部に3 を追加
+  - ボタン4 押下 → 表示部に4 を追加
+  - ボタン5 押下 → 表示部に5 を追加
+  - ボタン6 押下 → 表示部に6 を追加
+  - 確定押下 →
+    - 表示部に1 が入力されている → 画面K へ
+    - 表示部に1 が入力されていない → 画面F へ
+
+\end{lstlisting}
+\end{figure}
 
 \begin{table}[tp]
 \centering
@@ -609,7 +648,7 @@ EventBranch.Target & string & 分岐条件成立時のイベント \\
 
 \begin{table}[tp]
 \centering
-\caption{コード3.1のMarkdown仕様記述例から生成するGUIElement一覧}
+\caption{リスト3.1のMarkdown仕様記述例から生成するGUIElement一覧}
 \label{tab:gui_element_example}
 \begin{tabular}{|l|l|l|l|}
 \hline
@@ -631,9 +670,9 @@ Button & ボタン5 & 表示部に5 を追加 & 有効ボタン \\
 \hline
 Button & ボタン6 & 表示部に6 を追加 & 有効ボタン \\ 
 \hline
-Button & 確定 & -- & 有効ボタン \\ 
+Button & 確定 & 確定押下 & 有効ボタン \\ 
 \hline
-Event & 画面A & 80 秒 & タイムアウトイベント \\ 
+Event & 画面Aへ & 80 秒 & タイムアウトイベント \\ 
 \hline
 Event & 表示部に1 を追加 & 表示部に1 を追加 & 単一イベント \\ 
 \hline
@@ -654,7 +693,7 @@ Event & 確定押下 & -- & 条件分岐を含むイベント \\
 
 \begin{table}[tp]
 \centering
-\caption{コード3.1のMarkdown仕様記述例から生成するEventBranch}
+\caption{リスト3.1のMarkdown仕様記述例から生成するEventBranch}
 \label{tab:event_branch_example}
 \begin{tabular}{|l|l|}
 \hline
@@ -870,8 +909,8 @@ OperationPattern
 
                         ここで、\verb|OperationPattern|に該当するが、
                         抽出したイベント内容\verb|eventContent|が空である場合は、
-                        当該イベントは条件分岐イベントとして扱う。
-                        条件分岐イベントを検出した際は、直後の行から順に走査し、条件分岐行を抽出し、\verb|elements|へ条件分岐イベントとして追加する。
+                        当該イベントは分岐イベントとして扱う。
+                        分岐イベントを検出した際は、直後の行から順に走査し、条件分岐行を抽出し、\verb|elements|へ分岐イベントとして追加する。
                         抽出した条件分岐行に対する詳細な処理規則および生成するデータ構造については、
                         \ref{sec:ParsingBranch}節で詳しく説明する。
 
@@ -912,11 +951,11 @@ OperationPattern
                         \verb|elements|から対応するボタン要素を探索し、特定する。
                         対応するボタン要素「\verb|確定|」はelementsに存在するが、
                         イベント内容\verb|eventContent|が空であるため、
-                        当該イベントは条件分岐イベントとして扱い、ボタン要素との対応付けをスキップする。
+                        当該イベントは分岐イベントとして扱い、ボタン要素との対応付けをスキップする。
 
                         \item 単一イベント要素を生成
 
-                        条件分岐イベントに該当しない場合、
+                        分岐イベントに該当しない場合、
                         解析部は単一イベントとして要素生成を行う。
                         \verb|OperationPattern|形式のイベントでは、
                         \verb|GUIElement.Type == Event| の\verb|GUIElement|を生成する。
@@ -962,17 +1001,17 @@ OperationPattern
 
 \subsection{条件分岐の解析処理}\label{sec:ParsingBranch}
 
-本節では、イベント一覧セクション内に記述している条件分岐イベントについて、
+本節では、イベント一覧セクション内に記述している分岐イベントについて、
 分岐条件および分岐先を抽出し、
 GUIElement の \verb|Branches|(表\ref{tb:EventBranch})へ格納する処理を説明する。
-条件分岐イベントは、単一のトリガ(ボタン押下等)に対して複数の遷移候補を列挙する記述であり、
+分岐イベントは、単一のトリガ(ボタン押下等)に対して複数の遷移候補を列挙する記述であり、
 通常の単一イベントとは異なる解析規則を適用する必要があるため、
 独立した処理として扱う。
 
 \subsubsection{対象とするMarkdown記述形式}
 
-解析部は、条件分岐イベントを以下の形式で判定する。
-親イベント行とは、条件分岐イベントのトリガを表す行であり、
+解析部は、分岐イベントを以下の形式で判定する。
+親イベント行とは、分岐イベントのトリガを表す行であり、
 分岐行とは、親イベント行に対応する各分岐条件および分岐先を表す行である。
 
 \begin{itemize}
@@ -985,7 +1024,7 @@ GUIElement の \verb|Branches|(表\ref{tb:EventBranch})へ格納する処理を�
 分岐行は \verb|EventPattern|
 により \verb|→| を基準に左右へ分解する。
 
-\subsubsection{条件分岐イベント解析処理の処理の流れ}\label{sec:ParsingBranchFlow}
+\subsubsection{分岐イベント解析処理の処理の流れ}\label{sec:ParsingBranchFlow}
 
 本処理は、イベント一覧セクションの走査中に検出した
 「親イベント行(\verb|OperationPattern|に一致し、かつ\verb|→|右辺が空)」を起点として、
@@ -999,14 +1038,14 @@ GUIElement の \verb|Branches|(表\ref{tb:EventBranch})へ格納する処理を�
       \verb|OperationPattern| を適用し、
       操作名 \verb|buttonkey| と\verb|→|以降文字列 \verb|eventContent| を抽出する。
       ここで \verb|eventContent| が空である場合、
-      当該行を条件分岐イベントの親イベント行として扱い、
+      当該行を分岐イベントの親イベント行として扱い、
       分岐収集処理へ遷移する。
       \verb|eventContent| が空でない場合は条件分岐として扱わず、
       本処理は実行しない。
 
       具体例では、親イベント行「\verb|確定押下 → |」は \verb|OperationPattern| に一致し、
       \verb|buttonkey|として\verb|確定|、\verb|eventContent|として\verb|""| を得るため、
-      条件分岐イベントとして扱う。
+      分岐イベントとして扱う。
 
       \item 親イベントに対応するボタン要素の特定
 
@@ -1147,7 +1186,7 @@ GUI要素生成部は、この\verb|elements| 、および、GUI配置情報を�
       \item \verb|GUIElement.Type|：CTM要素の種別
       \item \verb|GUIElement.Name|：CTM要素の名称
       \item \verb|GUIElement.Target|：CTM要素のターゲット情報
-      \item \verb|GUIElement.Branches|：条件分岐イベントにおける分岐情報リスト
+      \item \verb|GUIElement.Branches|：分岐イベントにおける分岐情報リスト
 \end{itemize}
 
 一方、GUI要素生成部が出力する\verb|GUIElement|は、以下のデータを追加で保持する。
@@ -1168,7 +1207,7 @@ GUI要素生成部の入力は、解析部の出力である \verb|elements| と
 出力は、ユーザ操作監視部(\ref{sec:UserOperationMonitoring}節を参照)に渡すGUI要素リスト\verb|elements|である。
 
 GUI要素生成部で用いる通常ノードの描画仕様を表\ref{tab:gui_node_spec}に、
-条件分岐イベントにおける可視ノードの描画仕様を表\ref{tab:gui_node_branch}に示す。
+分岐イベントにおける可視ノードの描画仕様を表\ref{tab:gui_node_branch}に示す。
 
 GUI要素の座標は、GUI配置情報(JSON)が存在する場合は
 \verb|GUIElement.Name| をキーとして復元し、
@@ -1255,14 +1294,14 @@ Y_i = Y_0 + i \cdot d
       以下の手順でGUI要素を生成する。
       \begin{enumerate}[label=\roman*.]
             \item 当該イベント要素が条件分岐を含むかどうかを判定する。
-            具体的には \verb|Branches| が1つ以上存在する場合を条件分岐イベントとする。
+            具体的には \verb|Branches| が1つ以上存在する場合を分岐イベントとする。
             \item 条件分岐を含まない場合は、
             表\ref{tab:gui_node_spec}に基づき矩形形状のイベント要素を生成する。
             座標は JSON を優先し、
             JSONが存在しない場合は対応するボタン要素またはタイムアウト要素の右側に来るように初期配置する。
             \item 条件分岐を含む場合は、
             親イベント要素(イベント本体ノード)を表示対象外として扱い、
-            条件分岐イベントにおける Condition ノードおよび Target ノードの
+            分岐イベントにおける Condition ノードおよび Target ノードの
             具体的な描画位置、形状の頂点位置、
             および分岐線の描画に関する幾何的計算は、
             GUI要素生成部では行わない。
@@ -1318,7 +1357,7 @@ Timeout
 
 \begin{table}[tp]
 \centering
-\caption{条件分岐イベントにおける可視ノードの描画仕様}
+\caption{分岐イベントにおける可視ノードの描画仕様}
 \label{tab:gui_node_branch}
 \begin{tabular}{|l|l|c|c|p{4cm}|}
 \hline
@@ -1819,7 +1858,7 @@ ZIndex & int &
   \item ヒットテスト処理(\ref{sec:UOM_HitTest}節を参照)により\verb|SelectedElement|を確定する。
   \item 対象GUI要素の \verb|GUIElement.Type| に応じて候補操作集合を決定する。
         例えば Button 要素には「イベント追加」を含め、Screen 要素には「画面編集」「タイムアウト編集」を含める。
-  \item 条件分岐イベントの場合は、分岐領域(branch)部分に対する右クリックを区別し、
+  \item 分岐イベントの場合は、分岐領域(branch)部分に対する右クリックを区別し、
         \verb|branchIndex|(分岐番号)を編集要求に含める。
         これにより「分岐の追加、分岐の編集、分岐の削除」を対象分岐に紐付けて実行できる。
   \item ユーザが選択した候補操作を編集コマンドとして編集コマンド実行処理(\ref{sec:UOM_EditCommand}節を参照)へ通知する。
@@ -1989,7 +2028,7 @@ GUI要素リストを更新する処理である。
       \begin{enumerate}
             \item 対象ボタン選択用のダイアログを表示し、対象ボタン名を取得する。
             \item 対象のボタン要素に対して、すでにイベントが存在する場合は追加しない。
-            \item 条件分岐イベント選択用のダイアログを表示し、単一イベントまたは条件分岐イベントを選択する。
+            \item 分岐イベント選択用のダイアログを表示し、単一イベントまたは分岐イベントを選択する。
             \begin{itemize}
                   \item 単一イベント選択時：
                   \begin{enumerate}
@@ -1999,11 +2038,11 @@ GUI要素リストを更新する処理である。
                         描画部が矢印接続を構成できるようにする。
                         \item プロジェクト管理部へ更新要求を通知する(\ref{sec:FileUpdateProcess}節を参照)。
                   \end{enumerate}
-                  \item 条件分岐イベント選択時：
+                  \item 分岐イベント選択時：
                   \begin{enumerate}
-                        \item 条件分岐イベント追加用のダイアログを表示し、
+                        \item 分岐イベント追加用のダイアログを表示し、
                         分岐条件文と遷移先イベントを取得する。
-                        \item 新しい条件分岐イベント要素(\verb|Type=Event, Branches=null|)を生成してGUI要素リスト\verb|elements|に追加する。
+                        \item 新しい分岐イベント要素(\verb|Type=Event, Branches=null|)を生成してGUI要素リスト\verb|elements|に追加する。
                         このとき、分岐条件文と遷移先を \verb|Branches| に保持し、
                         描画部が条件分岐表示を構成できるようにする。
                         \item プロジェクト管理部へ更新要求を通知する(\ref{sec:FileUpdateProcess}節を参照)。

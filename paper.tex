@@ -70,7 +70,6 @@
 
 
 \setlist[itemize]{topsep=0pt, partopsep=0pt, parsep=0pt, itemsep=0pt}
-
 \lstset{
   breaklines = true,%自動で折り返す
   basicstyle={\footnotesize\ttfamily},
@@ -86,6 +85,53 @@
 }
 
 
+\lstdefinelanguage{VDM_PP}
+  {morekeywords={\#act, \#active, \#fin, \#req, \#waiting, 
+ RESULT, abs, all, always, and, async, atomic, be, be st, bool, by, card, cases, char, class, 
+ comp, compose, conc, dcl, def, dinter, div, do, dom, dunion, elems, else, elseif, end, error, 
+ errs, exists, exists1, exit, ext, false, floor, for, for all, forall, from, functions, hd, if, 
+ in, in set, inds, inmap, instance, instance variables, int, inter, inv, inverse, iota, is, 
+ is not yet specified, is subclass of, is subclass responsibility, isofbaseclass, isofclass, 
+ lambda, len, let, map, measure, merge, mod, mu, munion, mutex, nat, nat1, new, nil, not, not in set, 
+ of, operations, or, others, per, periodic, post, power, pre, private, protected, psubset, public, rat,
+  rd, real, rem, responsibility, return, reverse, rng, samebaseclass, sameclass, self, seq, seq1, set,
+   skip, specified, st, start, startlist, static, subclass, subset, sync, then, thread, threadid, tixe,
+    tl, to, token, traces, trap, true, types, undefined, union, values, variables, while, with, wr, yet,mk\_ },
+   sensitive,
+   morecomment=[l]--,
+   morestring=[b]",
+   morestring=[b]',
+  }[keywords,comments,strings]
+
+\lstset{
+  language={VDM_PP},
+  frame=tlBR,
+  framesep=5pt,
+  framerule=.2pt,
+  basicstyle={\small\ttfamily \color[gray]{.15}},
+  identifierstyle={\ttfamily \color[cmyk]{1,0,0,0}},
+  keywordstyle={\ttfamily},
+  stringstyle={\small\ttfamily},
+  commentstyle={\itshape \color[cmyk]{1,0,1,0}},
+  numberstyle={\small},
+  stepnumber=1,
+  numbers=left,
+  numbersep=1em,
+  breaklines=true,
+  escapeinside={(*@}{@*)},
+  keepspaces=true,           % インデント維持（重要）
+  columns=fullflexible,      % columns=[l]{...} より素直に
+  lineskip=0sw,              % 負の行間はやめる（最重要）
+  xleftmargin=2zw,           % 余白を確保（行番号と干渉させない）
+  xrightmargin=1zw,          % 右も少し余白
+  morecomment={[s][{\color[cmyk]{1,0,0,0}}]{/**}{*/}},
+  floatplacement=t,
+  classoffset=1,
+  showstringspaces=false,
+  captionpos=t
+}
+
+\newcommand{\vdmtag}[1]{\textless #1\textgreater}
 
 %
 % 図表の自動参照設定

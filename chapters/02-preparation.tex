@@ -5,14 +5,15 @@
 画面遷移システムとは、画面遷移図を工程成果物として持つことが可能なシステムの総称である\cite{screen-system}。
 本研究における画面遷移システムの定義は、以下の通りである。
 \begin{itemize}
-    \item システムに複数の画面が存在する。
-    \item 1つの画面ごとに、1つ以上の内部状態が存在する。
-    \item 1つの画面ごとに、以下のいずれか1つに変化する。
-    \begin{itemize}
-        \item 他の画面状態
-        \item 条件と変化先の内部状態
-    \end{itemize}
-    \end{itemize}
+\item システムが複数の画面を有する。
+\item 各画面は、その画面内での動作や入力状況の違いを表す複数の内部状態を持ち、それぞれは区別可能な状態として定義する。
+\item 各画面における内部状態は、トリガに応じて他の状態へ遷移する。この遷移は以下のいずれかの形式を取る。
+\begin{itemize}
+\item 同一画面内の別状態への変化
+\item 別の画面状態への遷移
+\item 条件付きで変化先が決定される内部状態または画面状態への遷移
+\end{itemize}
+\end{itemize}
 
 本研究では、対象とする画面遷移システムの仕様を記述し、
 それをもとに画面遷移を可視化およびVDM\texttt{++}仕様へ変換する。
@@ -25,7 +26,9 @@ VDMは1970年代にウィーンのIBM研究所で考案され、1990年代前半
 VDM++とは、VDM-SLにオブジェクト指向拡張を施した形式仕様記述言語である。
 VDMには、VDMTools\cite{VDMTools}やOverture IDE\cite{Overture}などの支援ツールが揃っており、
 仕様の検証などを他の形式手法よりも比較的行いやすいという利点がある。
-VDM\texttt{++}は、クラス定義において、型定義や関数定義などをブロックで定義する。VDM\texttt{++}における各定義について以下で説明する。
+VDM\texttt{++}は、クラス定義において、型定義や関数定義などをブロックで定義する。
+
+VDM\texttt{++}における各定義について、以下で説明する。
 \begin{itemize}
     \item 型定義
 
@@ -34,7 +37,7 @@ VDM\texttt{++}は、クラス定義において、型定義や関数定義など
 
     \item 定数定義
 
-    定数定義では、プログラムにおける任意の個数の定数を定義する。
+    定数定義では、プログラムにおける定数を定義する。
 
     \item インスタンス変数定義
 
@@ -42,12 +45,12 @@ VDM\texttt{++}は、クラス定義において、型定義や関数定義など
 
     \item 関数定義
 
-    関数定義では、クラスに所属するオブジェクトの振る舞いの一部を定義する。関数は引数の値だけで戻り値が定まり、インスタンス変数を使うことができない。
-    VDM\texttt{++}の関数は、関数が何をすべきかの特性をただ記述する陰関数定義と、引数からどのように結果を計算すべきかアルゴリズムを示す陽関数定義の2つの定義スタイルがある。
+    関数定義では、オブジェクトの振る舞いの一部を定義する。関数は引数の値だけで戻り値が定まり、インスタンス変数を参照することができない。
+    VDM\texttt{++}の関数は、関数が何をすべきかの特性のみを記述する陰関数定義と、引数からどのように結果を計算すべきかアルゴリズムを示す陽関数定義の2つの定義スタイルがある。
 
     \item 操作定義
 
-    操作定義では、クラスに所属するオブジェクトの振る舞いの一部を定義する。操作は入力引数を受け取り結果を返し、そのオブジェクト内の、あるいは参照しているオブジェクトのインスタンス変数を使うことができる。
+    操作定義では、オブジェクトの振る舞いの一部を定義する。操作は入力引数を受け取り結果を返し、そのオブジェクト内の、あるいは参照しているオブジェクトのインスタンス変数を参照することができる。
     VDM\texttt{++}の操作は、操作の特性を記述する陰操作定義と、計算アルゴリズムを示す陽操作定義の2つの定義スタイルがある。
 \end{itemize}
 
@@ -58,15 +61,45 @@ VDM\texttt{++}は、クラス定義において、型定義や関数定義など
 
 Markdownは、2004年にJohn Gruber氏によって開発された軽量マークアップ言語である\cite{markdown}。
 Markdownを使用することで、プレーンテキストを使って簡単に文書を記述できる。
-Markdownの主な記法を以下に示す。
-\begin{itemize}
-    \item 見出し(\#の数で階層を表現)
-    \item リスト(箇条書きや番号付きリスト)
-    \item 引用(\verb|>|による引用)
-    \item コード(インデントまたはバッククォートで囲む)
-    \item 強調(アスタリスクやアンダースコアによる強調表現)
-    \item リンク(URLへの参照)
-\end{itemize}
+
+Markdownの主な記法を、表\ref{tab:Markdown_Example}に示す。
+
+\begin{table}[tp]
+\centering
+\caption{Markdownの主な記法}
+\label{tab:Markdown_Example}
+\begin{tabular}{|>{\raggedright\arraybackslash}p{0.18\linewidth}|>{\raggedright\arraybackslash}p{0.78\linewidth}|}
+\hline
+\textbf{表現の種類} & \textbf{記法の例} \\
+\hline
+見出し & \texttt{\# 見出し} \\
+\hline
+強調 & \texttt{**強調**} \\
+\hline
+箇条書き&
+\parbox[t][8.0ex][t]{\linewidth}{%
+\texttt{- 箇条書き1}\\
+\texttt{- 箇条書き2}
+} \\
+\hline
+引用 & \texttt{> 引用} \\
+\hline
+リンク & \texttt{[リンク名](リンクURL)} \\
+\hline
+コード & \texttt{`}コード\texttt{`} \\
+\hline
+コードブロック &
+\parbox[t][12.0ex][t]{\linewidth}{%
+\texttt{\string`\string`\string`}\\
+\texttt{コードブロック}\\
+\texttt{\string`\string`\string`}
+} \\
+\hline
+\end{tabular}
+\end{table}
+
+
+
 本研究では、画面遷移システムの仕様をMarkdownで記述し、
 Markdownで書いた画面遷移システムの仕様を解析することでGUI表示、および、VDM++仕様の生成に用いる。
 
@@ -74,7 +107,7 @@ Markdownで書いた画面遷移システムの仕様を解析することでGUI
 JSON(JavaScript Object Notation)は、軽量のテキストベースのデータ交換フォーマットである。
 JSONは、データをキーと値のペアで表現し、人間にも機械にも理解しやすい構造を持っている\cite{JSON}。
 JSONはWebサービスやアプリケーションの設定ファイルとして広く利用されている。
-JSON形式データは.jsonという拡張子を持つ。
+JSON形式のデータは.jsonという拡張子を持つ。
 JSONは構造化データを簡潔に表現でき、言語や環境を問わずパース(解析)、および、シリアライズ(生成)が容易である
 
 本研究では、画面遷移システムの仕様をMarkdownから解析した後、
@@ -82,33 +115,34 @@ JSONは構造化データを簡潔に表現でき、言語や環境を問わず�
 \section{MVVM}\label{sec:MVVM}
 Model-View-ViewModel (MVVM)\cite{MVVM}は、Model、View、View Modelの 3 つの主要なコンポーネントからなるソフトウェアアーキテクチャの一種である。
 この3つのパターンそれぞれが異なる役割を果たす。
-3つのコンポーネントそれぞれの役割を以下に示す。
+3つのコンポーネントそれぞれの役割を、以下に示す。
 
 \begin{itemize}
     \item Model：アプリのデータをカプセル化する非ビジュアルクラスであり、データや業務ロジックを保持、および、提供する役割
-    \item View：ユーザーが画面に表示するものの構造、レイアウト、外観を定義する役割
+    \item View：ユーザが画面に表示するものの構造、レイアウト、外観を定義する役割
     \item Viw Model：必要なモデルクラスとビューのやりとりを調整する役割
 \end{itemize}
 
-本研究の拡張ではMVVMに基づいた実装を行う。
+本研究の拡張では、MVVMに基づいた実装を行う。
 
 \section{CommunityToolkit.Mvvm}\label{sec:CommunityToolkit.Mvvm}
-CommunityToolkit.Mvvm高速モジュール式 MVVM ライブラリである。本ライブラリは、アプリを構築するための最初の実装を提供する、
+CommunityToolkit.Mvvmは、高速モジュール式 MVVM ライブラリである。本ライブラリは、アプリを構築するための最初の実装を提供する、
 標準型、自己完結型、軽量型のコレクションにアクセスするために使用する\cite{MVVMtool}。
 
-本返球では、CommunityToolkit.MvvmのRelayCommandを主に使用している。
+本研究では、CommunityToolkit.MvvmのRelayCommandを主に使用している。
 各メソッドにRelayCommand属性を付与することにより、本ツール内でそのメソッドが非同期実行のコマンドとして扱える。
 
 \section{.NET MAUI}\label{sec:NET_MAUI}
 本ツールでは、.NET Multi-platform App UI(以下、.NET MAUI と表記する)を用いて主なGUI部分を実装している。
 .NET MAUI は、C\#およびXAMLを使用してクロスプラットフォームのアプリケーションを開発するためのフレームワークである\cite{NET_MAUI}。
-本研究の拡張で使用する.NET MAUIの標準ライブラリを以下に示す。
+
+本研究の拡張で使用する.NET MAUIの標準ライブラリを、以下に示す。
 
 \begin{itemize}
     \item Microsoft.Maui.Controls：
 
     GUI を構成するための基本的な UI コンポーネントを提供する名前空間である。
-    本研究では、ContentPageを各画面の基底クラスとして使用し、ボタン、ラベル、入力欄などのUI要素を配置することで、
+    本研究では、「1画面」を表すページクラスであるContentPageを、各画面の基底クラスとして使用し、ボタン、ラベル、入力欄などのUI要素を配置することで、
     仕様編集画面や操作画面を構成している。
     また、Shellを用いてスタートページと仕様編集ページ間の画面遷移を管理している。
 
@@ -120,14 +154,14 @@ CommunityToolkit.Mvvm高速モジュール式 MVVM ライブラリである。�
     \item Microsoft.Maui.Graphics：
 
     クロスプラットフォームな 2D 描画 API を提供する名前空間である。
-    本研究では、GraphicsViewとIDrawableを用いて、
+    本研究では、カスタム描画を行うための表示用UIコンポーネントであるGraphicsViewと、GraphicsView 上に何をどのように描画するかを定義するためのインタフェースであるIDrawableを用いて、
     画面遷移システムのノードや遷移関係を図として描画する処理を実装している。
 
     \item Microsoft.Maui.ApplicationModel：
 
     アプリケーションの実行環境やデバイス機能へのアクセスを提供する名前空間である。
     本研究では、非同期処理後に UI を更新するため、
-    MainThreadを用いたUIスレッド上での処理制御に利用している。
+    .NET MAUI においてユーザインタフェースを操作するためのメインスレッドを扱うための API であるMainThreadを用いたUIスレッド上での処理制御に利用している。
 
     \item Microsoft.Maui.Storage：
 
@@ -142,7 +176,7 @@ CommunityToolkit.Mvvm高速モジュール式 MVVM ライブラリである。�
     \item Microsoft.Maui.Layouts：
 
     UI 要素の配置を制御するレイアウトコンテナを提供する名前空間である。
-    本研究では、GridやStackLayoutを用いて、レイアウトを構成している。
+    本研究では、UI要素を行と列の格子状に配置するためのレイアウトコンテナであるGridや、UI要素を縦方向または横方向に順番に並べるためのレイアウトコンテナであるStackLayoutを用いて、レイアウトを構成している。
 \end{itemize}
 
 \section{.NET}
@@ -150,14 +184,14 @@ CommunityToolkit.Mvvm高速モジュール式 MVVM ライブラリである。�
 C\#を主なプログラミング言語として用い、デスクトップアプリケーション、Web アプリケーション、モバイルアプリケーションなど、さまざまな形態のソフトウェアを統一的な環境で開発できる。
 .NET では、実行環境とともに、基本クラスライブラリと呼ばれる標準ライブラリ群が提供されている。
 
-本研究で用いる.NETの標準ライブラリを以下に示す。
+本研究で用いる.NETの標準ライブラリを、以下に示す。
 \begin{itemize}
     \item System.Text.RegularExpressions：
 
-    正規表現による文字列解析機能を提供する.NET 標準ライブラリ。本研究で、Markdown 形式で記述された画面遷移システム仕様を解析する際に用いている。
+    正規表現による文字列解析機能を提供する.NET 標準ライブラリ。本研究では、Markdown 形式で記述された画面遷移システム仕様を解析する際に用いている。
     \item System.Collections.Generic：
 
-    ジェネリックコレクションを提供する.NET 標準ライブラリ。本研究では内部表現を管理するために用いている。
+    ジェネリックコレクションを提供する.NET 標準ライブラリ。本研究では、内部表現を管理するために用いている。
     \item System.IO：
 
     ファイルおよびディレクトリ操作を行うための .NET 標準ライブラリ。本研究では、Markdown 仕様ファイルの読み込み、JSON 形式の中間データの保存、および、生成した VDM\texttt{++} 仕様ファイルの書き込みに用いている。
@@ -178,48 +212,23 @@ Windows.Storage.Pickersは、Windows プラットフォームにおいて、
 当該手法に基づく解析および変換処理を行うツールである。
 本節では、まず、\tool が採用している
 画面遷移システムを対象としたVDM\texttt{++}仕様記述作成手法について説明し、
-その後、ツールとしての機能について述べる。
+その後、\tool としての機能について述べる。
 \subsection{画面遷移システムを対象としたVDM++仕様記述作成手法}\label{spec:way-of-convert}
-本手法では、画面遷移システムの仕様を一定の構造で記述することを前提とし、
+本手法では、画面遷移システムの仕様を一定の構造で記述することを前提とし
 その構造に基づいてVDM\texttt{++}仕様記述への変換を行う。
-\tool で支援を行う画面遷移システム仕様の構成を、以下に示す。
+本手法でで作成を行う画面遷移システム仕様の構成を、以下に示す。
 
 \begin{itemize}
 \item システムに存在する画面の名前をすべて記載した、画面一覧仕様が存在すること。
 \item 各画面に1対1で対応した、画面仕様が存在すること。
 \end{itemize}
-本手法では、画面遷移システムのVDM++仕様を作成するために、以下の3つのルールを定義する。
-\begin{itemize}
-    \item 自然言語仕様記述ルール\\
-    画面遷移システム仕様の自然言語仕様記述ルール。
-    \item VDM++仕様記述への2つの変換ルール\\
-    自然言語仕様記述ルールに基づいた画面遷移システム仕様から、VDM++仕様記述への変換ルール。
-    以下の2つのルールがある。
-    \begin{itemize}
-        \item 変換ルールA\\
-        画面一覧仕様から画面管理クラスへの変換ルール。
-        \item 変換ルールB\\
-        画面仕様から画面に対応するクラスへの変換ルール。
-    \end{itemize}
-\end{itemize}
-提案手法の画面遷移システムの仕様記述作成手順を、以下に示す。
-\begin{enumerate}
-  \item[手順1] 自然言語仕様記述ルールに基づいて、画面遷移システム仕様を作成する。
-  \item[手順2] 変換ルールAを用いて、手順1で作成した画面一覧仕様から、画面管理クラスのVDM++仕様記述を作成する。
-  \item[手順3] 表示部クラスのVDM++仕様記述を作成する。
-  \item[手順4] 変換ルールBを用いて、手順1で作成した各画面仕様から、画面に対応するクラスのVDM++仕様記述をそれぞれ作成する。
-\end{enumerate}
 
-\subsection{自然言語仕様記述ルール}\label{sec:Specrule}
-本手法で画面遷移システムの仕様記述作成に必要な、自然言語仕様記述ルールについて説明する。
-画面一覧仕様の自然言語仕様記述ルールを、以下に示す。
-\begin{itemize}
-\item Markdown記法で記述していること。
-\item "画面一覧" をタイトルとしたレベル1見出しに続けて、システムに存在する画面の名前をアイテムとしたリストを記述していること。
-このリスト記述範囲を、画面一覧フィールドとする。
-\end{itemize}
-画面一覧仕様の自然言語仕様記述ルールに基づいた画面一覧仕様の記述例を、図\ref{fig:specRuleA}に示す。
+本手法では、VDM\texttt{++}による画面遷移システム仕様の構成は、システムにおける表示部分を表現する表示部クラス、
+現在画面の状態を管理する画面管理クラス、および、画面一つ一つの仕様に基づく画面定義を表現する画面クラスから成る。
+なお、本手法において表示部クラスは、対象の仕様書の内容にかかわらず一定のものとして定義する。
 
+本手法でVDM\texttt{++}へ変換を行う画面一覧仕様の例を図\ref{fig:specRuleA}、画面仕様の例を図\ref{fig:specRuleB}に示す。
+また、定義する表示部クラスの例を、リスト\ref{lst:hyougibu}に、VDM\texttt{++}に変換後の画面管理クラスの例を、リスト\ref{lst:VDMPP_ExampleA}に、画面クラスの例を、リスト\ref{lst:VDMPP_ExampleB}に示す。
 \begin{figure}
     \centering
     \includegraphics[width=0.4\linewidth]{./images/specRuleA.png}
@@ -227,49 +236,15 @@ Windows.Storage.Pickersは、Windows プラットフォームにおいて、
     \label{fig:specRuleA}
 \end{figure}
 
-画面それぞれに対応する画面仕様の自然言語仕様記述ルールを以下に示す。
-
-\begin{itemize}
-    \item Markdown記法で記述していること。
-    \item 画面の名前をタイトルとしたレベル2見出しを記述していること。
-    このタイトル記述範囲を、画面名記述フィールドとする。
-    \item 対象画面にタイムアウト時間が存在する場合、
-    レベル2見出しに続けてタイムアウト時間をアイテムとしたリストを記述していること。
-    このリスト記述範囲を、タイムアウト記述フィールドとする。
-    \item "有効ボタン一覧" をタイトルとしたレベル3見出しに続けて、
-    対象画面に存在するボタンの名前をアイテムとしたリストを記述していること。
-    このリスト記述範囲を、有効ボタン記述フィールドとする。
-    \item "イベント一覧" をタイトルとしたレベル3見出しに続けて、
-    対象画面に存在するイベントをアイテムとしたリストを記述していること。
-    このリスト記述範囲を、イベント記述フィールドとする。
-    \item イベント記述フィールドにおいて分岐が存在する場合、
-    分岐条件と遷移先をアイテムとしたサブリストを記述していること。
-    このリスト記述範囲を、イベント時分岐記述フィールドとする。
-\end{itemize}
-
-画面仕様の自然言語仕様記述ルールに基づいた画面仕様の記述例を図\ref{fig:specRuleB}に示す。
-
 \begin{figure}
     \centering
     \includegraphics[width=0.8\linewidth]{./images/specRuleB.png}
     \caption{画面仕様の記述例}
     \label{fig:specRuleB}
 \end{figure}
-図\ref{fig:specRuleB}に示すように、各画面仕様には、その画面の名前を画面名記述フィールドに、
-タイムアウト時間をタイムアウト記述フィールドに、有効ボタンを有効ボタン記述フィールドにリスト形式で記述し、想定するイベントをイベント記述フィールドにリスト形式で記述する必要がある。
 
-\subsection{VDM\texttt{++}変換ルール}\label{sec:ConvRule}
-本節では、画面遷移システム仕様からVDM++仕様記述への変換ルールA、および、
-変換ルールBを用いてMarkdown仕様からVDM\texttt{++}仕様への変換について説明する。
-画面遷移システムを対象としたVDM++仕様記述作成手法では、現在の表示を管理する画面管理クラスと、システムにおける表示部を表現する表示部クラス、画面それぞれに対応する画面仕様を表現するクラスのVDM\texttt{++}仕様を作成する。
-
-\subsubsection{表示部クラス}
-
-表示部クラスは、システムにおける表示部を表現するクラスであり、画面遷移システムにおける入力フォーム等の機能を表現する。表示部クラスは、対象の仕様書の内容にかかわらず一定のものとして定義する。
-表示部クラスのVDM++仕様記述を、図\ref{code:hyougibu}に示す.
-
-\begin{figure}[t]
-    \begin{lstlisting}
+\begin{figure}[tp]
+    \begin{lstlisting}[caption={表示部クラス}, label={lst:hyougibu}, language={VDM_PP}]
     class 「表示部」
 
     types
@@ -292,17 +267,140 @@ Windows.Storage.Pickersは、Windows プラットフォームにおいて、
 
     end 「表示部」
     \end{lstlisting}
-    \caption{表示部クラス}
-    \label{code:hyougibu}
 \end{figure}
 
+\begin{figure}[tp]
+    \begin{lstlisting}[caption={図\ref{fig:specRuleA}に対応する画面クラス}, label={lst:VDMPP_ExampleA}, language={VDM_PP}]
+class (*@「@*)画面管理(*@」@*)
+
+types
+  (*@「@*)画面状態(*@」@*)= (*@「@*)画面A(*@」@*) | (*@「@*)画面B(*@」@*) | (*@「@*)画面C(*@」@*) | (*@「@*)画面D(*@」@*);
+
+instance variables
+  static 現在画面:(*@「@*)画面状態(*@」@*):= new(*@「@*)画面A(*@」@*)()
+
+end(*@「@*)画面管理(*@」@*)
+\end{lstlisting}
+\end{figure}
+
+
+\begin{figure}[tp]
+\begin{lstlisting}[caption={図\ref{fig:specRuleB}に対応する画面クラス}, label={lst:VDMPP_ExampleB}, language={VDM_PP}]
+class (*@「@*)画面A(*@」@*)
+types
+(*@「@*)ボタン状態(*@」@*)=(*@\vdmtag{非押下}@*) | (*@\vdmtag{ボタン1}@*) | (*@\vdmtag{ボタン2}@*) | (*@\vdmtag{ボタン3}@*) | (*@\vdmtag{確定}@*);
+
+values
+ タイムアウト時間 := 30 ;
+
+instance variables
+ 押下ボタン:(*@「@*)ボタン状態(*@」@*):= (*@\vdmtag{非押下}@*);
+
+operations
+ private
+  押下時操作:(*@「@*)ボタン状態(*@」@*)==> ()
+  押下時操作 (押下ボタン) ==
+    cases 押下ボタン:
+        (*@\vdmtag{ボタン1}@*) -> 表示部.入力操作 (1),
+        (*@\vdmtag{ボタン2}@*) -> 表示部.入力操作 (2),
+        (*@\vdmtag{ボタン3}@*) -> 表示部.入力操作 (3),
+        (*@\vdmtag{確定}@*) -> if 表示部に1 が入力されている ()
+                  then (*@「@*)画面管理(*@」@*)(*@\texttt{\`}@*)現在画面 := new(*@「@*)画面K(*@」@*)()
+                  if 表示部に1 が入力されていない ()
+                  then (*@「@*)画面管理(*@」@*)(*@\texttt{\`}@*)現在画面 := new(*@「@*)画面F(*@」@*)()
+        others -> skip
+      end
+    pre 押下ボタン <> (*@\vdmtag{非押下}@*)
+    post 押下ボタン = (*@\vdmtag{非押下}@*)
+private
+    タイムアウト時画面遷移: () ==> ()
+    タイムアウト時画面遷移 () ==
+    (*@「@*)画面管理(*@」@*)(*@\texttt{\`}@*)現在画面 := new(*@「@*)スタート画面(*@」@*)();
+private
+    表示部に1 が入力されている: () ==> bool
+    表示部に1 が入力されている() == is not yet specified;
+private
+    表示部に1 が入力されていない: () ==> bool
+    表示部に1 が入力されていない() == is not yet specified;
+
+end (*@「@*)画面A(*@」@*)
+\end{lstlisting}
+\end{figure}
+
+本手法では、画面遷移システムのVDM++仕様を作成するために、以下の2つのルールを定義する。
+
+\begin{itemize}
+    \item 自然言語仕様記述ルール\\(\ref{sec:Specrule}で後述)
+    画面遷移システム仕様の自然言語仕様記述ルール。
+    \item VDM++変換ルール\\
+    自然言語仕様記述ルールに基づいた画面遷移システム仕様から、VDM++仕様記述への変換ルール。
+    以下の2つのルールがある。
+    \begin{itemize}
+        \item 変換ルールA\\
+        画面一覧仕様から画面管理クラスへの変換ルール。
+        \item 変換ルールB\\
+        画面仕様から画面クラスへの変換ルール。
+    \end{itemize}
+\end{itemize}
+
+提案手法の画面遷移システムの仕様記述作成手順を、以下に示す。
+\begin{enumerate}
+  \item 自然言語仕様記述ルールに基づいて、画面遷移システム仕様を作成する。
+  \item 変換ルールAを用いて、手順1で作成した画面一覧仕様から、画面管理クラスのVDM++仕様記述を作成する。
+  \item 表示部クラスのVDM++仕様記述を作成する。
+  \item 変換ルールBを用いて、手順1で作成した各画面仕様から、画面クラスのVDM++仕様記述をそれぞれ作成する。
+\end{enumerate}
+
+\subsection{自然言語仕様記述ルール}\label{sec:Specrule}
+
+本手法での画面遷移システムの仕様記述作成に用いる、自然言語仕様記述ルールについて説明する。
+画面一覧仕様の自然言語仕様記述ルールを、以下に示す。図\ref{fig:specRuleA}に示した画面管理仕様は、以下のルールに則て記述している。
+\begin{itemize}
+\item Markdown記法で記述していること。
+\item "画面一覧" をタイトルとしたレベル1見出しに続けて、システムに存在する画面の名前をアイテムとしたリストを記述していること。
+このリスト記述範囲を、画面一覧フィールドとする。
+\end{itemize}
+
+画面仕様の自然言語仕様記述ルールを、以下に示す。図\ref{fig:specRuleB}に示した画面仕様は、以下のルールに則て記述している。
+
+\begin{itemize}
+    \item Markdown記法で記述していること。
+    \item 画面の名前をタイトルとしたレベル2見出しを記述していること。
+    このタイトル記述範囲を、画面名記述フィールドとする。
+    \item 対象画面にタイムアウト時間が存在する場合、
+    レベル2見出しに続けてタイムアウト時間をアイテムとしたリストを記述していること。
+    このリスト記述範囲を、タイムアウト記述フィールドとする。
+    \item "有効ボタン一覧" をタイトルとしたレベル3見出しに続けて、
+    対象画面に存在するボタンの名前をアイテムとしたリストを記述していること。
+    このリスト記述範囲を、有効ボタン記述フィールドとする。
+    \item "イベント一覧" をタイトルとしたレベル3見出しに続けて、
+    対象画面に存在するイベントをアイテムとしたリストを記述していること。
+    このリスト記述範囲を、イベント記述フィールドとする。
+    \item イベント記述フィールドにおいて分岐が存在する場合、
+    分岐条件と遷移先をアイテムとしたサブリストを記述していること。
+    このリスト記述範囲を、イベント時分岐記述フィールドとする。
+\end{itemize}
+
+画面仕様の自然言語仕様記述ルールに基づいた画面仕様の記述例を図\ref{fig:specRuleB}に示す。
+
+
+図\ref{fig:specRuleB}に示すように、各画面仕様には、その画面の名前を画面名記述フィールドに、
+タイムアウト時間をタイムアウト記述フィールドに、有効ボタンを有効ボタン記述フィールドにリスト形式で記述し、想定するイベントをイベント記述フィールドにリスト形式で記述する必要がある。
+加えて、イベント記述フィールドにおいて、ボタン押下時に、表示部に入力された値で遷移
+先が異なる場合は、イベント時分岐記述フィールドに記述を追加する必要がある。
+
+\subsection{VDM\texttt{++}変換ルール}\label{sec:ConvRule}
+本節では、自然言語仕様記述ルールに基づいた画面遷移システム仕様からVDM++への変換ルールA、および、
+変換ルールBを用いてた、arkdown仕様からVDM\texttt{++}への変換について説明する。
+
 \subsubsection{画面管理クラス}
-画面管理クラスは、現在画面の状態を管理するクラスであり、画面管理を表現する。
-画面遷移システム仕様からVDM++仕様記述へ変換を行う際、画面一覧仕様から画面管理クラスへの変換ルール(変換ルールA)に則って、記述を行う。
+
+画面管理クラスは、現在の画面の状態を管理するクラスであり、画面管理を表現する。
+画面遷移システム仕様からVDM++へ変換を行う際、画面一覧仕様から画面管理クラスへの変換ルール(変換ルールA)に則って、記述を行う。
 この変換ルールAを、表\ref{tab:gamenichiran}に示す。
 表\ref{tab:gamenichiran}における【】で囲まれた部分は、対象とする画面一覧仕様の記述に依存する部分であることを表す。
 
-\begin{table*}[t]
+\begin{table*}[tp]
     \centering
     \caption{画面一覧仕様から画面管理クラスへの変換ルール(変換ルールA)}
     \label{tab:gamenichiran}
@@ -330,20 +428,20 @@ Windows.Storage.Pickersは、Windows プラットフォームにおいて、
     \end{tabular}
 \end{table*}
 
-\subsubsection{画面に対応するクラス}
-画面に対応するクラスは、画面一つ一つの仕様に基づく画面定義を表現する。
-画面遷移システム仕様からVDM++仕様記述へ変換を行う際、画面仕様から画面に対応するクラスへの変換ルール(変換ルールB)に則って、記述を行う。
+\subsubsection{画面クラス}
+画面クラスは、画面の仕様に基づく画面定義を表現する。
+画面遷移システム仕様からVDM++へ変換を行う際、画面仕様から画面クラスへの変換ルール(変換ルールB)に則って、記述を行う。
 この変換ルールBを、表\ref{tab:kakugamen}に示す。表\ref{tab:kakugamen}における【】で囲まれた部分は、対象とする画面仕様の記述に依存する部分であることを表している。
 
 \begin{table*}[tp]
     \centering
     \scriptsize
     \renewcommand{\arraystretch}{0.8}
-    \caption{画面仕様から画面に対応するクラスへの変換ルール(変換ルールB)}
+    \caption{画面仕様から画面クラスへの変換ルール(変換ルールB)}
     \label{tab:kakugamen}
     \begin{tabularx}{168mm}{|p{1mm}|p{59mm}|X|}
         \hline
-    \multicolumn{1}{|c|}{変換ルール} & \multicolumn{1}{c|}{画面仕様表記} & \multicolumn{1}{c|}{画面に対応するクラスのVDM++仕様記述}\\
+    \multicolumn{1}{|c|}{変換ルール} & \multicolumn{1}{c|}{画面仕様表記} & \multicolumn{1}{c|}{画面クラスのVDM++仕様記述}\\
         \hline \hline
 
     \multicolumn{1}{|c|}{B-1} &
@@ -387,16 +485,16 @@ Windows.Storage.Pickersは、Windows プラットフォームにおいて、
     \hspace{4pt} 表示部 =: new 「表示部」();\\
     operations\\
     \hspace{4pt}private\\
-    \hspace{8pt} 押下時操作: 「ボタン状態」 ==\hspace{-4pt}\verb|>| ()\\
+    \hspace{8pt} 押下時操作: 「ボタン状態」 \texttt{==>} ()\\
     \hspace{8pt} 押下時操作(押下ボタン) ==\\
     \hspace{12pt} cases 押下ボタン:\\
     \hspace{16pt} \verb|<|\hspace{-4pt}【ボタン1】\hspace{-4pt}\verb|>| -\verb|>| 表示部\hspace{1pt}.入力操作(\hspace{-4pt}【追加値】\hspace{-4pt}),\\
     \hspace{16pt} \verb|<|\hspace{-4pt}【ボタン2】\hspace{-4pt}\verb|>| -\verb|>| 表示部\hspace{1pt}.削除操作(),\\
     \hspace{16pt} \verb|<|\hspace{-4pt}【ボタン3】\hspace{-4pt}\verb|>| -\verb|>| if 【操作時分岐条件1】\hspace{-4pt}() then \\
-    \hspace{76pt} 「画面管理」`現在画面 := new「【画面A】」\hspace{-4pt}()\\
+    \hspace{76pt} 「画面管理」\texttt{\`}現在画面 := new「【画面A】」\hspace{-4pt}()\\
     \hspace{76pt} if 【操作時分岐条件2】\hspace{-4pt}() then \\
-    \hspace{76pt} 「画面管理」`現在画面 :=new「【画面B】」\hspace{-4pt}(),\\
-    \hspace{16pt} \verb|<|\hspace{-4pt}【ボタン4】\hspace{-4pt}\verb|>| -\verb|>| 「画面管理」`現在画面 := new「【画面C】」\hspace{-4pt}(),\\
+    \hspace{76pt} 「画面管理」\texttt{\`}現在画面 :=new「【画面B】」\hspace{-4pt}(),\\
+    \hspace{16pt} \verb|<|\hspace{-4pt}【ボタン4】\hspace{-4pt}\verb|>| -\verb|>| 「画面管理」\texttt{\`}現在画面 := new「【画面C】」\hspace{-4pt}(),\\
     \hspace{16pt} ...,\\
     \hspace{16pt} others -\verb|>| skip\\
     \hspace{12pt} end\\
@@ -416,11 +514,11 @@ Windows.Storage.Pickersは、Windows プラットフォームにおいて、
     \begin{tabular}{l}
     operations\\
     \hspace{4pt}private\\
-    \hspace{8pt} 【操作時分岐条件1】: () ==\hspace{-4pt}\verb|>| bool\\
+    \hspace{8pt} 【操作時分岐条件1】: () \texttt{==>} bool\\
     \hspace{8pt} 【操作時分岐条件1】() ==\\
     \hspace{12pt} is not yet specified;\\
     \hspace{4pt}private\\
-    \hspace{8pt} 【操作時分岐条件2】: () ==\hspace{-4pt}\verb|>| bool\\
+    \hspace{8pt} 【操作時分岐条件2】: () \texttt{==>} bool\\
     \hspace{8pt} 【操作時分岐条件2】() ==\\
     \hspace{12pt} is not yet specified;\\
     \end{tabular} \\ \hline
@@ -438,9 +536,9 @@ Windows.Storage.Pickersは、Windows プラットフォームにおいて、
     \hspace{4pt} タイムアウト時間 := 【タイムアウト時間】;\\
     operations\\
     \hspace{4pt} private\\
-    \hspace{8pt} タイムアウト時画面遷移: () ==\hspace{-4pt}\verb|>| ()\\
+    \hspace{8pt} タイムアウト時画面遷移: () \texttt{==>} ()\\
     \hspace{8pt} タイムアウト時画面遷移() ==\\
-    \hspace{12pt} 「画面管理」`現在画面 :=new「【画面D】」\hspace{-4pt}();
+    \hspace{12pt} 「画面管理」\texttt{\`}現在画面 :=new「【画面D】」\hspace{-4pt}();
     \end{tabular} \\ \hline
     
     \end{tabularx}
@@ -459,13 +557,13 @@ Windows.Storage.Pickersは、Windows プラットフォームにおいて、
 \end{figure}
 
 \begin{itemize}
-    \item Markdown形式で記述された画面遷移システム仕様の編集機能
-    \item 変換ルールAおよび変換ルールBに基づくVDM\texttt{++}仕様記述への変換機能
-    \item 生成したVDM\texttt{++}仕様記述の表示および保存機能
+    \item Markdown形式で記述した画面遷移システム仕様(以降、Markdown仕様と呼ぶ)の編集機能
+    \item 変換ルールAおよび変換ルールBに基づくVDM\texttt{++}仕様への変換機能
+    \item 生成したVDM\texttt{++}の表示および保存機能
 \end{itemize}
 
-以降に各機能について説明する
-\subsubsection{Markdown形式で記述された画面遷移システム仕様の編集機能}
+以降に、各機能について説明する。
+\subsubsection{Markdown仕様の編集機能}
 本機能は、
 自然言語仕様記述ルールに基づいた画面遷移システム仕様を
 Markdown形式で記述および編集する機能である。
@@ -473,24 +571,24 @@ Markdown形式で記述および編集する機能である。
 画面一覧仕様および各画面に対応する画面仕様を
 Markdownファイルとして管理し、
 ユーザに対して編集領域を提供することで、
-仕様記述の作成および修正を可能にする。
+Markdown仕様の作成および修正を可能にする。
 
 ユーザは、
 ツール上の編集領域を用いて、
 画面一覧仕様および画面仕様を直接記述し、
-自然言語仕様記述ルールに従った構造化仕様を作成する。
+自然言語仕様記述ルールに従った仕様を作成する。
 また、
 Markdownファイルの新規作成、
 既存ファイルの編集、
 および保存といった基本的なファイル操作を
 ツール上から実行できるため、
-仕様記述作成作業を一元的に管理できる。
+Markdow仕様作成作業を一元的に管理できる。
 
-\subsubsection{VDM\texttt{++}仕様記述への変換機能}
+\subsubsection{変換ルールAおよび変換ルールBに基づくVDM\texttt{++}仕様への変換機能}
 本機能は、
-Markdown形式の画面遷移システム仕様に対して、
+Markdown仕様に対して、
 変換ルールAおよび変換ルールBを適用し、
-VDM\texttt{++}仕様記述を生成する機能である。
+VDM\texttt{++}仕様を生成する機能である。
 
 \tool は、
 画面一覧仕様に対して変換ルールAを適用し、
@@ -501,21 +599,21 @@ VDM\texttt{++}仕様記述を生成する機能である。
 画面遷移を記述する画面クラスを生成する。
 
 この処理により、
-自然言語で記述した画面遷移システム仕様から、
+markdown仕様から、
 VDM\texttt{++}仕様への変換を
 規則に基づいて一貫して実行できる。
 その結果、
-仕様記述作成における記述漏れや解釈の不整合を抑制できる。
+VDM\texttt{++}仕様作成における記述漏れや解釈の不整合を抑制できる。
 
-\paragraph{生成したVDM\texttt{++}仕様記述の表示および保存機能}
+\subsubsection{生成したVDM\texttt{++}仕様の表示および保存機能}
 本機能は、
-VDM\texttt{++}仕様記述への変換機能によって生成したVDM\texttt{++}仕様記述を表示し、
+変換ルールAおよび変換ルールBに基づくVDM\texttt{++}仕様への変換機能によって生成したVDM\texttt{++}仕様を表示し、
 ファイルとして保存する機能である。
 
 \tool は、
 Markdown仕様の編集領域とは独立した表示領域を設け、
-変換後のVDM\texttt{++}仕様記述を即座に表示する。
+変換後のVDM\texttt{++}仕様を即座に表示する。
 これにより、
 ユーザは、
-仕様記述の編集と変換結果の確認を
+仕様の編集と変換結果の確認を
 同一画面内で繰り返し行える。
