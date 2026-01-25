@@ -132,6 +132,16 @@ CommunityToolkit.Mvvmは、高速モジュール式 MVVM ライブラリであ�
 本研究では、CommunityToolkit.MvvmのRelayCommandを主に使用している。
 各メソッドにRelayCommand属性を付与することにより、本ツール内でそのメソッドが非同期実行のコマンドとして扱える。
 
+\section{CommunityToolkit.Maui}\label{sec:CommunityToolkit.Maui}
+
+CommunityToolkit.Maui は、.NET MAUI アプリケーション開発を支援するために提供されている
+オープンソースの拡張ライブラリである\cite{CommunityToolkit.Maui}。
+本ライブラリは、.NET MAUI 標準機能を補完する形で、
+UI コンポーネント、ビヘイビア、エフェクト、ダイアログ表示機構などを提供する。
+
+本研究では、CommunityToolkit.Maui が提供する \verb|Popup| 機構を主に利用している。
+Popup は、画面全体を遷移させることなく、一時的な入力画面や確認画面を表示するための UI コンポーネントである。
+
 \section{.NET MAUI}\label{sec:NET_MAUI}
 本ツールでは、.NET Multi-platform App UI(以下、.NET MAUI と表記する)を用いて主なGUI部分を実装している。
 .NET MAUI は、C\#およびXAMLを使用してクロスプラットフォームのアプリケーションを開発するためのフレームワークである\cite{NET_MAUI}。
@@ -179,7 +189,7 @@ CommunityToolkit.Mvvmは、高速モジュール式 MVVM ライブラリであ�
     本研究では、UI要素を行と列の格子状に配置するためのレイアウトコンテナであるGridや、UI要素を縦方向または横方向に順番に並べるためのレイアウトコンテナであるStackLayoutを用いて、レイアウトを構成している。
 \end{itemize}
 
-\section{.NET}
+\section{.NET}\label{sec:NET}
 .NET は、Microsoft によって開発されたマルチプラットフォーム対応のアプリケーション開発基盤である\cite{NET}。
 C\#を主なプログラミング言語として用い、デスクトップアプリケーション、Web アプリケーション、モバイルアプリケーションなど、さまざまな形態のソフトウェアを統一的な環境で開発できる。
 .NET では、実行環境とともに、基本クラスライブラリと呼ばれる標準ライブラリ群が提供されている。
@@ -204,6 +214,17 @@ Windows.Storage.Pickersは、Windows プラットフォームにおいて、
 ユーザ操作によるパス取得を安全かつ統一的に行うための機構を提供する。
 
 本研究で拡張するツールでは、ユーザが画面遷移システム仕様を管理するプロジェクトフォルダを選択する際に用いる。
+
+\section{WinUI}\label{sec:WinUI}
+
+WinUI（Windows UI Library）は、
+Windows 向けユーザインタフェースライブラリである。
+WinUIは、Windowsアプリケーションにおける
+UIコンポーネントの描画、および、マウスやキーボードなどの入力イベント処理を担うネイティブUIフレームワークである。
+
+本研究で拡張するツールでは、右クリック操作ポインタイベントを実現するため、
+WinUIが提供するポインタイベントAPIを利用している。
+
 \section{\tool}\label{sec:2vdm-spec-generator}
 \tool(2vdm-spec-generator)\cite{2vdm-spec-generator}は、
 画面遷移システムの自然言語仕様からVDM\texttt{++}仕様を作成するための
