@@ -2,9 +2,10 @@
 
 本章では、拡張した\tool の実装について説明する。
 なお、本研究の拡張はWindows OSにのみ対応しており、それ以外のOSには対応していない。
-以下に実装の詳細について説明する。
+拡張した\tool のシステム構成を、図\ref{fig:system-architecture}に示す。
+
 本研究の拡張で追加した部分は既存の\tool 同様にMVVMアーキテクチャ(\ref{sec:MVVM}節を参照)を採用している。MVVMアーキテクチャ実装のために、本研究では
-CommunityToolkit.Mvvm(\ref{sec:CommunityToolkit.Mvvm}節を参照)を使用している。拡張した\tool のシステム構成を、図\ref{fig:system-architecture}に示す。
+CommunityToolkit.Mvvm(\ref{sec:CommunityToolkit.Mvvm}節を参照)を使用している。
 拡張後の\tool は、以下の6つの主要な処理部で構成する。
 \begin{figure}[tp]
   \centering
@@ -32,21 +33,27 @@ CommunityToolkit.Mvvm(\ref{sec:CommunityToolkit.Mvvm}節を参照)を使用し�
 \end{itemize}
 
 MVVM に基づき、各処理部は責務を明確にし、連携して動作する。
-View 層は、GUIの表示、および、ユーザ入力の受付を担っており、描画部はツールの外観の整形、ページの切り替え、ユーザ入力の受付、CTMの可視化を行う。
-ViewModel 層は、View 層と Model 層間のデータバインディングを担当しており、
-ユーザ操作対応部は、ユーザ入力を、それぞれの操作について判断し、
-Model 層の各処理部へ処理を指示する。
-Model 層は、プロジェクト管理部、解析部、GUI要素生成部、変換部から構成し、
-プロジェクトフォルダの管理、Markdown仕様の解析、CTMからMarkdown仕様への変換、および、Markdown仕様からVDM++仕様への変換を担う。
+View 層は、GUIの表示、および、ユーザ入力の受付を担う。具体的には、描画部はツールの外観の整形、ページの切り替え、ユーザ入力の受付、CTMの可視化を行う。
+ViewModel 層は、View 層と Model 層間のデータバインディングを担う、
+具体的には、ユーザ操作対応部は、ユーザ操作に対応するイベントハンドラを持ち、
+Model 層のプロジェクト管理部、および、View 層の描画部へ処理の実行を指示する。
+Model 層は、プロジェクト管理部、解析部、GUI要素生成部、および、変換部から構成する。
+具体的には、プロジェクト管理部は、プロジェクトフォルダの読み込み、
+Markdown仕様の管理、各処理部間のデータ受け渡し、
+および、プロジェクトフォルダへのファイルの出力を担い、
+解析部は、Markdown仕様を解析しCTM要素を抽出を担い、
+GUI要素生成部は、解析部で抽出したCTM要素にCTM上での表示、および、操作に必要なGUI属性である座標やサイズの付与を担い、
+変換部は、GUI操作による編集結果をMarkdown仕様、および、VDM\texttt{++} 仕様への変換を担う。
 この構成により、Model 層は View 層を直接参照せず、
-ViewModel 層を介して状態のみを受け渡す。
+ViewModel 層を介して情報のみを受け渡す。
 
 以降、各処理部の実装について、それぞれ説明する。
 
 \section{描画部}\label{sec:DrawingComponent}
-描画部は、ユーザの入力の受付、および、ユーザ操作対応部(\ref{sec:UserOperationMonitoring}節を参照)から参照するデータをもとに、表示ページの切り替え、操作ボタン領域に設置するボタン、フォルダツリー表示領域に表示するフォルダツリー、CTMの表示をする処理部である。
+描画部は、ユーザの入力の受付、および、ユーザ操作対応部(\ref{sec:UserOperationMonitoring}節を参照)から受け取るデータをもとに、
+表示ページの切り替え、操作ボタン領域に設置するボタンの表示、フォルダツリー表示領域のフォルダツリーの表示、および、CTMの表示を行う処理部である。
 
-本処理部は、.NET MAUIの標準ライブラリであるMicrosoft.Maui.Controls(\ref{sec:NET_MAUI}節を参照)を用いて実装している。
+本処理部は、.NET MAUIの標準ライブラリであるMicrosoft.Maui.Controls(\ref{sec:NET_MAUI}節を参照)を用いて実装する。
 
 描画部は以下に示す9つの処理から成る。
 \begin{itemize}
@@ -70,54 +77,53 @@ ViewModel 層を介して状態のみを受け渡す。
 、および、「GUI操作によるVDM\texttt{++}仕様編集ページ」(\ref{sec:NoCodePage}節を参照)
 を切り替える処理である
 
-「スタートページ」は、本研究の拡張で新たに追加した、ツール起動時に最初に表示する画面であり、
+「スタートページ」は、本研究の拡張で新たに追加する、ツール起動時に最初に表示する画面であり、
 「Markdown仕様記述ページ」、
 および、「GUI操作によるVDM\texttt{++}仕様編集ページ」の
 2つのページへ遷移するための入口として機能する。
 「スタートページ」には、
 「Markdown仕様記述ページ」、
-「GUI操作によるVDM\texttt{++}仕様編集ページ」
-へ遷移する2つのボタンのみを配置している。
+および、「GUI操作によるVDM\texttt{++}仕様編集ページ」
+へ遷移する2つのボタンのみを配置してする。
 
 「Markdown仕様記述ページ」、および、「GUI操作によるVDM\texttt{++}仕様編集ページ」には、
-本処理を実行するための「スタートページへ戻る」ボタンを設置している。
+本処理を実行するための「スタートページへ戻る」ボタンを設置する。
 
-この4つのボタンには、
+この3つのボタンには、
 画面遷移コマンドを割り当てている。
 これらのコマンドは、
 ボタン押下時に.NET MAUIの標準ライブラリであるMicrosoft.Maui.Controls(\ref{sec:NET_MAUI}節を参照)にある
 画面遷移全体を管理するためのクラスであるShellと、ShellベースのナビゲーションAPIであるGoToAsyncを呼び出すことで、
-対応するページへの画面遷移を実現している。
+対応するページへの画面遷移を実現する。
 このとき、各ページは、
 それぞれShellのルーティング機構を用いて識別し、
 アプリケーション全体で一貫した遷移管理を行う。
 
-本処理の流れを、以下に示す。
+起動直後を例に本処理の流れを、以下に示す。
 \begin{enumerate}
   \item ツール起動時、Shell により定義した、
   「スタートページ」を初期画面として生成し表示する。
 
+  \begin{itemize}
   \item ユーザがスタートページ上の「Markdown」ボタンを押下した場合、
   ボタンのクリックイベントをトリガとして、Shellのナビゲーション機構を用いて、
   「Markdown仕様記述ページ」に対応するルートへ遷移する。
-  遷移先ページはContentPageとして生成する
 
   \item ユーザがスタートページ上の「NoCode」ボタンを押下した場合、
   ボタンのクリックイベントをトリガとして
   Shellのナビゲーション機構を用いて、
   「GUI操作によるVDM\texttt{++}仕様編集ページ」に対応するルートへ遷移する。
-  遷移先ページはContentPageとして生成する
 
+  \end{itemize}
   \item 「Markdown仕様記述ページ」、または、「GUI操作によるVDM\texttt{++}仕様編集ページ」において、
   ユーザが「スタートページへ戻る」ボタンを押下した場合、
-  押下イベントをトリガとしてShellのナビゲーション機構を用いて、「スタートページ」のルートへ遷移し、
-  再び「スタートページ」上で遷移先を選択できる状態となる。
+  押下イベントをトリガとしてShellのナビゲーション機構を用いて、「スタートページ」のルートへ遷移する。
 \end{enumerate}
 
 \subsection{操作ボタン生成および表示切替処理}
 \label{sec:DrawingComponent_OperationButtons}
 
-本処理は、操作ボタン領域の操作ボタンを生成、および、切り替える処理である。
+本処理は、「GUI操作によるVDM\texttt{++}仕様編集ページ」の操作ボタン領域(\ref{sec:NoCodePage}節を参照)の操作ボタンを生成、および、切り替える処理である。
 操作ボタンは固定的なUI要素ではなく、ユーザの操作状況に応じて動的に構成する。本処理により、
 ユーザが現在実行可能な操作を直感的に把握できるようにする。
 
@@ -127,7 +133,7 @@ ViewModel 層を介して状態のみを受け渡す。
 具体的には、\verb|Button| クラスを配置するための \verb|Layout| コンテナを使用する。
 
 本処理は、
-ユーザ操作対応部が保持する現在の表示パターンを決定する変数である表示パターンフラグを参照し、表示パターンフラグに基づいて
+ユーザ操作対応部が保持する、現在の表示パターンを決定する変数である、表示パターンフラグを参照し、表示パターンフラグに基づいて
 対応する操作ボタンを生成、および、描画する。
 
 表示パターンフラグは、以下の3つのbool値の変数である。
@@ -142,18 +148,16 @@ ViewModel 層を介して状態のみを受け渡す。
 本処理の流れを、以下に示す。
 
 \begin{enumerate}
-  \item ユーザ操作対応部が管理する現在の表示パターンフラグを参照。
+  \item ユーザ操作対応部が管理する、現在の表示パターンフラグを参照する。
   
   \item 取得した表示パターンフラグをもとに、表示するボタンを決定する。表示パターンフラグと表示パターンの対応関係を表\ref{tab:button_appear}に示す。
   
   \item 決定した操作ボタン集合に基づき、
   \verb|Button| クラスのインスタンスを動的に生成する。
-  各ボタンには、CommunityToolkit.Mvvm
-  (\ref{sec:CommunityToolkit.Mvvm}節を参照)の
-  \verb|RelayCommand| で定義した編集コマンド(\ref{sec:UOM_EditCommand}節を参照)を関連付ける。
+  各ボタンには、ユーザ操作対応部が保持する、編集コマンド(\ref{sec:UOM_EditCommand}節を参照)を関連付ける。
   操作ボタン領域のボタンと、編集コマンドの対応表を表\ref{tab:Command}に示す。
   
-  \item 生成した操作ボタン群を、
+  \item 生成した操作ボタン集合を、
   ツール上部の操作ボタン領域に配置する。
   配置には \verb|StackLayout|の
   レイアウトコンテナを用い、既存のボタンが存在する場合は
@@ -162,7 +166,7 @@ ViewModel 層を介して状態のみを受け渡す。
   \item ユーザが操作ボタンを押下すると、関連付けている編集コマンドをユーザ操作対応部へ出力する。
   
   \item 表示パターンフラグが更新するたびに、
-  作可能なボタンを再取得し、
+  操作可能なボタンを再取得し、
   本処理を再実行することで、
   操作ボタンの表示内容を更新する。
 \end{enumerate}
@@ -217,14 +221,14 @@ ViewModel 層を介して状態のみを受け渡す。
 
 
 \subsection{フォルダツリー描画処理}\label{sec:FolderTree}
-フォルダツリー描画処理は、フォルダツリー表示領域にユーザ操作対応部が保持する、フォルダツリーの各行を表すデータ構造である\verb|FolderItem|
+フォルダツリー描画処理は、「GUI操作によるVDM\texttt{++}仕様編集ページ」のフォルダツリー表示領域(\ref{sec:NoCodePage}節を参照)に、ユーザ操作対応部が保持する、フォルダツリーの各行を表すデータ構造である\verb|FolderItem|
 のコレクションである、\verb|FolderItems|、および、フォルダ描画要求を受け取り、
-ツリー形式で描画する処理である。
+フォルダツリー表示領域に、フォルダとファイル名をツリー形式で描画する処理である。
 
 ここで、\verb|FolderItem|のデータ構造を表\ref{tb:FolderItem}に示す。
 \verb|FolderItem| は、フォルダ、または、ファイルの絶対パスである\verb|FullPath| を持ち、
 それの表示名である\verb|Name|、フォルダかファイルかを判定する\verb|IsFolder|、\verb|IsFile|、ルートフォルダからどれだけ下の階層かを表す\verb|Level|を保持する。
-さらに、子要素の表示、または、非表示を制御する\verb|IsExpanded| と \verb|IsVisible| を保持する。
+さらに、展開状態を制御する\verb|IsExpanded|、および、可視状態を制御する\verb|IsVisible| を保持する。
 \begin{table}[tp]
 \centering
 \caption{FolderItemデータ構造}
@@ -233,26 +237,26 @@ ViewModel 層を介して状態のみを受け渡す。
 \hline
 \textbf{属性名} & \textbf{型} & \textbf{説明} \\
 \hline
-Name & string & 表示名(フォルダ名またはファイル名) \\
+Name & string & フォルダまたはファイルの名前 \\
 \hline
-FullPath & string & 絶対パス(フォルダまたはファイル) \\
+FullPath & string & フォルダまたはファイルの絶対パス \\
 \hline
 Level & int & ルートからの階層レベル(インデント表示に利用) \\
 \hline
-IsExpanded & bool & 展開状態\\
+IsExpanded & bool & ツリー表示における展開状態を表す真偽値\\
 \hline
-IsVisible & bool & ツリー表示における可視状態\\
+IsVisible & bool & ツリー表示における可視状態を表す真偽値\\
 \hline
-IsFolder & bool & フォルダかを判定するフラグ \\
+IsFolder & bool & フォルダであることを示す真偽値 \\
 \hline
-IsFile & bool & ファイルかを判定するフラグ \\
+IsFile & bool & ファイルであることを示す真偽値 \\
 \hline
 \end{tabular}
 \end{table}
 
-描画部は、\verb|FolderItems| の各要素\verb|FolderItem|が保持する
+描画部は、ユーザ操作対応部が保持する\verb|FolderItems| の各要素\verb|FolderItem|が保持する
 階層情報\verb|Level|、展開状態\verb|IsExpanded|、可視状態\verb|IsVisible|、
-および種別情報\verb|IsFolder|/\verb|IsFile|に基づき、表示内容を構成する。
+および種別情報\verb|IsFolder|、\verb|IsFile|に基づき、表示内容を構成する。
 本処理では、.NET MAUI(\ref{sec:NET_MAUI}節を参照)が提供する
 \verb|CollectionView| を用いてフォルダツリーを表示する。
 \verb|CollectionView| は項目集合を縦方向に一覧表示するUIコンポーネントであり、
@@ -277,28 +281,28 @@ IsFile & bool & ファイルかを判定するフラグ \\
  
   \item アイコンおよびラベルの決定
 
-  \verb|IsFolder|が\verb|true|の要素にはフォルダアイコンを付与し、
-  \verb|IsFile|が\verb|true|の要素には何も付与しない。
-  表示名は\verb|Name|を用い、ラベル文字列として描画する。
-  フォルダの場合は、\verb|IsExpanded|の状態に応じて
+  \verb|FolderItem.IsFolder|が\verb|true|の要素にはフォルダアイコンを付与し、
+  \verb|FolderItem.IsFile|が\verb|true|の要素には何も付与しない。
+  表示名は\verb|FolderItem.Name|を用い、ラベル文字列として描画する。
+  フォルダの場合は、\verb|FolderItem.IsExpanded|の状態に応じて
   展開、および、折りたたみを切り替える。
 
   \item 可視状態の反映
 
    各表示行の可視状態は、
   \verb|FolderItem.IsVisible| によって判定する。
-  \verb|IsVisible| が \verb|false| の場合、
+  \verb|false| の場合、
   対応する行は \verb|CollectionView| 上で非表示となる。
   これにより、フォルダの展開、および、折りたたみ操作に伴う表示更新を\verb|CollectionView|への再描画要求のみで反映できる。
 
   \item ユーザによる選択検知
 
   \verb|Microsoft.Maui.Controls|内の\verb|CollectionView|のユーザが選択した、各行を取得する\verb|TapGestureRecognizer|により、ユーザによるフォルダツリー内の\verb|FolderItem|の選択を検知する。
-  検知した\verb|FolderItem|をユーザ操作対応部へ出力する。
+  検知した\verb|FolderItem|をユーザ操作対応部のフォルダツリー操作対応処理(\ref{sec:UOM_FolderTree}節を参照)へ出力する。
 
   \item 表示更新
 
-  \verb|FolderItems| の内容や各属性値を更新した場合には、
+  \verb|FolderItems| の内容や各属性値が変更した場合には、
   .NET MAUIのデータバインディング機構によりユーザ操作対応部の\verb|FolderItems|をデータバインディングしているため、
   フォルダツリー表示を自動的に更新する。
   これにより、ユーザ操作対応部からの再描画要求がなくてもフォルダ構造の変更や選択状態の更新を
@@ -306,15 +310,15 @@ IsFile & bool & ファイルかを判定するフラグ \\
 \end{enumerate}
 
 \subsection{VDM\texttt{++}描画処理}\label{sec:DrawVDM}
-VDM\texttt{++}描画処理は、VDM\texttt{++}表示領域に
+VDM\texttt{++}描画処理は、「GUI操作によるVDM\texttt{++}仕様編集ページ」のVDM\texttt{++}表示領域(\ref{sec:NoCodePage}節を参照)に
 ユーザ操作対応部で保持するVDM\texttt{++}文字列である
-\verb|VdmContent| をVDM\texttt{++}表示領域に描画する処理である。
+\verb|VdmContent|を、VDM\texttt{++}表示領域に描画する処理である。
 
 描画部は、ユーザ操作対応部が保持する\verb|VdmContent|、および、VDM\texttt{++}描画要求を受け取り、編集対象とするMarkdown仕様に対応したVDM\texttt{++}文字列を描画する。
 
 本処理では、.NET MAUI(\ref{sec:NET_MAUI}節を参照) が提供する
-テキスト表示用 UI コンポーネントを用いてVDM++表示領域に描画する。
-また、.NET MAUIのデータバインディング機構を用いて表示の更新をおこなう。
+テキスト表示用 UI コンポーネントを用いてVDM++表示領域に\verb|VdmContent|を描画する。
+また、.NET MAUIのデータバインディング機構を用いて表示の更新を行う。
 
 本処理の流れを以下に示す。
 
@@ -329,15 +333,14 @@ VDM\texttt{++}描画処理は、VDM\texttt{++}表示領域に
 
  .NET MAUI 標準のテキスト表示用 UI コンポーネント
   \verb|Editor|の内容を空にし、
-  以降の文字列表示に備えて表示状態を初期化する。
+  以降の文字列表示に備えてVDM\texttt{++}表示領域の表示状態を初期化する。
 
   \item VDM\texttt{++}文字列の描画
 
   取得した \verb|VdmContent| を、
   表示用 UI コンポーネントの \verb|Text| プロパティに設定する。
   これにより、
-  改行やインデントを保持したまま表示できるように、
-  文字列をそのままテキストとして設定する。
+  改行やインデントを保持したまま表示できる。
 
   \item VDM\texttt{++}文字列の更新
 
@@ -351,10 +354,11 @@ VDM\texttt{++}描画処理は、VDM\texttt{++}表示領域に
 \subsection{メニューバー描画処理}
 \label{sec:MenuBarDrawing}
 
-メニューバー描画処理は、ページ上部のメニューバーに、フォルダ選択、および、新規ファイル作成の操作項目を配置し、
-ユーザ操作対応部(\ref{sec:UserOperationMonitoring}節を参照)へ編集コマンドを出力する処理である。
+メニューバー描画処理は、「GUI操作によるVDM\texttt{++}仕様編集ページ」のページ上部のメニューバー(\ref{sec:NoCodePage}節を参照)に、
+フォルダ選択、および、新規ファイル作成の操作項目を配置し、
+ユーザ操作対応部の編集コマンド実行処理(\ref{sec:UOM_EditCommand}節を参照)へ編集コマンドを出力する処理である。
 
-本処理では、.NET MAUI(\ref{sec:NET_MAUI}節を参照)が提供する\verb|Microsoft.Maui.Controls|のメニューバー関連コンポーネントを用いる。
+本処理では、メニューバーを実装するために、.NET MAUI(\ref{sec:NET_MAUI}節を参照)が提供する\verb|Microsoft.Maui.Controls|のメニューバー関連コンポーネントを用いる。
 具体的には、\verb|MenuBarItem|、および、\verb|MenuFlyoutItem|を用いてメニューバーの項目を定義し、各項目にコマンドを割り当てる。
 
 本処理の流れを、以下に示す。
@@ -362,21 +366,22 @@ VDM\texttt{++}描画処理は、VDM\texttt{++}表示領域に
 \begin{enumerate}
 \item メニューバーの配置
 
-フォルダ選択、および、新規ファイル作成をメニューバーに配置する。
+「フォルダ選択」、および、「新規ファイル作成」をメニューバーに配置する。
 
 \item コマンドの関連付け
 
-フォルダ選択に編集コマンドのフォルダ選択、および、新規ファイル作成に編集コマンドの新規ファイル作成を、それぞれ結び付ける。
+「フォルダ選択」に編集コマンドのフォルダ選択、および、「新規ファイル作成」に編集コマンドの新規ファイル作成を、それぞれ結び付ける。
 
 \item メニューバー操作の検知
 
-\verb|Microsoft.Maui.Controls|によってユーザのメニューバー項目選択を検知した場合、当該項目に割り当てたコマンドを、ユーザ操作対応部へ出力する。
+\verb|Microsoft.Maui.Controls|によってユーザのメニューバー項目選択を検知した場合、当該項目に割り当てたコマンドを、
+ユーザ操作対応部の編集コマンド実行処理へ出力する。
 
 \end{enumerate}
 
 \subsection{CTM領域描画処理}\label{sec:CTMArea}
-CTM領域(\ref{sec:CTM}節を参照)描画処理は、CTMを表示するための表示枠を構成し、
-CTM生成処理(\ref{sec:CreateCTM}節を参照)で実装した描画ロジックを接続するとともに、
+CTM領域(\ref{sec:CTM}節を参照)描画処理は、「GUI操作によるVDM\texttt{++}仕様編集ページ」のCTM領域(\ref{sec:NoCodePage}節を参照)にCTMを表示するための表示枠を構成し、
+CTM描画処理(\ref{sec:CreateCTM}節を参照)で実装したCTM描画処理を接続するとともに、
 CTM領域上でのユーザ入力を検知する処理である。
 
 本処理では、CTM領域を縦横スクロール可能な表示領域として構成するため、
@@ -385,11 +390,11 @@ CTM領域上でのユーザ入力を検知する処理である。
 
 描画領域要素は、
 \verb|ContentView| の \verb|Content| に設定することで、
-CTM領域に描画機能および入力受付機能を結び付ける。
+CTM領域にCTM描画、および、ユーザ操作入力受付を結び付ける。
 この要素は、
-CTM描画処理で定義した描画ロジックを呼び出す役割を持つ。
+CTM描画処理で定義する描画処理を呼び出す役割を持つ。
 
-また、CTMの規模が増加した場合に備えて、
+また、CTMのサイズが増加した場合に備えて、
 CTM描画処理の結果に基づき、
 この描画領域要素が描画領域の横幅、および、縦幅を設定する。
 これにより、CTM領域は \verb|ScrollView| により拡張でき、
@@ -406,7 +411,7 @@ CTM全体をスクロール操作により閲覧可能とする。
 \begin{enumerate}
   \item CTM表示領域の生成  
 
-  \verb|ContentView|を配置し、
+  「GUI操作によるVDM\texttt{++}仕様編集ページ」のCTM領域部分に\verb|ContentView|を配置し、
   CTM表示用の表示枠を構成する。
 
   \item 描画領域要素の接続 
@@ -416,7 +421,7 @@ CTM全体をスクロール操作により閲覧可能とする。
 
   \item 描画領域サイズの設定 
 
-  CTM生成処理の結果に基づき、
+  CTM描画処理の結果に基づき、
   描画領域の横幅、および、縦幅を設定し、
   \verb|ScrollView| によりスクロール可能な状態とする。
 
@@ -425,11 +430,6 @@ CTM全体をスクロール操作により閲覧可能とする。
   .NET MAUIの標準ライブラリの\verb|GraphicsView.SizeChanged|により、CTM描画処理で確定したレイアウトを検知し、
   \verb|ScrollView|のサイズをリサイズする。
 
-  \item CTMの表示
-
-  描画領域サイズが確定した後、
-  CTM生成処理で構築したレイアウトを用いて、
-  CTMをCTM領域上に表示する。
 
   \item ユーザ入力の検知
 
@@ -448,7 +448,7 @@ CTM全体をスクロール操作により閲覧可能とする。
   \verb|PointerPressed|によりポインタ座標を検知し、
   \verb|PointerEventArgs.Buttons|により左ボタンを検知したとき、
   左クリック位置の座標 $(x, y)$ を入力として受け取る。
-  その後、左クリック位置の座標と左クリックであることをユーザ操作対応部へ通知する。
+  その後、左クリック位置の座標と左クリックであることをユーザ操作対応部の左クリック操作対応処理(\ref{sec:UOM_Click}節を参照)へ通知する。
 
   \item ドラッグ操作
   
@@ -466,7 +466,7 @@ CTM全体をスクロール操作により閲覧可能とする。
   ドラッグ中であること、および、$(\Delta x, \Delta y)$を移動量としてユーザ操作対応部へ次々に通知する。
   \verb|PointerReleased| を受理した場合、
   解放位置の座標を取得し、
-  ドラッグ終了としてユーザ操作対応部へ通知する。
+  ドラッグ終了としてユーザ操作対応部のドラッグ移動操作対応処理(\ref{sec:UOM_Drag}節を参照)へ通知する。
 
 \item 右クリック操作
 
@@ -474,7 +474,7 @@ CTM全体をスクロール操作により閲覧可能とする。
   \verb|PointerPressed|によりポインタ座標を検知し、
   \verb|PointerEventArgs.Buttons|により右ボタンを検知したとき、
   右クリック位置の座標 $(x, y)$ を入力として受け取る。
-  その後、右クリック位置の座標と右クリックであることをユーザ操作対応部へ通知する。
+  その後、右クリック位置の座標と右クリックであることをユーザ操作対応部の右クリック操作対応処理(\ref{sec:UOM_Context}節を参照)へ通知する。
   \end{itemize}
 
 \end{enumerate}
@@ -482,8 +482,8 @@ CTM全体をスクロール操作により閲覧可能とする。
 \subsection{CTM描画処理}
 \label{sec:CreateCTM}
 
-CTM生成処理は、ユーザ操作対応部が保持する、CTM領域に表示する各CTM要素のデータを格納した、
-\verb|GUIElement|のリストである、\verb|elements|、および、ユーザ操作対応部からのCTM描画要求を受け取り、
+CTM描画処理は、ユーザ操作対応部が保持する、CTM領域に表示する各CTM要素のデータを格納した、
+\verb|GUIElement|のリストである\verb|elements|、および、ユーザ操作対応部からのCTM描画要求を受け取り、
 CTM要素の種類(以降、CTM要素種別と呼ぶ)に応じた形状、寸法、および描画スタイルを適用し、
 CTM領域上にCTMを図として描画する処理である。
 
@@ -554,15 +554,15 @@ IsBranch & bool & Branchesを保持しているかどうか \\
 \hline
 \textbf{属性名} & \textbf{型} & \textbf{説明}\\ 
 \hline
-EventBranch.Condition & string & 分岐条件 \\
+Condition & string & 分岐条件 \\
 
 \hline
-EventBranch.Target & string & 分岐条件成立時のイベント \\
+Target & string & 分岐条件成立時のイベント \\
 \hline
 \end{tabular}
 \end{table}
 
-本処理では、GUI要素生成部で定義した描画規則に基づき、
+本処理では、GUI要素生成部(\ref{sec:GUIElementGenerationComponent}節を参照)で定義する初期配置規則に基づき、
 通常ノードおよび条件分岐を持つイベント要素について、
 それぞれ表\ref{tab:gui_node_spec}、表\ref{tab:gui_node_branch}に示す
 描画仕様を適用する。
@@ -678,7 +678,7 @@ BranchIndex& int &
 
       \item 要求の受理
       
-      ユーザ操作対応部からのCTM描画要求を受け取る
+      ユーザ操作対応部からのCTM描画要求を受け取る。
 
       \item 描画領域の初期化  
 
@@ -695,11 +695,12 @@ BranchIndex& int &
 
       ユーザ操作対応部から参照した\verb|elements| を順に走査し、
       各要素について\verb|GuiElement.Type|を参照して
-      CTM要素種別を判定する。
+      CTM要素種別を判定する。判定後、以下の処理をすべてのCTM要素について繰り返す
 
+      \begin{enumerate}[label=\alph*.]
       \item ノード形状および描画スタイルの決定  
 
-      要素種別に応じて、
+      CTM要素種別に応じて、
       画面要素および通常イベント要素は矩形、
       タイムアウト要素は楕円、
       条件分岐要素は菱形として描画する。
@@ -739,9 +740,9 @@ BranchIndex& int &
             対応ボタンの左上座標を $(X_b, Y_b)$、
             ノード高さを $H$ とすると、
             基準となる中心Y座標 $Y_{\mathrm{anchor}}$ は、
-            次式により算出する。
+            式\ref{eq:center}により算出する。
 
-            \begin{equation}
+            \begin{equation}\label{eq:center}
             Y_{\mathrm{anchor}} = Y_b + \frac{H}{2}
             \end{equation}
 
@@ -751,9 +752,9 @@ BranchIndex& int &
             分岐条件間の間隔を $S$、
             分岐条件ノードの高さを$H_{\mathrm{branch}}$ とすると、
             分岐条件全体の高さ $H_{\mathrm{total}}$ は、
-            次式により算出する。
+            式\ref{eq:totalhight}により算出する。
 
-            \begin{equation}
+            \begin{equation}\label{eq:totalhight}
             H_{\mathrm{total}} = n \cdot H_{\mathrm{branch}} + (n - 1) \cdot S
             \end{equation}
 
@@ -763,9 +764,9 @@ BranchIndex& int &
             基準中心 $Y_{\mathrm{anchor}}$ に対して
             上下対称となるように配置するため、
             分岐条件群の上端Y座標 $Y_{\mathrm{top}}$ を
-            次式により算出する。
+            式\ref{eq:topY}により算出する。
 
-            \begin{equation}
+            \begin{equation}\label{eq:topY}
             Y_{\mathrm{top}} = Y_{\mathrm{anchor}} - \frac{H_{\mathrm{total}}}{2}
             \end{equation}
 
@@ -773,17 +774,18 @@ BranchIndex& int &
 
             $i$ 番目の分岐条件（$i = 0, 1, \dots, n-1$）の
             中心Y座標 $Y^{(i)}_{\mathrm{center}}$ は、
-            次式により算出する。
+            式\ref{eq:centerY}により算出する。
 
-            \begin{equation}
+            \begin{equation}\label{eq:centerY}
             Y^{(i)}_{\mathrm{center}} =
             Y_{\mathrm{top}} + \frac{H_{\mathrm{branch}}}{2} + i \cdot (H_{\mathrm{branch}} + S)
             \end{equation}
 
             分岐条件の左上座標 $Y^{(i)}$ は、
             中心座標から高さの半分を引くことで決定する。
+            式\ref{eq:yi}
 
-            \begin{equation}
+            \begin{equation}\label{eq:yi}
             Y^{(i)} = Y^{(i)}_{\mathrm{center}} - \frac{H_{\mathrm{branch}}}{2}
             \end{equation}
 
@@ -792,9 +794,9 @@ BranchIndex& int &
             分岐先要素が存在する場合、
             その縦方向位置は対応する分岐条件の中心に揃える。
             分岐先要素の左上Y座標 $Y_t$ は、
-            次式により算出する。
+            式\ref{eq:YT}により算出する。
 
-            \begin{equation}
+            \begin{equation}\label{eq:YT}
             Y_t = Y^{(i)}_{\mathrm{center}} - \frac{H_{\mathrm{branch}}}{2}
             \end{equation}
 
@@ -818,8 +820,14 @@ BranchIndex& int &
 
       \item \verb|BRectangle|の記録  
 
-      描画したすべてのノードおよび分岐条件について、
-      \verb|BRectangle|を記録し、\verb|HitRegions|を作成し、ユーザ操作対応部に渡す。
+      描画ノードについて、
+      \verb|BRectangle|を記録し、\verb|HitRegions|に追加する。
+
+\end{enumerate}
+
+\item \verb|HitRegions|の出力
+
+\verb|HitRegions|をユーザ操作対応部に出力する
 
       \item 選択状態の強調表示  
 
@@ -848,27 +856,27 @@ BranchIndex& int &
 \subsection{コンテキストメニュー描画処理}
 \label{sec:Context}
 
-コンテキストメニュー描画処理は、ユーザ操作対応部より、コンテキストメニュー描画要求、対象のCTM種別、および、分岐条件かどうかを受け取り、
-コンテキストメニューを描画する。
+コンテキストメニュー描画処理は、ユーザ操作対応部より、コンテキストメニュー描画要求、対象のCTM要素種別、および、分岐条件かどうかを受け取り、
+CTM領域の中央にコンテキストメニューを描画する。
 コンテキストメニュー描画後、ユーザの選択結果に応じた編集コマンドをユーザ操作対応部へ出力する処理である。
 
 本処理では、.NET MAUIの標準ライブラリである
 \verb|Microsoft.Maui.Controls|
 が提供する \verb|Shell.Current.DisplayActionSheet| を用いて、
 コンテキストメニューをアクションシートとして表示する。
-表示する項目は、右クリック位置の操作対象CTM種別に応じて切り替える。
+表示する項目は、右クリック位置の操作対象CTM要素種別に応じて切り替える。
 
 本処理の流れを、以下に示す。
 \begin{enumerate}
 
       \item コンテキストメニュー描画要求の受理
 
-      ユーザ操作監視部からコンテキストメニュー描画要求、CTM種別、および、分岐条件かどうかを受け取る。
+      ユーザ操作対応部からコンテキストメニュー描画要求、CTM要素種別、および、分岐条件かどうかを受け取る。
 
   
       \item メニュー項目の決定
 
-      ユーザから受け取った操作対象の種別、および
+      ユーザ操作対応部から受け取った操作対象のCTM要素種別、および
       分岐条件かどうかに基づき、
       表示するメニュー項目の集合を決定する。
       例えばボタン要素には「イベント追加」、「コピー」、「貼り付け」、「ボタン名変更」、および、「削除」をメニュー項目の集合に追加し、
@@ -886,7 +894,7 @@ BranchIndex& int &
       
       取得した項目名に基づき、
       対応する編集コマンドを、
-      ユーザ操作対応部へ通知する。
+      ユーザ操作対応部の編集コマンド実行処理へ通知する。
 \end{enumerate}
 
 
@@ -897,7 +905,7 @@ BranchIndex& int &
 確認、エラー通知、および、各編集コマンドに対応したダイアログを、
 ユーザへ表示する。
 
-表示後、ユーザによる選択、および、入力を、ユーザ操作対応部へ返す。
+ダイアログ表示後、ユーザによる選択、および、入力を、ユーザ操作対応部へ返す。
 
 本処理で用いるライブラリは、
 \verb|Microsoft.Maui.Controls|の\verb|DisplayAlert|、\verb|DisplayPrompt|、および、\verb|DisplayActionSheet| 、
@@ -907,12 +915,12 @@ BranchIndex& int &
 \begin{enumerate}
   \item ダイアログ描画要求の受理
 
-  ユーザ操作対応部からのダイアログ描画要求、および、編集コマンドに応じたダイアログを受け取る。
+  ユーザ操作対応部からのダイアログ描画要求、および、編集コマンドに応じたダイアログの種類を受け取る。
   
   \item ダイアログの表示
 
   ユーザ操作対応部から受け取った編集コマンドに応じたダイアログを表示する。
-  表示するダイアログは以下の4種類のダイアログに分類できる。
+  表示するダイアログは以下の4種類のダイアログに分類する。
   \begin{itemize}
       \item 通知用ダイアログ
       
@@ -956,10 +964,12 @@ BranchIndex& int &
 \item 画面切り替え要求
 \item ファイル作成要求
 \end{itemize}
-描画部へ以下の2つの要求を行う。
+また、描画部へ以下の4つの要求を行う。
 \begin{itemize}
 \item CTM描画要求
 \item フォルダ描画要求
+\item コンテキストメニュー描画要求
+\item ダイアログ描画要求
 \end{itemize}
 
 本処理部の処理は、以下の7つである。
@@ -973,22 +983,22 @@ BranchIndex& int &
       \item 編集コマンド実行処理(\ref{sec:UOM_EditCommand}節を参照)
 \end{itemize}
 
-以降、各ユーザ操作に対する処理を説明する。
+以降、各ユーザ操作に対応する処理を説明する。
 
 \subsection{左クリック操作対応処理}\label{sec:UOM_Click}
 左クリック操作対応処理は、描画部による左クリックによる座標を受け取り、
 対象CTM要素の選択状態\verb|GUIElement.IsSelected|を更新する処理である。
-入力は左クリック座標、出力は対象CTM要素の選択状態の更新、および、CTM描画要求である。
+入力は描画部からの左クリック座標、出力は対象CTM要素の選択状態の更新、および、描画部へのCTM描画要求である。
 
 本処理の流れを、以下に示す。
 \begin{enumerate}
   \item 描画部から左クリック動作であること、および、ポインタ座標 $(x, y)$ を取得する。
-  \item ポインタ座標 $(x, y)$ をユーザ操作対応部で保持する状態変数X\_s、Y\_sとして保持する。
-  \item ユーザ操作対応部が保持する操作対象CTM要素を表す状態変数\verb|SelectedElement|にすでにCTM要素が格納されている場合
+  \item ポインタ座標 $(x, y)$ を、ユーザ操作対応部で保持する変数X\_s、Y\_sとして保持する。
+  \item ユーザ操作対応部が保持する、操作対象CTM要素を表す状態変数\verb|SelectedElement|に既にCTM要素が格納されている場合
   、\verb|SelectedElement|のCTM要素の選択状態 \verb|GUIElement.IsSelected| を \verb|false| に更新する。
   \item ヒットテスト処理(\ref{sec:UOM_HitTest}節を参照)へ、クリック座標を渡し、\verb|SelectedElement| を確定する。
   \item \verb|SelectedElement| の \verb|GUIElement.IsSelected| を \verb|true| に更新する。
-  \item 描画部へCTM描画要求を発行し、強調表示状態を更新する。
+  \item 描画部へCTM描画要求を発行し、CTMを描画する。
   \item 左ダブルクリック操作対応処理(\ref{sec:UOM_DoubleClick}節を参照)へ、左ダブルクリック判定要求を送る。
 \end{enumerate}
 
@@ -998,7 +1008,7 @@ BranchIndex& int &
 本処理は、描画部が生成し、ユーザ操作対応部が保持する\verb|HitRegions|を用いて、操作座標が外接矩形内に存在するかを判定する。
 
 ユーザの操作座標 $(x, y)$ が矩形内に存在するかどうかは、
-式\ref{eq:hit}により判定する。式中のX、Y、W、H、は表\ref{tab:hit_test_rect}にそれぞれ示す、属性と等しい。
+式\ref{eq:hit}により判定する。式中のX、Y、W、および、Hは表\ref{tab:hit_test_rect}にそれぞれ示す属性と等しい。
 
 \begin{equation}\label{eq:hit}
 X \leq x \leq X + W \;\land\; Y \leq y \leq Y + H
@@ -1016,7 +1026,7 @@ X \leq x \leq X + W \;\land\; Y \leq y \leq Y + H
 
 \subsection{右クリック操作対応処理}\label{sec:UOM_Context}
 
-右クリック操作対応処理は、描画部による左クリックによる座標を受け取り、
+右クリック操作対応処理は、描画部からユーザによる右クリック座標を受け取り、
 対象CTM要素種別、および、条件分岐をコンテキストメニュー描画処理へ出力する処理である。
 
 本処理の流れを以下に示す。
@@ -1034,7 +1044,7 @@ X \leq x \leq X + W \;\land\; Y \leq y \leq Y + H
 画面切り替え要求、および、対象とする画面要素の名称\verb|GUIElement.Name| を出力する。
 本処理の目的は、CTM 図上の 画面要素を起点として、対応する画面クラスへ遷移することである。
 
-本処理では、直前の左クリック情報として「直前クリック時刻」と「直前クリック対象要素」を保持する。
+ユーザ操作対応部では、直前の左クリック情報として「直前クリック時刻」と「直前クリック対象要素」を保持する。
 ダブルクリック判定の閾値は \verb|DoubleClickThresholdMs|(400 ms)とする。
 なお、時刻取得には.NET(\ref{sec:NET})標準ライブラリの協定世界時(UTC)
 に基づく現在時刻を取得する静的プロパティである\verb|DateTime.UtcNow| を用いて差分を計算する。
@@ -1064,7 +1074,7 @@ X \leq x \leq X + W \;\land\; Y \leq y \leq Y + H
 ドラッグ操作対応処理は、描画部から受け取るポインタのドラッグ操作を判定し、
 CTM要素の配置変更を反映する処理である。
 入力は、押下開始座標、ポインタ移動量、および、解放座標であり、
-出力は、更新後の GUI 要素座標情報、および、必要に応じたファイル更新要求である。
+出力は、更新後の GUI 要素座標情報、および、必要に応じたプロジェクト管理部へのファイル更新要求である。
 
 本処理では、ユーザが CTM 要素上で左クリック押下を行い、
 その状態のままポインタを移動させた場合に、ドラッグ操作として扱う。
@@ -1073,13 +1083,13 @@ CTM要素の配置変更を反映する処理である。
 \begin{enumerate}
   \item 描画部から、ドラッグ操作を行っていること、および、ポインタの移動量を受け取る。
   \item \verb|SelectedElement|の\verb|GUIElement.IsMovable| を参照し、移
-  動不可(\verb|IsMovable == false|)である場合は、ドラッグ操作を開始せず、処理を終了する。
+  動不可(\verb|IsMovable == false|)である場合は、処理を終了する。
   \item ドラッグ開始時点における CTM 要素の座標 $(X, Y)$ と、
   押下開始座標(X\_s,Y\_s)との差分を、オフセット量 $(\Delta x, \Delta y)$ として保持する。
-  以降、描画部からドラッグ終了を受け取るまで繰り返す。
+  以降、描画部からドラッグ終了を受け取るまで以下を繰り返す。
   \begin{enumerate}[label=\roman*.]
   
-      \item ポインタ移動イベントごとに、押下開始座標(X\_s,Y\_s)に移動量を加算していく。
+      \item ポインタ移動イベントごとに、押下開始座標(X\_s,Y\_s)に移動量を加算する。
       
       \item 移動量を加算した押下開始座標(X\_s,Y\_s)から、
       オフセット量 $(\Delta x, \Delta y)$ を差し引くことで、
@@ -1112,8 +1122,8 @@ CTM要素の配置変更を反映する処理である。
   \item 選択対象を \verb|SelectedItem| として保持する。
       \begin{itemize}
   
-      \item 選択対象がファイル\verb|IsFile == true|である場合は、
-        プロジェクト管理部へファイル読込要求を出力し、編集対象ファイルを切り替える。
+      \item \verb|SelectedItem|の\verb|IsFile|が\verb|true|である場合は、
+        プロジェクト管理部へファイル読込要求を出力し、編集対象ファイルを更新する。
         切り替えた際、プロジェクト管理部から\verb|elements|を受け取り、描画部へ、CTM描画要求を通知する。
   
       \item 選択対象がフォルダ\verb|IsFolder == true|である場合は、フォルダの展開、および、折りたたみを行う
@@ -1129,8 +1139,10 @@ CTM要素の配置変更を反映する処理である。
 GUI要素リストを更新する処理である。
 
 本処理は、編集コマンドの種類、選択中CTM要素 \verb|SelectedElement|、\verb|elements|を入力として受け取り、
-要素の追加、更新、削除を行った上で、更新後の\verb|elements|、描画部へのCTM描画要求、
+\verb|elements|に、要素の追加、更新、削除を行った上で、更新後の\verb|elements|、描画部へのCTM描画要求、
 プロジェクト管理部へのファイル更新要求、および、新規ファイル作成要求を出力する。
+
+編集コマンドは、CommunityToolkit.Mvvm(\ref{sec:CommunityToolkit.Mvvm}節を参照)の\verb|RelayCommand| で定義する。
 
 本処理の流れを、以下に示す。
 
@@ -1149,7 +1161,7 @@ GUI要素リストを更新する処理である。
   \begin{itemize}
       \item \textbf{画面追加}：
       \begin{enumerate}
-            \item 画面追加用のダイアログ描画要求を出力し、入力を受け取る
+            \item 描画部に画面追加用のダイアログ描画要求を出力し、入力を受け取る
             \item \verb|elements|を先頭から走査し、既存画面要素名と重複する場合は追加しない。
             \item 新しい画面要素(\verb|Type==Screen, Name==画面要素名|)を\verb|elements|に追加する。
             \item プロジェクト管理部へ更新要求を通知する(\ref{sec:FileUpdateProcess}節を参照)。
@@ -1157,7 +1169,7 @@ GUI要素リストを更新する処理である。
       \end{enumerate}
       \item \textbf{ボタン追加}：
       \begin{enumerate}
-            \item ボタン追加用のダイアログ描画要求を出力し、入力を受け取る
+            \item 描画部にボタン追加用のダイアログ描画要求を出力し、入力を受け取る
             \item \verb|elements|を先頭から走査し、既存ボタン名と重複する場合は追加しない。
             \item 新しいボタン要素(\verb|Type==Button, Name==ボタン名|)を\verb|elements|に追加する。
             \item プロジェクト管理部へ更新要求を通知する。
@@ -1165,13 +1177,13 @@ GUI要素リストを更新する処理である。
       \end{enumerate}
       \item \textbf{イベント追加}：
       \begin{enumerate}
-            \item 対象ボタン選択用のダイアログ描画要求を出力し、入力を受け取る
-            \item 対象のボタン要素に対して、すでにイベントが存在する場合は、エラー表示用のダイアログ描画要求を出力し、追加しない。
-            \item 分岐イベント選択用のダイアログ描画要求を出力し、入力を受け取り、単一イベント、または、分岐イベントを選択する。
+            \item 描画部に対象ボタン選択用のダイアログ描画要求を出力し、入力を受け取る
+            \item 対象のボタン要素に対して、すでにイベントが存在する場合は、描画部にエラー表示用のダイアログ描画要求を出力し、追加しない。
+            \item 描画部に分岐イベント選択用のダイアログ描画要求を出力し、入力を受け取り、単一イベント、または、分岐イベントを選択する。
             \begin{itemize}
                   \item 単一イベント選択時：
                   \begin{enumerate}
-                        \item 単一イベント追加用のダイアログ描画要求を出力し、入力を受け取り、イベント内容を取得する。
+                        \item 描画部に単一イベント追加用のダイアログ描画要求を出力し、入力を受け取り、イベント内容を取得する。
                         \item 新しいイベント要素(\verb|Type==Event|)を生成して\verb|elements|に追加する。
                         このとき、イベント内容を \verb|Name|、\verb|Target|、および、対象ボタン要素の\verb|Target|に保持し、
                         描画部が矢印接続を構成できるようにする。
@@ -1179,7 +1191,7 @@ GUI要素リストを更新する処理である。
                   \end{enumerate}
                   \item 分岐イベント選択時：
                   \begin{enumerate}
-                        \item 分岐イベント追加用のダイアログ描画要求を出力し、入力を受け取り、
+                        \item 描画部に分岐イベント追加用のダイアログ描画要求を出力し、入力を受け取り、
                         分岐条件文と遷移先イベントを取得する。
                         \item 新しい分岐イベント要素(\verb|Type==Event, Branches==null|)を生成し、\verb|elements|に追加する。
                         このとき、分岐条件文と遷移先を \verb|Branches|に、対象ボタン要素の\verb|Target|に「対象ボタン名押下」を保持し、
@@ -1191,7 +1203,7 @@ GUI要素リストを更新する処理である。
       \end{enumerate}
       \item \textbf{タイムアウト追加}：
       \begin{enumerate}
-            \item タイムアウト追加用のダイアログ描画要求を出力し、入力を受け取り、タイムアウト内容を取得する。
+            \item 描画部にタイムアウト追加用のダイアログ描画要求を出力し、入力を受け取り、タイムアウト内容を取得する。
             \item 新しいタイムアウト要素(\verb|Type==Timeout|)と、タイムアウト要素に対応したイベント要素(\verb|Type==Event|)を生成し、
             \verb|elements|に追加する。
             \item タイムアウトは1画面につき1つとする規則により、既存Timeoutが存在する場合は更新(上書き)する。
@@ -1201,7 +1213,7 @@ GUI要素リストを更新する処理である。
 
       \item \textbf{削除}：
       \begin{enumerate}
-            \item 対象GUI要素の名称確認用のダイアログ描画要求を出力し、削除確認を行う。
+            \item 描画部に対象GUI要素の名称確認用のダイアログ描画要求を出力し、削除確認を行う。
             \item ユーザが削除をキャンセルした場合は、処理を中断し、\verb|elements|を変更しない。
             \item ユーザが削除を確認した場合は、\verb|elements|から対象要素を除去する。
             \item ボタン要素を削除する場合、当該ボタン対象とするイベント要素も同時に削除する。
@@ -1211,8 +1223,8 @@ GUI要素リストを更新する処理である。
 
       \item \textbf{編集}：
       \begin{enumerate}
-            \item 対象CTM要素の種別を判定する。
-            \item 対象CTM要素の種別に応じて、編集用のダイアログ描画要求を出力し、入力を受け取る。
+            \item 対象CTM要素種別を判定する。
+            \item 対象CTM要素種別に応じて、描画部に編集用のダイアログ描画要求を出力し、入力を受け取る。
             \item ユーザがキャンセルした場合は、処理を中断し、\verb|elements|を変更しない。
             \item ユーザが編集を完了した場合、入力値を\verb|elements|内の対象CTM要素に反映する。
             \item 反映後の名称が既存要素と重複する場合は処理を実行しない。
@@ -1231,9 +1243,9 @@ GUI要素リストを更新する処理である。
 
       \item \textbf{新規ファイル作成}：
       \begin{enumerate}
-            \item ファイル名入力用のダイアログ描画要求を出力し、入力を受け取る。
+            \item 描画部にファイル名入力用のダイアログ描画要求を出力し、入力を受け取る。
             \item 取得したファイル名が\verb|FolderItems|内に存在しないか探索する。
-            \item \verb|FolderItems|内に同一のファイル名が存在する場合エラー表示用のダイアログ描画要求を出力し、処理を中断する。
+            \item \verb|FolderItems|内に同一のファイル名が存在する場合、描画部にエラー表示用のダイアログ描画要求を出力し、処理を中断する。
             \item \verb|FolderItems|内に同一のファイル名が存在しない場合はプロジェクト管理部へ、ファイル作成要求を通知する(\ref{sec:PM_FileCreate}節を参照)。
             \item プロジェクト管理部から\verb|FolderItems|を受け取り、ユーザ操作対応部内で保持している\verb|FolderItems|を更新する。
             \item 描画部へフォルダ描画要求(\ref{sec:FolderTree}節を参照)を通知する。
@@ -1241,7 +1253,7 @@ GUI要素リストを更新する処理である。
 
             \item \textbf{クラス名(画面名)変更}：
       \begin{enumerate}
-            \item クラス名(画面名)入力用のダイアログ描画要求を出力し、入力を受け取る。
+            \item 描画部にクラス名(画面名)入力用のダイアログ描画要求を出力し、入力を受け取る。
             \item 取得したクラス名(画面名)を、ユーザ操作対応部が保持する\verb|elements|の画面クラスのクラス名(以降、画面クラス名と呼ぶ)(GUIElement.Type == Screen)を更新する。
             \item プロジェクト管理部へファイル更新要求を通知する。
             \item 描画部へCTM描画要求を通知する。
@@ -1250,24 +1262,22 @@ GUI要素リストを更新する処理である。
       \item \textbf{コピー}：
       \begin{enumerate}
             \item 選択中CTM要素\verb|SelectedElement|を参照し、コピー対象を確定する。
-            \item \verb|SelectedElement|が\verb|null|の場合は、エラー表示用のの、中断する。
+            \item \verb|SelectedElement|が\verb|null|の場合は、中断する。
             \item コピー対象の\verb|GUIElement|を複製し、ユーザ操作対応部が保持するコピー用バッファへ格納する。
-            \item コピー結果の通知として、必要に応じて通知用ダイアログ描画要求を出力する。
+            \item コピー結果の通知として、必要に応じて描画部に通知用ダイアログ描画要求を出力する。
       \end{enumerate}
 
       \item \textbf{貼り付け}：
       \begin{enumerate}
             \item ユーザ操作対応部が保持するコピー用バッファを参照し、データの有無を判定する。
-            \item コピー用バッファが空の場合は、エラー表示用のダイアログ描画要求を出力し、中断する。
+            \item コピー用バッファが空の場合は、描画部にエラー表示用のダイアログ描画要求を出力し、中断する。
             \item 貼り付け先の決定のため、貼り付け位置を直前に受理したポインタ座標(X\_s,Y\_s)に確定する。
             \item コピー用バッファから新規要素を生成し、\verb|elements|へ追加する。
-            このとき、名称重複を回避するため、名称変更用のダイアログ描画要求を出力し、一意な名称に補正する。
+            このとき、名称重複を回避するため、描画部に名称変更用のダイアログ描画要求を出力し、一意な名称に補正する。
             \item ボタン要素を貼り付ける場合は、当該ボタンに紐づくイベント要素も同時に生成する。
             \item プロジェクト管理部へファイル更新要求を通知する。
             \item 描画部へCTM描画要求を通知する。
       \end{enumerate}
-
-
 
   \end{itemize}
 
@@ -1275,6 +1285,8 @@ GUI要素リストを更新する処理である。
 
 
 \section{プロジェクト管理部}\label{sec:ProjectManagementComponent}
+
+本処理部のシステム構成を、図\ref{fig:proj-system}に示す。
 
 本処理部は、以下の6つの処理から構成する。
 \begin{itemize}
@@ -1286,8 +1298,9 @@ GUI要素リストを更新する処理である。
   \item 新規ファイル作成処理(\ref{sec:PM_FileCreate}節を参照)
 \end{itemize}
 
-本処理部の入力は、ユーザ操作対応部(\ref{sec:UserOperationMonitoring}節を参照)による要求や\verb|elements|、および、プロジェクトフォルダである。
-出力は、解析部、および、変換部へ渡すMarkdown文字列、GUI要素生成部へ渡すGUI配置情報(JSONファイル)、\verb|elements|、プロジェクトフォルダへ出力する各ファイル(Markdownファイル、VDM++ファイル、JSONファイル)である。
+本処理部の入力は、ユーザ操作対応部(\ref{sec:UserOperationMonitoring}節を参照)による要求や\verb|elements|、および、プロジェクトフォルダのでーたである。
+出力は、解析部、および、変換部へ渡すMarkdown文字列、GUI要素生成部へ渡すGUI配置情報(JSONファイル)、\verb|elements|、および、
+プロジェクトフォルダへ出力する各ファイル(Markdownファイル、VDM++ファイル、JSONファイル)である。
 
 
 プロジェクト管理部は、ユーザが選択するプロジェクト(フォルダ配下のMarkdownファイル)の状態を管理し、
@@ -1295,8 +1308,6 @@ GUI要素リストを更新する処理である。
 およびGUI要素生成部(\ref{sec:GUIElementGenerationComponent}節を参照)へ渡すGUI要素の配置情報(JSONファイル)を準備するとともに、
 ユーザによる編集結果をファイルへ出力する処理部である。
 本処理部でのファイルシステムの入出力には 、System.IO (\ref{sec:NET}節を参照)を用いる。
-
-本処理部のシステム構成を、図\ref{fig:proj-system}に示す。
 
 以降、各処理について説明する。
 
@@ -1311,7 +1322,7 @@ GUI要素リストを更新する処理である。
 フォルダ選択処理は、ユーザが編集対象のプロジェクトフォルダを選択した際に、
 選択フォルダの絶対パスを取得してプロジェクト管理部で保持する状態変数 \verb| SelectedFolderPath| に保持し、
 フォルダおよびファイル探索処理(\ref{sec:PM_FolderFileSearch}節を参照)を実行して
-ツリー表示用データ \verb|ObservableCollection<FolderItem> FolderItems| を構築する処理である。
+ツリー表示用データ \verb|FolderItems| を構築する処理である。
 
 本処理では、
 System.IO
@@ -1372,7 +1383,7 @@ System.IO
   \item 探索処理の初期化
 
   選択フォルダパス\verb|SelectedFolderPath| が空でないことを確認した後、
-  空の\verb|FolderItems| を生成する。
+  空の\verb|FolderItems| を生成する。空だった場合、エラーを返す。
 
   \item \verb|SelectedFolderPath| 配下の要素の探索
 
@@ -1435,10 +1446,9 @@ System.IO
 ファイル読込処理は、
 ユーザがツリー表示上で選択した Markdown ファイルを対象として、
 その内容を文字列として読み込み、操作ボタン領域に表示する操作ボタンの判定を行う表示パターンフラグの切替を行い、
-解析部、および、変換部で処理の対象となるその文字列を保持する処理である。
+解析部、および、変換部で処理の対象となる、Markdown内の文字列を保持する処理である。
 
-
-ファイル選択処理を行う前までは、表示パターンフラグのすべての変数に\verb|false|を入力している。
+ファイル選択処理を行う前までは、表示パターンフラグのすべての変数に\verb|false|で初期化する。
 
 本処理では、
 System.IO
@@ -1450,13 +1460,13 @@ System.IO
 \begin{enumerate}
   \item ファイル選択要求の受理
 
-  ユーザ操作対応部、および、画面切り替え処理からのファイル選択要求を受け取り、
+  ユーザ操作対応部、および、画面切り替え処理からのファイル選択要求を受け取り、拡張子により、
   選択対象が Markdown ファイルであることを確認する。
 
   \item 選択ファイルパスの保持
 
   ユーザが選択したファイルの絶対パスを、
-  プロジェクト管理部が\verb|SelectedFilePath| として保持する。
+  \verb|SelectedFilePath| としてプロジェクト管理部が保持する。
 
   \item Markdown ファイルの内容の読込
 
@@ -1466,7 +1476,7 @@ System.IO
   \item Markdown 文字列の内部状態への保持
 
   3.で抽出した Markdown 文字列を、
-  プロジェクト管理部が\verb|MarkdownText| として保持する。
+  \verb|MarkdownText| としてプロジェクト管理部が保持する。
 
   \item 表示パターンフラグの決定および切替
 
@@ -1489,7 +1499,7 @@ System.IO
   4.で保持した\verb|MarkdownText|を入力として、
   解析部(\ref{sec:ParsingComponent}節を参照)を呼び出す。
   解析部は Markdown 文字列を解析し、
-  GUIElementのリストである\verb|elements|を生成しプロジェクト管理部が受け取る。
+  GUIElementのリストである\verb|elements|を生成し、プロジェクト管理部に返す。
 
   \item CTM要素配置情報ファイルの存在確認
 
@@ -1505,16 +1515,16 @@ System.IO
       GUI要素生成部(\ref{sec:GUIElementGenerationComponent}節を参照)を呼び出す。
       GUI要素生成部は、
       \verb|elements| とCTM要素配置情報ファイルの情報をもとに、
-      CTM要素のサイズ、配置情報を設定した上で、\verb|elements|をプロジェクト管理部へ返す。
+      CTM要素のサイズ、配置情報を設定した上で、\verb|elements|をプロジェクト管理部に返す。
 
       \item \verb|elementsの出力|
 
-      GUI要素生成部から受け取った\verb|elements|をユーザ操作対応部に出力する
+      GUI要素生成部から受け取った\verb|elements|をユーザ操作対応部に出力する。
 \end{enumerate}
 
 \subsection{ファイル更新処理}\label{sec:FileUpdateProcess}
 ファイル更新処理は、
-ファイル更新要求をユーザ操作対応部から受け取り、ユーザ操作対応部が保持する\verb|elements|を参照し、
+ユーザ操作対応部からファイル更新要求を受け取り、ユーザ操作対応部が保持する\verb|elements|を受け取り、変換部へ\verb|elements|を渡し、
 変換部から受け取った
 Markdown 仕様、VDM\texttt{++} 仕様、
 および CTM要素配置情報を、
@@ -1663,9 +1673,9 @@ CTM、Markdown仕様、VDM++仕様、およびCTM配置情報が
       \item ユーザ操作対応部からファイル作成要求、および、ファイル名を入力として受け取る。
       \item プロジェクト管理部内で保持する、\verb|SelectedFolderPath|のパスに「新規ファイル名.md」の
       新規Markdownファイルのパスを生成する。
-      \item 2.で作成したパスの空のMarkdownファイルを作成する。
+      \item 2.で作成したパスに空のMarkdownファイルを作成する。
       \item フォルダおよびファイル探索処理へ探索要求を出力し、\verb|FolderItems|を更新する。
-      \item ファイル読み込み処理へファイル読込要求、および、2.で作成したパスを出力し、編集対象のMarkdownを新規作成したMarkdownにする。
+      \item ファイル読み込み処理へファイル読込要求、および、2.で作成したパスを出力し、編集対象を新規作成したMarkdown仕様にする。
 \end{enumerate}
 
 
@@ -1678,12 +1688,12 @@ CTM(\ref{sec:CTM}節を参照)の表示、および、操作の基礎となる\v
 本処理部では、.NETの標準ライブラリであるSystem.Text.RegularExpressions(\ref{sec:NET}節を参照)を用いて
 Markdown文字列の各行を解析する。
 
-本処理部の入力はプロジェクト管理部から受けとるMarkdown文字列であり、出力はプロジェクト管理部に\verb|elements|を渡す。
+本処理部の入力は、プロジェクト管理部から受けとるMarkdown文字列であり、出力はプロジェクト管理部に渡す\verb|elements|である。
 
 具体例として、リスト\ref{lst:markdown_example}に示すMarkdown仕様を活用する。
 リスト\ref{lst:markdown_example}のMarkdown仕様に対して本処理部が生成する
 GUIElement一覧を表\ref{tab:gui_element_example}に、\verb|EventBranch|を表\ref{tab:event_branch_example}にそれぞれ示す。
-本研究では、自然言語仕様記述ルール(\ref{sec:Specrule}節を参照)に基づき、Markdown仕様中で「\verb|###|」で始まる行を見出し行と呼ぶ。
+本研究では、自然言語仕様記述ルール(\ref{sec:Specrule}節を参照)に基づき、Markdown仕様内で「\verb|###|」で始まる行を見出し行と呼ぶ。
 
 \begin{figure}[tp]
 \begin{lstlisting}[caption={Markdown仕様の記述例}, label={lst:markdown_example}]
@@ -1716,7 +1726,7 @@ GUIElement一覧を表\ref{tab:gui_element_example}に、\verb|EventBranch|を�
 
 \begin{table}[tp]
 \centering
-\caption{リスト3.1のMarkdown仕様記述例から生成するGUIElement一覧}
+\caption{リスト\ref{lst:markdown_example}のMarkdown仕様記述例から生成するGUIElement一覧}
 \label{tab:gui_element_example}
 \begin{tabular}{|l|l|l|l|}
 \hline
@@ -1761,7 +1771,7 @@ Event & 確定押下 & -- & 条件分岐を含むイベント \\
 
 \begin{table}[tp]
 \centering
-\caption{リスト3.1のMarkdown仕様記述例から生成するEventBranch}
+\caption{リスト\ref{lst:markdown_example}のMarkdown仕様記述例から生成するEventBranch}
 \label{tab:event_branch_example}
 \begin{tabular}{|l|l|}
 \hline
@@ -1777,16 +1787,16 @@ Event & 確定押下 & -- & 条件分岐を含むイベント \\
 以降、本処理部の解析処理について説明する。
 \subsection{解析処理}\label{sec:ParsingProcess}
 
-本処理は、Markdown仕様から、CTM要素である、画面要素、タイムアウト要素、ボタン要素、イベント要素、および分岐イベント要素を抽出し、
+本処理は、Markdown仕様から、表\ref{tab:ctm_elements}に示したCTM要素である、画面要素、タイムアウト要素、ボタン要素、イベント要素、および分岐イベント要素を抽出し、
 抽出したCTM要素を\verb|GUIElement|として構造化し、\verb|GUIElement|のリストである\verb|elements|を出力する処理である。
 
 本処理は、ユーザがプロジェクト内のMarkdown仕様を選択または更新した際に、
 プロジェクト管理部が呼び出す。
 本処理はMarkdownのファイル単位で実行し、
 各ファイルの内容に基づいて \verb|elements| を生成する。
-ただし、解析部が出力する \verb|elements|の \verb|GUIElement| は、以下のデータを保持する。
+ここで、解析部が出力する \verb|elements|の \verb|GUIElement| は、以下のデータを保持する。
 \begin{itemize}
-      \item \verb|GUIElement.Type|：CTM要素の種別
+      \item \verb|GUIElement.Type|：CTM要素種別
       \item \verb|GUIElement.Name|：CTM要素の名称
       \item \verb|GUIElement.Target|：CTM要素のターゲット情報
       \item \verb|GUIElement.Branches|：分岐イベントにおける分岐情報リスト
@@ -1857,9 +1867,13 @@ OperationPattern
       具体例では、先頭行 \verb|lines[0]| が
       「\verb|## 画面1|」 であるため、例で示すMarkdown仕様は画面仕様として扱う。
 
+      \item \verb|elements|の初期化
+      
+      空の\verb|elements|を作成する
+      
       \item GUIElementの生成
 
-      空の\verb|elements|を作成し、2.の先頭行判定結果より、以下の2つの場合分けを行い、GUIElementの生成を行う。
+      2.の先頭行判定結果より、以下の2つの場合分けを行い、GUIElementの生成を行う。
       \begin{enumerate}[label=\Alph*.]
             \item 「画面一覧仕様」の場合
             \begin{enumerate}[label=\roman*.]
@@ -1900,7 +1914,7 @@ OperationPattern
                   具体例では、2行目の「\verb|- 80 秒でタイムアウト|」をタイムアウト定義行として解析する。
                   箇条書き本文から「\verb|で|」より前の文字列(\verb|80 秒|)を抽出する。
                   抽出したタイムアウト名をもとに、
-                  CTM要素の種別として\verb|GUIElement.Type|に\verb|Timeout|、CTM要素の名称として\verb|GUIElement.Name| に 80 秒を設定したGUIElementを生成し、 \verb|elements| に追加する。
+                  CTM要素種別として\verb|GUIElement.Type|に\verb|Timeout|、CTM要素の名称として\verb|GUIElement.Name| に 80 秒を設定したGUIElementを生成し、 \verb|elements| に追加する。
 
                   \item ボタン抽出
 
@@ -2081,7 +2095,7 @@ OperationPattern
       \item elements出力
 
       全CTM要素に対するGUIElementを生成した後、
-      解析部は\verb|elements|を出力する。
+      解析部は\verb|elements|をプロジェクト管理部へ返す。
 \end{enumerate}
 
 \subsection{条件分岐の解析処理}\label{sec:ParsingBranch}
@@ -2104,10 +2118,10 @@ GUIElement の \verb|Branches|(表\ref{tb:EventBranch}を参照)へ格納する�
       \item 分岐行：\verb|- {Condition} → {Target}|(例：\verb|  - 表示部に1が入力されている → 画面Kへ|)
 \end{itemize}
 
-親イベント行は \verb|OperationPattern|
+親イベント行は表\ref{tab:parsing_rules}に示す正規表現パターン \verb|OperationPattern|
 により検出し、
-分岐行は \verb|EventPattern|
-により \verb|→| を基準に左右へ分解する。
+分岐行は表\ref{tab:parsing_rules}に示す正規表現パターン\verb|EventPattern|
+により「\verb|→|」を基準に左右へ分解する。
 
 \subsubsection{分岐イベント解析処理の処理の流れ}\label{sec:ParsingBranchFlow}
 
@@ -2122,7 +2136,7 @@ GUIElement の \verb|Branches|(表\ref{tb:EventBranch}を参照)へ格納する�
 
       イベント一覧セクション内で抽出したイベント文字列に対し、
       \verb|OperationPattern| を適用し、
-      操作名 \verb|buttonkey| と\verb|→|以降文字列 \verb|eventContent| を抽出する。
+      操作名 \verb|buttonkey| と「\verb|→|」以降の文字列 \verb|eventContent| を抽出する。
       ここで \verb|eventContent| が空である場合、
       当該行を分岐イベントの親イベント行として扱い、
       分岐収集処理へ遷移する。
@@ -2249,78 +2263,125 @@ GUIElement の \verb|Branches|(表\ref{tb:EventBranch}を参照)へ格納する�
 
 \section{GUI要素生成部}\label{sec:GUIElementGenerationComponent}
 
-GUI要素生成部は、解析部(\ref{sec:ParsingComponent}節を参照)で生成した
-\verb|elements| をプロジェクト管理部(\ref{sec:ProjectManagementComponent}節を参照)から入力として受け取る。
-同時に、対象とするMarkdown仕様に対応する
-GUI配置情報(JSON)をプロジェクト管理部から受け取る。
-GUI要素生成部は、この\verb|elements| 、および、GUI配置情報をもとに、
-画面上で操作可能な\verb|elements|を生成する処理部である。
+GUI要素生成部は、解析部（\ref{sec:ParsingComponent}節を参照）で生成した
+\verb|elements| をプロジェクト管理部（\ref{sec:ProjectManagementComponent}節を参照）から入力として受け取る。
+同時に、対象とするMarkdown仕様に対応するGUI配置情報（JSON）をプロジェクト管理部から受け取る。
+GUI要素生成部は、受け取った\verb|elements|とGUI配置情報を統合し、
+CTM上で表示および操作可能なGUI要素を生成する処理部である。
 
-本研究では解析部およびGUI要素生成部の双方で同一の \verb|GUIElement| クラスを用いる。
-GUI要素生成部が出力する\verb|elements|の\verb|GUIElement|は、以下のデータを追加で保持する。
+GUI要素生成部が出力する\verb|GUIElement|は、表示および操作に必要な以下の情報を保持する。
 \begin{itemize}
-      \item \verb|X|：CTM要素のX座標
-      \item \verb|Y|：CTM要素のY座標
-      \item \verb|Width|：CTM要素の幅
-      \item \verb|Height|：CTM要素の高さ
-      \item \verb|IsMovable|：CTM要素の移動可能状態
-      \item \verb|IsSelected|：CTM要素の選択状態
+  \item \verb|X|：CTM要素のX座標
+  \item \verb|Y|：CTM要素のY座標
+  \item \verb|Width|：CTM要素の幅
+  \item \verb|Height|：CTM要素の高さ
+  \item \verb|IsMovable|：CTM要素の移動可能状態
+  \item \verb|IsSelected|：CTM要素の選択状態
 \end{itemize}
 
-本研究では、GUI要素生成部が出力する\verb|GUIElement|をGUI要素と呼ぶ。
+本研究では、GUI要素生成部が出力する \verb|GUIElement| をGUI要素と呼ぶ。
 
-GUI要素生成部の入力は、プロジェクト管理部から受け取る\verb|elements| と、
-必要に応じてプロジェクト管理部から受け取る配置情報(JSON)である。
-出力は、プロジェクト管理部に返す\verb|elements|である。
+GUI要素生成部の入力は、プロジェクト管理部から受け取る \verb|elements| と、
+必要に応じてプロジェクト管理部から受け取るGUI配置情報（JSON）である。
+出力は、座標および表示サイズが確定した\verb|elements| であり、
+これをプロジェクト管理部へ返却する。
 
-GUI要素生成部で用いる通常ノードの描画仕様を表\ref{tab:gui_node_spec}に、
-分岐イベントにおける可視ノードの描画仕様を表\ref{tab:gui_node_branch}にそれぞれ示す。
+\subsubsection{初期配置規則}\label{subsec:initial_layout_rule}
 
-CTM配置情報(JSON)が存在する場合は、
-\verb|GUIElement.Name| をキーとして復元し、
-配置情報が存在しない場合、または、当該要素の座標が存在しない場合は、
-要素種別に応じた初期配置に基づいて座標を決定する。
+GUI配置情報（JSON）が存在し、かつ \verb|GUIElement.Name| をキーとして座標が取得できる場合は、
+当該座標を優先して\verb|GUIElement|の\verb|X,Y| に設定する。
+一方、配置情報が存在しない場合、
+GUI要素生成部がCTM要素種別に応じた初期配置規則に基づいて座標を決定する。
 
-初期配置では、要素を種別ごとに縦方向へ積み上げて配置する。
-このとき、種別 $t$ ごとに 0 始まりの連番 $i_t$ を保持し、
-同一種別内の出現順に $i_t$ を増加させる。
+初期配置では、CTM要素種別ごとに縦方向へ配置する。
+ただし、ボタン要素は画面要素群の直下から配置を開始する。
+このとき、CTM要素種別ごとの 0 始まりの連番を
+$i_{\mathrm{screen}}, i_{\mathrm{button}}, i_{\mathrm{event}}$
+とし、同一CTM要素種別内の出現順に増加させる。
 
-横方向の座標 $X$ は、種別ごとに固定した列位置を用いる。
-縦方向の座標 $Y$ は、基準座標 $Y_0$ と、縦方向間隔 $d$ を用いて決定する。、
-ここで、$Y_0$ は上端余白、$d$ は要素間の縦方向間隔である。
-実際には、左列のX座標を $X_{\mathrm{left}}=40\mathrm{px}$、
-通常ノード幅を $W_{\mathrm{node}}=160\mathrm{px}$、
-列間隔を $S_{\mathrm{col}}=80\mathrm{px}$ として定義し、
-イベント列のX座標を $X_{\mathrm{mid}}$ として次式で算出する。
-また、$Y_0=40\mathrm{px}$、$d=80\mathrm{px}$ とする。
+初期配置に用いる定数を以下に定義する。
+左列の基準X座標を $X_{\mathrm{left}}=40\mathrm{px}$、
+ノード幅を $W_{\mathrm{node}}=160\mathrm{px}$、
+ノード高さを $H_{\mathrm{node}}=45\mathrm{px}$、
+列間隔を $S_{\mathrm{col}}=40\mathrm{px}$、
+縦方向間隔を $d=80\mathrm{px}$ とする。
 
-式\ref{eq:initial_position_x_by_type}で$X$ 座標、\ref{eq:initial_position_y_by_type}で$Y$座標を決定する。
-$X_{\mathrm{fix}}$ 、および、$Y_{\mathrm{fix}}$は固定値である。
-
-\begin{equation}\label{eq:initial_column_mid}
+イベント列のX座標 $X_{\mathrm{mid}}$を、式\ref{eq:column_x_positions_single_timeout}で定義する。
+\begin{equation}\label{eq:column_x_positions_single_timeout}
 X_{\mathrm{mid}} = X_{\mathrm{left}} + W_{\mathrm{node}} + S_{\mathrm{col}}
 \end{equation}
 
-\begin{equation}\label{eq:initial_position_x_by_type}
-X(e) =
+各CTM要素の初期配置規則を以下に示す。
+\begin{itemize}
+\item \textbf{タイムアウト要素}
+
+本研究では、タイムアウト要素は単一要素として取り扱う。
+したがって、タイムアウトは固定位置に配置する。
+
+タイムアウト要素が存在し、かつ、GUI配置情報（JSON）に座標を登録している場合は、
+当該座標を設定する。
+配置情報が存在しない場合は、CTM領域左上の固定位置に配置する。
+固定位置の設定を式\ref{eq:timeout_position_single}に示す。
+\begin{equation}\label{eq:timeout_position_single}
+X(t)=X_{\mathrm{left}},\quad
+Y(t)=8\mathrm{px}
+\end{equation}
+
+\item \textbf{画面要素}
+未配置の画面要素 $s_{i_{\mathrm{screen}}}$ の座標は式\ref{eq:screen_position_single_timeout}で計算する。
+\begin{equation}\label{eq:screen_position_single_timeout}
+X(s_{i_{\mathrm{screen}}})=X_{\mathrm{left}},\quad
+Y(s_{i_{\mathrm{screen}}})=i_{\mathrm{screen}}\cdot d
+\end{equation}
+
+
+
+\item \textbf{ボタン要素}
+
+ボタン要素の配置開始位置を $Y_{\mathrm{base}}$ とする。
+タイムアウト要素が存在する場合は、その下端に余白を加えた位置を用い、
+存在しない場合は上端余白から配置を開始する。ボタン要素の配置開始位置は式\ref{eq:y_base_single_timeout}で計算する。
+\begin{equation}\label{eq:y_base_single_timeout}
+Y_{\mathrm{base}}=
 \begin{cases}
-X_{\mathrm{left}} & (\verb|Type|=\verb|Screen|) \\
-X_{\mathrm{left}} & (\verb|Type|=\verb|Button|) \\
-X_{\mathrm{mid}}  & (\verb|Type|=\verb|Event| \land \verb|Branches|=\verb|null|) \\
-X_{\mathrm{fix}}  & (\verb|Type|=\verb|Timeout|) \\
+Y(t)+H_{\mathrm{node}}+10\mathrm{px} & (\text{タイムアウト要素が存在する})\\
+40\mathrm{px} & (\text{タイムアウト要素が存在しない})
 \end{cases}
 \end{equation}
 
-\begin{equation}\label{eq:initial_position_y_by_type}
-Y(e) =
-\begin{cases}
-Y_0 + i_{\mathrm{screen}} \cdot d & (\verb|Type|=\verb|Screen|) \\
-Y_0 + i_{\mathrm{button}} \cdot d & (\verb|Type|=\verb|Button|) \\
-Y_0 + i_{\mathrm{event}} \cdot d  & (\verb|Type|=\verb|Event| \land \verb|Branches|=\verb|null|) \\
-Y_{\mathrm{fix}}                  & (\verb|Type|=\verb|Timeout|) \\
-\end{cases}
+
+未配置のボタン要素 $b_{i_{\mathrm{button}}}$の座標は式\ref{eq:button_position_single_timeout}で計算する。
+\begin{equation}\label{eq:button_position_single_timeout}
+X(b_{i_{\mathrm{button}}})=X_{\mathrm{left}},\quad
+Y(b_{i_{\mathrm{button}}})=Y_{\mathrm{base}} + N_{\mathrm{screen}}\cdot d + i_{\mathrm{button}}\cdot d
 \end{equation}
 
+\item \textbf{イベント要素}
+
+タイムアウト要素が存在し、かつ、当該イベントがタイムアウトに対応する場合は、
+イベントをタイムアウトと同じY座標に配置する。座標は式\ref{eq:event_timeout_position_single_timeout}で決定する。
+\begin{equation}\label{eq:event_timeout_position_single_timeout}
+X(e)=X(t)+\left(W_{\mathrm{node}}+120\mathrm{px}\right),\quad
+Y(e)=Y(t)
+\end{equation}
+
+タイムアウトに対応しないイベント要素は、対応するボタン要素を探索し、
+見つかった場合は当該ボタンと同じY座標に配置する。
+対応ボタンはボタン要素の\verb|GUIElement.Target|と、イベント要素の\verb|GUIElement.Name|を比較し、一致したときに対応ボタンとして確定する。
+座標は式\ref{eq:event_button_position_single_timeout}で決定する。
+\begin{equation}\label{eq:event_button_position_single_timeout}
+X(e)=X_{\mathrm{mid}},\quad
+Y(e)=Y(b)
+\end{equation}
+
+上記のいずれにも該当しないイベント要素は、
+イベント出現順の連番 $i_{\mathrm{event}}$ に基づいて縦方向へ配置する。
+座標は式\ref{eq:event_fallback_position_single_timeout}で決定する。
+\begin{equation}\label{eq:event_fallback_position_single_timeout}
+X(e_{i_{\mathrm{event}}})=X_{\mathrm{mid}},\quad
+Y(e_{i_{\mathrm{event}}})=Y_{\mathrm{base}} + i_{\mathrm{event}}\cdot d
+\end{equation}
+\end{itemize}
 
 本処理の流れを、以下に示す。
 
@@ -2345,27 +2406,11 @@ Y_{\mathrm{fix}}                  & (\verb|Type|=\verb|Timeout|) \\
             \item 表\ref{tab:gui_node_spec}に基づき、画面要素の既定サイズを\verb|GUIElement.Width|、および、\verb|GUIElement.Height|に設定する。
             \item 座標を決定する。
                   JSONに一致する座標が存在する場合はそれを設定し、
-                  存在しない場合は式\ref{eq:initial_position_x_by_type}および式\ref{eq:initial_position_y_by_type}により初期配置座標を算出して設定する。
+                  存在しない場合は初期配置規則により初期配置座標を算出して設定する。
             \item 画面要素はユーザ操作により移動可能とし、
                   \verb|GUIElement.IsMovable| に\verb|true| を設定する。
             \item 生成したGUI要素を\verb|elements|へ追加し、
                   画面要素に対応するインデックス $i$ を1増やす。
-      \end{enumerate}
-
-      \item ボタン要素の生成
-
-      \verb|GUIElement.Type| が \verb|Button| の場合、
-      以下の手順でボタン要素に対応するGUI要素を生成する。
-      \begin{enumerate}[label=\roman*.]
-            \item ボタン尿素に対応するインデックス $i$ を取得する。
-            \item 表\ref{tab:gui_node_spec}に基づき、既定サイズ\verb|GUIElement.Width|、および、\verb|GUIElement.Height|に設定する。
-            \item 座標を決定する。
-            JSONに一致する座標が存在する場合はそれを設定し、
-            存在しない場合は初期配置規則に基づき、配置する。
-            \item ボタン要素はユーザ操作により移動可能とし、
-            \verb|GUIElement.IsMovable| に\verb|true| を設定する。
-            \item 生成したGUI要素を\verb|elements|へ追加し、
-            ボタン要素に対応するインデックス $i$ を1増やす。
       \end{enumerate}
 
       \item タイムアウト要素の生成
@@ -2376,11 +2421,29 @@ Y_{\mathrm{fix}}                  & (\verb|Type|=\verb|Timeout|) \\
             \item 表\ref{tab:gui_node_spec}に基づき、既定サイズ\verb|GUIElement.Width|、および、\verb|GUIElement.Height|に設定する。
             \item 座標を決定する。
             JSONに一致する座標が存在する場合はそれを設定し、
-            存在しない場合は画面左上付近の固定位置となるよう、表\ref{tab:gui_node_spec}に示す既定オフセットを適用して設定する。
+            存在しない場合は存在しない場合は初期配置規則により初期配置座標を算出して設定する。
             \item タイムアウト要素は画面構造の基準として扱うため移動不可とし、
-            \verb|GUIElement.IsMovable| に\verb|false|を設定する。
+            \\\verb|GUIElement.IsMovable| に\verb|false|を設定する。
             \item 生成したGUI要素を\verb|elements|へ追加する。
       \end{enumerate}
+
+      \item ボタン要素の生成
+
+      \verb|GUIElement.Type| が \verb|Button| の場合、
+      以下の手順でボタン要素に対応するGUI要素を生成する。
+      \begin{enumerate}[label=\roman*.]
+            \item ボタン要素に対応するインデックス $i$ を取得する。
+            \item 表\ref{tab:gui_node_spec}に基づき、既定サイズ\verb|GUIElement.Width|、および、\verb|GUIElement.Height|に設定する。
+            \item 座標を決定する。
+            JSONに一致する座標が存在する場合はそれを設定し、
+            存在しない場合は初期配置規則により初期配置座標を算出して設定する。
+            \item ボタン要素はユーザ操作により移動可能とし、
+            \verb|GUIElement.IsMovable| に\verb|true| を設定する。
+            \item 生成したGUI要素を\verb|elements|へ追加し、
+            ボタン要素に対応するインデックス $i$ を1増やす。
+      \end{enumerate}
+
+
 
       \item イベント要素の生成
 
@@ -2392,7 +2455,7 @@ Y_{\mathrm{fix}}                  & (\verb|Type|=\verb|Timeout|) \\
             \item 条件分岐を含まない場合は、
             表\ref{tab:gui_node_spec}に基づき、既定サイズ\verb|GUIElement.Width|、および、\verb|GUIElement.Height|に設定する。
             座標は JSON を優先し、
-            JSONが存在しない場合は対応するボタン要素またはタイムアウト要素の右側に来るように初期配置し、\verb|elements|へ追加する。
+            JSONが存在しない場合は初期配置規則により初期配置座標を算出して設定する。。
             \item 条件分岐を含む場合は、
             親イベント要素を表示対象外として扱い、
             分岐イベント要素における 分岐条件、および、分岐先イベントの
@@ -2421,7 +2484,7 @@ Markdown仕様からVDM++仕様への変換処理については、既存の\too
 および、出力順序整理処理について説明する。
 
 \subsection{GUI操作からMarkdown仕様への変換処理}\label{sec:GUItoMarkdownConversionProcess}
-本処理は、GUI要素生成部(\ref{sec:GUIElementGenerationComponent}節を参照)で生成した\verb|elements|、お
+本処理は、ユーザ操作対応部が所持する\verb|elements|、お
 よび、プロジェクト管理部より受け取る編集前のMarkdown文字列を入力として、
 編集後Markdown文字列へ変換する処理である。
 まず、\verb|elements|内の各CTM要素を、種類および関連関係に基づいて分類する。
