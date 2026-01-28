@@ -435,7 +435,7 @@ CTM全体をスクロール操作により閲覧可能とする。
 
   CTM領域上での左クリック、ドラッグ、および右クリック操作は、
   描画領域要素が保持する入力検知機構により検知する。
-  本処理では、\verb|Microsoft.Maui.Controls| が提供するジェスチャ認識、
+  本処理では、\verb|WinUI| が提供するジェスチャ認識、
   およびプラットフォーム固有のポインタ入力イベントを用いて、
   入力位置とユーザによる操作種別を取得する。
 
@@ -444,7 +444,7 @@ CTM全体をスクロール操作により閲覧可能とする。
 
   \item 左クリック操作
   
-  左クリック操作は、\verb|Microsoft.Maui.Controls|が提供する
+  左クリック操作は、\verb|WinUI|が提供する
   \verb|PointerPressed|によりポインタ座標を検知し、
   \verb|PointerEventArgs.Buttons|により左ボタンを検知したとき、
   左クリック位置の座標 $(x, y)$ を入力として受け取る。
@@ -453,7 +453,7 @@ CTM全体をスクロール操作により閲覧可能とする。
   \item ドラッグ操作
   
   ドラッグ操作の検知では、
-  \verb|Microsoft.Maui.Controls|が提供する
+  \verb|WinUI|が提供する
   \verb|PointerPressed|、\verb|PointerMoved|、\verb|PointerReleased|、
   \verb|PointerEventArgs.Buttons|
   の各イベントを用いる。
