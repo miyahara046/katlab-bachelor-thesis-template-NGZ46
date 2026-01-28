@@ -11,11 +11,11 @@
 \begin{itemize}
 \item 同一画面内の別状態への変化
 \item 別の画面への遷移
-\item 条件付きで変化先が決定される内部状態または画面への遷移
+\item 条件付きで変化先が決定される内部状態または別の画面への遷移
 \end{itemize}
 \end{itemize}
 
-本研究では、対象とする画面遷移システムの仕様を記述し、
+本研究では、設計対象とする画面遷移システムの仕様を記述し、
 それをもとに画面遷移を可視化およびVDM\texttt{++}仕様へ変換する。
 
 \section{VDM\texttt{++}}\label{sec:VDM++}
@@ -54,8 +54,7 @@ VDM\texttt{++}における各定義について、以下で説明する。
     VDM\texttt{++}の操作は、操作の特性を記述する陰操作定義と、計算アルゴリズムを示す陽操作定義の2つの定義スタイルがある。
 \end{itemize}
 
-本研究では、画面遷移システムの仕様をVDM\texttt{++}として出力する。また、VDM\texttt{++}を、
-ツール上で生成、および、表示する対象仕様として用いる。
+本研究では、画面遷移システムの仕様をVDM\texttt{++}形式で出力する。
 
 \section{Markdown}\label{sec:markdown}
 
@@ -69,18 +68,17 @@ Markdownの主な記法を、表\ref{tab:Markdown_Example}に示す。
 \centering
 \caption{Markdownの主な記法}
 \label{tab:Markdown_Example}
-\renewcommand{\arraystretch}{1.3} % セルの上下に少し余裕を持たせる
 \begin{tabular}{|l|l|}
 \hline
 \textbf{表現の種類} & \textbf{記法の例} \\
 \hline
-見出し & \texttt{\# 見出し} \\ \hline
-強調 & \texttt{**強調**} \\ \hline
-箇条書き & \begin{tabular}{@{}l@{}} \texttt{- 箇条書き1} \\ \texttt{- 箇条書き2} \end{tabular} \\ \hline
-引用 & \texttt{> 引用} \\ \hline
-リンク & \texttt{[リンク名](リンクURL)} \\ \hline
-コード & \texttt{\`}\texttt{コード}\texttt{\`} \\ \hline
-コードブロック & \begin{tabular}{@{}l@{}} \texttt{\`}\texttt{\`}\texttt{\`} \\ \texttt{コードブロック} \\\texttt{\`}\texttt{\`}\texttt{\`} \end{tabular} \\
+見出し & \texttt{\#} 見出し\\ \hline
+強調 & \texttt{**}強調\texttt{**} \\ \hline
+箇条書き & \begin{tabular}{@{}l@{}} \texttt{-} 箇条書き1 \\ \texttt{-} 箇条書き2 \end{tabular} \\ \hline
+引用 & \texttt{>} 引用 \\ \hline
+リンク & [リンク名](リンクURL) \\ \hline
+コード & \texttt{\`}コード\texttt{\`} \\ \hline
+コードブロック & \begin{tabular}{@{}l@{}} \texttt{\`}\texttt{\`}\texttt{\`} \\ コードブロック\\\texttt{\`}\texttt{\`}\texttt{\`} \end{tabular} \\
 \hline
 \end{tabular}
 \end{table}
@@ -88,7 +86,7 @@ Markdownの主な記法を、表\ref{tab:Markdown_Example}に示す。
 
 
 本研究では、画面遷移システムの仕様をMarkdownで記述し、
-Markdownで記述した画面遷移システムの仕様を解析することでGUI表示、および、VDM++仕様の生成を行う。
+Markdownで記述した画面遷移システムの仕様を解析することで、本研究で提案する図の表示、および、VDM++仕様の生成を行う。
 
 \section{JSON}\label{sec:JSON}
 JSON(JavaScript Object Notation)\cite{JSON}は、軽量のテキストベースのデータ交換フォーマットである。
@@ -97,8 +95,8 @@ JSONはWebサービスやアプリケーションの設定ファイルとして�
 JSON形式のデータは.jsonという拡張子を持つ。
 JSONは構造化データを簡潔に表現でき、言語や環境を問わずパース(解析)、および、シリアライズ(生成)が容易である
 
-本研究では、画面遷移システムの仕様をMarkdownから解析した後、
-GUI配置の内部表現としてJSONを扱う。その後JSONの読み出し、および、書き込みを行い、ツールのGUIやVDM\texttt{++}仕様生成に用いる。
+本研究では、Markdownで記述した画面遷移システムを解析した後、
+本研究で提案する図のノード配置の内部表現としてJSONを扱う。その後JSONの読み出し、および、書き込みを行う。
 \section{MVVM}\label{sec:MVVM}
 Model-View-ViewModel (MVVM)\cite{MVVM}は、Model、View、View Modelの 3 つの主要なコンポーネントからなるソフトウェアアーキテクチャの一種である。
 この3つのパターンそれぞれが異なる役割を果たす。
@@ -119,15 +117,25 @@ CommunityToolkit.Mvvm\cite{MVVMtool}は、高速モジュール式 MVVM ライ�
 本研究では、CommunityToolkit.MvvmのRelayCommandを使用している。
 各メソッドにRelayCommand属性を付与することにより、本ツール内でそのメソッドが非同期実行のコマンドとして扱える。
 
-\section{CommunityToolkit.Maui}\label{sec:CommunityToolkit.Maui}
+\section{.NET}\label{sec:NET}
+.NET は、Microsoft によって開発されたマルチプラットフォーム対応のアプリケーション開発基盤である\cite{NET}。
+C\#を主なプログラミング言語として用い、デスクトップアプリケーション、Web アプリケーション、モバイルアプリケーションなど、さまざまな形態のソフトウェアを統一的な環境で開発できる。
+.NET では、実行環境とともに、基本クラスライブラリと呼ばれる標準ライブラリ群が提供されている。
 
-CommunityToolkit.Maui は、.NET MAUI アプリケーション開発を支援するために提供されている
-オープンソースの拡張ライブラリである\cite{CommunityToolkit.Maui}。
-本ライブラリは、.NET MAUI 標準機能を補完する形で、
-UI コンポーネント、ビヘイビア、エフェクト、ダイアログ表示機構などを提供する。
+本研究で用いる.NETの標準ライブラリを、以下に示す。
+\begin{itemize}
+    \item System.Text.RegularExpressions：
 
-本研究では、CommunityToolkit.Maui が提供する \verb|Popup| 機構を利用している。
-Popup は、画面全体を遷移させることなく、一時的な入力画面や確認画面を表示するための UI コンポーネントである。
+    正規表現による文字列解析機能を提供する.NET 標準ライブラリである。本研究では、Markdown 形式で記述した画面遷移システム仕様を解析する際に用いている。
+    \item System.Collections.Generic：
+
+    ジェネリックコレクションを提供する.NET 標準ライブラリである。本研究では、解析結果や要素の集合を管理するために List<T> を用いている。
+    また、画面名やボタン名の重複生成を防止するため、HashSet<T> を用いた一意性の管理を行っている。
+    \item System.IO：
+
+    ファイルおよびディレクトリ操作を行うための .NET 標準ライブラリである。本研究では、Markdown 仕様ファイルの読み込み、JSON 形式の中間データの保存、および、生成した VDM\texttt{++} 仕様ファイルの書き込みに用いている。
+\end{itemize}
+
 
 \section{.NET MAUI}\label{sec:NET_MAUI}
 本ツールでは、.NET Multi-platform App UI(以下、.NET MAUI と表記する)\cite{NET_MAUI}を用いて主なGUI部分を実装している。
@@ -157,8 +165,10 @@ Popup は、画面全体を遷移させることなく、一時的な入力画�
     \item Microsoft.Maui.ApplicationModel：
 
     アプリケーションの実行環境やデバイス機能へのアクセスを提供する名前空間である。
-    本研究では、非同期処理後に UI を更新するため、
-    .NET MAUI においてユーザインタフェースを操作するためのメインスレッドを扱うための API であるMainThreadを用いて、UIスレッド上での処理制御を行っている。
+    本研究では、非同期処理後に UI を更新する際に、
+    .NET MAUI におけるユーザインタフェース操作用の API である MainThread を用い、
+    UI スレッド上での処理制御を行っている。
+
 
     \item Microsoft.Maui.Storage：
 
@@ -176,23 +186,16 @@ Popup は、画面全体を遷移させることなく、一時的な入力画�
     本研究では、UI要素を行と列の格子状に配置するためのレイアウトコンテナであるGridや、UI要素を縦方向または横方向に順番に並べるためのレイアウトコンテナであるStackLayoutを用いて、レイアウトを構成している。
 \end{itemize}
 
-\section{.NET}\label{sec:NET}
-.NET は、Microsoft によって開発されたマルチプラットフォーム対応のアプリケーション開発基盤である\cite{NET}。
-C\#を主なプログラミング言語として用い、デスクトップアプリケーション、Web アプリケーション、モバイルアプリケーションなど、さまざまな形態のソフトウェアを統一的な環境で開発できる。
-.NET では、実行環境とともに、基本クラスライブラリと呼ばれる標準ライブラリ群が提供されている。
+\section{CommunityToolkit.Maui}\label{sec:CommunityToolkit.Maui}
 
-本研究で用いる.NETの標準ライブラリを、以下に示す。
-\begin{itemize}
-    \item System.Text.RegularExpressions：
+CommunityToolkit.Maui は、.NET MAUI アプリケーション開発を支援するために提供されている
+オープンソースの拡張ライブラリである\cite{CommunityToolkit.Maui}。
+本ライブラリは、.NET MAUI 標準機能を補完する形で、
+UI コンポーネント、ビヘイビア、エフェクト、ダイアログ表示機構などを提供する。
 
-    正規表現による文字列解析機能を提供する.NET 標準ライブラリ。本研究では、Markdown 形式で記述した画面遷移システム仕の様を解析する際に用いている。
-    \item System.Collections.Generic：
+本研究では、CommunityToolkit.Maui が提供する \verb|Popup| 機構を利用している。
+\verb|Popup| 機構は、画面全体を遷移させることなく、一時的な入力画面や確認画面を表示するための UI コンポーネントである。
 
-    ジェネリックコレクションを提供する.NET 標準ライブラリ。本研究では、リストを管理するために用いている。
-    \item System.IO：
-
-    ファイルおよびディレクトリ操作を行うための .NET 標準ライブラリ。本研究では、Markdown 仕様ファイルの読み込み、JSON 形式の中間データの保存、および、生成した VDM\texttt{++} 仕様ファイルの書き込みに用いている。
-\end{itemize}
 \section{Windows.Storage.Pickers}\label{sec:Windows.Storage.Pickers}
 
 Windows.Storage.Pickersは、Windows プラットフォームにおいて、
@@ -200,16 +203,16 @@ Windows.Storage.Pickersは、Windows プラットフォームにおいて、
 本ライブラリは、フォルダ選択ダイアログを通じて、
 ユーザ操作によるパス取得を安全かつ統一的に行うための機構を提供する。
 
-本研究で拡張するツールでは、ユーザが画面遷移システム仕様を管理するプロジェクトフォルダを選択する際に用いる。
+本研究で拡張する\tool では、ユーザが画面遷移システム仕様を管理するプロジェクトフォルダを選択する際に用いる。
 
 \section{WinUI}\label{sec:WinUI}
 
-WinUI（Windows UI Library）は、
+WinUI(Windows UI Library)\cite{WinUI}は、
 Windows 向けユーザインタフェースライブラリである。
 WinUIは、Windowsアプリケーションにおける
 UIコンポーネントの描画、および、マウスやキーボードなどの入力イベント処理を担うネイティブUIフレームワークである。
 
-本研究で拡張するツールでは、右クリック操作ポインタイベントを実現するため、
+本研究で拡張する\tool では、右クリック操作ポインタイベントを実現するため、
 WinUIが提供するポインタイベントAPIを利用している。
 
 \section{\tool}\label{sec:2vdm-spec-generator}
@@ -217,14 +220,14 @@ WinUIが提供するポインタイベントAPIを利用している。
 画面遷移システムの自然言語仕様からVDM\texttt{++}仕様を作成するための
 仕様記述作成手法を内部に持ち、
 ユーザが記述したMarkdown形式の仕様に対して、
-当該手法に基づく解析および変換処理を行うツールである。
+当該手法に基づく解析および変換処理を行うツールである。本研究では、画面遷移システムについてMarkdown形式で記述した仕様を画面遷移システム仕様と呼ぶ。
 本節では、まず、\tool が採用している
 画面遷移システムを対象としたVDM\texttt{++}仕様記述作成手法について説明し、
 その後、\tool としての機能について述べる。
 \subsection{画面遷移システムを対象としたVDM++仕様記述作成手法}\label{spec:way-of-convert}
-本手法では、画面遷移システムの仕様を一定の構造で記述することを前提とし、
+本手法では、画面遷移システム仕様を一定の構造で記述することを前提とし、
 その構造に基づいて、自然言語仕様からVDM\texttt{++}仕様記述への変換を行う。
-本手法が対象とする画面遷移システムの仕様の構成を、以下に示す。
+本手法が対象とする画面遷移システム仕様の構成を、以下に示す。
 
 \begin{itemize}
 \item システムに存在する画面の名前をすべて記載した、画面一覧仕様が存在すること。
@@ -235,9 +238,9 @@ WinUIが提供するポインタイベントAPIを利用している。
 現在画面の状態を管理する画面管理クラス、および、画面一つ一つの仕様に基づく画面定義を表現する画面クラスから成る。
 なお、本手法において表示部クラスは、対象の仕様の内容にかかわらず一定のものとして定義する。
 
-本手法でVDM\texttt{++}へ変換を行う画面一覧仕様の例を図\ref{fig:specRuleA}、画面仕様の例を図\ref{fig:specRuleB}にそれぞれ示す。
-また、定義する表示部クラスの例を、リスト\ref{lst:hyougibu}に、VDM\texttt{++}に変換後の画面管理クラスの例を、リスト\ref{lst:VDMPP_ExampleA}に、画面クラスの例を、
-リスト\ref{lst:VDMPP_ExampleB}にそれぞれ示す。
+本手法でVDM\texttt{++}へ変換を行う画面一覧仕様の記述例を図\ref{fig:specRuleA}、画面仕様の記述例を図\ref{fig:specRuleB}に、それぞれ示す。
+また、定義する表示部クラスの例をリスト\ref{lst:hyougibu}に、VDM\texttt{++}に変換後の図\ref{fig:specRuleA}に対応する画面管理クラスの例をリスト\ref{lst:VDMPP_ExampleA}に、
+図\ref{fig:specRuleB}に対応する画面クラスの例をリスト\ref{lst:VDMPP_ExampleB}に、それぞれ示す。
 \begin{figure}
     \centering
     \includegraphics[width=0.4\linewidth]{./images/specRuleA.png}
@@ -279,7 +282,7 @@ WinUIが提供するポインタイベントAPIを利用している。
 \end{figure}
 
 \begin{figure}[tp]
-    \begin{lstlisting}[caption={図\ref{fig:specRuleA}に対応する画面クラス}, label={lst:VDMPP_ExampleA}, language={VDM_PP}]
+    \begin{lstlisting}[caption={図\ref{fig:specRuleA}に対応する画面管理クラス}, label={lst:VDMPP_ExampleA}, language={VDM_PP}]
 class (*@「@*)画面管理(*@」@*)
 
 types
@@ -343,7 +346,7 @@ end (*@「@*)画面A(*@」@*)
     
     \item VDM++変換ルール(\ref{sec:ConvRule}節で後述)
 
-    自然言語仕様記述ルールに基づいた画面遷移システム自然言語仕様から、VDM++仕様記述への変換ルール。
+    自然言語仕様記述ルールに基づいた画面遷移システム仕様から、VDM++仕様への変換ルール。
     以下の2つのルールがある。
     \begin{itemize}
         \item 変換ルールA\\
@@ -563,7 +566,7 @@ end (*@「@*)画面A(*@」@*)
 \end{figure}
 
 \begin{itemize}
-    \item Markdown形式で記述した画面遷移システム仕様(以降、Markdown仕様と呼ぶ)の編集機能
+    \item Markdown形式で記述した画面管理仕様と画面仕様で構成する画面画面遷移システム仕様(以降、Markdown仕様と呼ぶ)の編集機能
     \item 変換ルールAおよび変換ルールBに基づくVDM\texttt{++}仕様への変換機能
     \item 生成したVDM\texttt{++}仕様の表示および保存機能
 \end{itemize}
@@ -575,7 +578,7 @@ end (*@「@*)画面A(*@」@*)
 Markdown形式で記述および編集する機能である。
 \tool は、
 画面一覧仕様および各画面に対応する画面仕様を
-Markdownファイルとして管理し、
+Markdown仕様として管理し、
 ユーザに対して編集領域を提供することで、
 Markdown仕様の作成および修正を可能にする。
 
@@ -621,5 +624,5 @@ Markdown仕様の編集領域とは独立したVDM\texttt{++}仕様の表示領�
 変換後のVDM\texttt{++}仕様を即座に表示する。
 これにより、
 ユーザは、
-仕様の編集と変換結果の確認を
+Markdown仕様の編集と変換後VDM\texttt{++}仕様の確認を
 同一画面内で繰り返し行える。
