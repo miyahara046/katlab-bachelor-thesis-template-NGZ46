@@ -129,8 +129,8 @@ C\#を主なプログラミング言語として用い、デスクトップア�
     正規表現による文字列解析機能を提供する.NET 標準ライブラリである。本研究では、Markdown 形式で記述した画面遷移システム仕様を解析する際に用いている。
     \item System.Collections.Generic：
 
-    ジェネリックコレクションを提供する.NET 標準ライブラリである。本研究では、解析結果や要素の集合を管理するために List<T> を用いている。
-    また、画面名やボタン名の重複生成を防止するため、HashSet<T> を用いた一意性の管理を行っている。
+    ジェネリックコレクションを提供する.NET 標準ライブラリである。本研究では、解析結果や要素の集合を管理するために List\< T \> を用いている。
+    また、画面名やボタン名の重複生成を防止するため、HashSet\< T \> を用いた一意性の管理を行っている。
     \item System.IO：
 
     ファイルおよびディレクトリ操作を行うための .NET 標準ライブラリである。本研究では、Markdown 仕様ファイルの読み込み、JSON 形式の中間データの保存、および、生成した VDM\texttt{++} 仕様ファイルの書き込みに用いている。
@@ -193,8 +193,8 @@ CommunityToolkit.Maui は、.NET MAUI アプリケーション開発を支援す
 本ライブラリは、.NET MAUI 標準機能を補完する形で、
 UI コンポーネント、ビヘイビア、エフェクト、ダイアログ表示機構などを提供する。
 
-本研究では、CommunityToolkit.Maui が提供する \verb|Popup| 機構を利用している。
-\verb|Popup| 機構は、画面全体を遷移させることなく、一時的な入力画面や確認画面を表示するための UI コンポーネントである。
+本研究では、CommunityToolkit.Maui が提供する \texttt{Popup} 機構を利用している。
+\texttt{Popup} 機構は、画面全体を遷移させることなく、一時的な入力画面や確認画面を表示するための UI コンポーネントである。
 
 \section{Windows.Storage.Pickers}\label{sec:Windows.Storage.Pickers}
 
@@ -472,9 +472,9 @@ end (*@「@*)画面A(*@」@*)
     \end{tabular} &
     \begin{tabular}{l}
         types\\
-        \hspace{4pt}「ボタン状態」 = \verb|<|非押下\verb|>| \hspace{1pt}\textbar\hspace{1pt} \verb|<|\hspace{-4pt}【ボタン1】\hspace{-4pt}\verb|>| \textbar\hspace{1pt} \verb|<|\hspace{-4pt}【ボタン2】\hspace{-4pt}\verb|>|...;\\
+        \hspace{4pt}「ボタン状態」 = \texttt{\textless{}}非押下\texttt{\textgreater{}} \hspace{1pt}\textbar\hspace{1pt} \texttt{\textless{}}\hspace{-4pt}【ボタン1】\hspace{-4pt}\texttt{\textgreater{}} \textbar\hspace{1pt} \texttt{\textless{}}\hspace{-4pt}【ボタン2】\hspace{-4pt}\texttt{\textgreater{}}...;\\
         instance variables\\
-        \hspace{4pt} 押下ボタン: 「ボタン状態」 =: \verb|<|非押下\verb|>|;\\
+        \hspace{4pt} 押下ボタン: 「ボタン状態」 =: \texttt{\textless{}}非押下\texttt{\textgreater{}};\\
     \end{tabular} \\ \hline
 
     \multicolumn{1}{|c|}{B-3} &
@@ -497,18 +497,18 @@ end (*@「@*)画面A(*@」@*)
     \hspace{8pt} 押下時操作: 「ボタン状態」 \texttt{==>} ()\\
     \hspace{8pt} 押下時操作(押下ボタン) ==\\
     \hspace{12pt} cases 押下ボタン:\\
-    \hspace{16pt} \verb|<|\hspace{-4pt}【ボタン1】\hspace{-4pt}\verb|>| -\verb|>| 表示部\hspace{1pt}.入力操作(\hspace{-4pt}【追加値】\hspace{-4pt}),\\
-    \hspace{16pt} \verb|<|\hspace{-4pt}【ボタン2】\hspace{-4pt}\verb|>| -\verb|>| 表示部\hspace{1pt}.削除操作(),\\
-    \hspace{16pt} \verb|<|\hspace{-4pt}【ボタン3】\hspace{-4pt}\verb|>| -\verb|>| if 【操作時分岐条件1】\hspace{-4pt}() then \\
+    \hspace{16pt} \texttt{\textless{}}\hspace{-4pt}【ボタン1】\hspace{-4pt}\texttt{\textgreater{}} -\texttt{\textgreater{}} 表示部\hspace{1pt}.入力操作(\hspace{-4pt}【追加値】\hspace{-4pt}),\\
+    \hspace{16pt} \texttt{\textless{}}\hspace{-4pt}【ボタン2】\hspace{-4pt}\texttt{\textgreater{}} -\texttt{\textgreater{}} 表示部\hspace{1pt}.削除操作(),\\
+    \hspace{16pt} \texttt{\textless{}}\hspace{-4pt}【ボタン3】\hspace{-4pt}\texttt{\textgreater{}} -\texttt{\textgreater{}} if 【操作時分岐条件1】\hspace{-4pt}() then \\
     \hspace{76pt} 「画面管理」\texttt{\`}現在画面 := new「【画面A】」\hspace{-4pt}()\\
     \hspace{76pt} if 【操作時分岐条件2】\hspace{-4pt}() then \\
     \hspace{76pt} 「画面管理」\texttt{\`}現在画面 :=new「【画面B】」\hspace{-4pt}(),\\
-    \hspace{16pt} \verb|<|\hspace{-4pt}【ボタン4】\hspace{-4pt}\verb|>| -\verb|>| 「画面管理」\texttt{\`}現在画面 := new「【画面C】」\hspace{-4pt}(),\\
+    \hspace{16pt} \texttt{\textless{}}\hspace{-4pt}【ボタン4】\hspace{-4pt}\texttt{\textgreater{}} -\texttt{\textgreater{}} 「画面管理」\texttt{\`}現在画面 := new「【画面C】」\hspace{-4pt}(),\\
     \hspace{16pt} ...,\\
-    \hspace{16pt} others -\verb|>| skip\\
+    \hspace{16pt} others -\texttt{\textgreater{}} skip\\
     \hspace{12pt} end\\
-    \hspace{8pt} pre 押下ボタン \verb|<|\verb|>| \verb|<|非押下\verb|>|\\
-    \hspace{8pt} post 押下ボタン = \verb|<|非押下\verb|>|;\\
+    \hspace{8pt} pre 押下ボタン \texttt{\textless{}}\texttt{\textgreater{}} \texttt{\textless{}}非押下\texttt{\textgreater{}}\\
+    \hspace{8pt} post 押下ボタン = \texttt{\textless{}}非押下\texttt{\textgreater{}};\\
     \end{tabular} \\ \hline
 
     \multicolumn{1}{|c|}{B-4} &
