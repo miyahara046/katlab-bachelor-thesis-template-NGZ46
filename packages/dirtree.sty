@@ -1,0 +1,83 @@
+%% Minimal drop-in replacement for the CTAN `dirtree` package.
+%% Provides \dirtree{ ... } for simple directory listings.
+%%
+%% Supported input format (one entry per line):
+%%   1 Root
+%%   2 Child
+%%   3 Grandchild
+%% Optional leading dot is also accepted:
+%%   .1 Root
+%%
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{packages/dirtree}[2026/01/30 minimal local dirtree]
+
+\newdimen\DT@indent
+\DT@indent=1.8em\relax
+
+\def\dirtree{%
+  \par
+  \begingroup
+    \parindent=0pt\relax
+    \ttfamily
+    \catcode`\^^M=13\relax
+    \DT@dirtree
+}
+
+\long\def\DT@dirtree#1{%
+  \DT@parselines#1\DT@nl\DT@nil\DT@nl
+  \endgroup
+  \par
+}
+
+\def\DT@nil{\DT@nil}
+
+% Define the line delimiter token with the correct catcode (active endline).
+\begingroup
+  \catcode`\^^M=13\relax
+  \gdef\DT@nl{^^M}%
+  \gdef\DT@parselines#1^^M{%
+    \def\DT@temp{#1}%
+    \ifx\DT@temp\DT@nil
+      \let\DT@next=\relax
+    \else
+      \DT@processline{#1}%
+      \let\DT@next=\DT@parselines
+    \fi
+    \DT@next
+  }%
+\endgroup
+
+\long\def\DT@processline#1{%
+  % Split at first space: "<level> <label...>"
+  \expandafter\DT@split@space#1 \DT@nil
+}
+
+\long\def\DT@split@space#1 #2\DT@nil{%
+  \def\DT@leveltok{#1}%
+  \def\DT@label{#2}%
+  % Ignore empty lines
+  \ifx\DT@leveltok\empty
+  \else
+    \DT@stripdot\DT@leveltok\DT@nil
+    \DT@typeset{\DT@level}{\DT@label}%
+  \fi
+}
+
+% Remove optional leading dot from "<level>".
+\def\DT@stripdot#1#2\DT@nil{%
+  \if#1.%
+    \def\DT@level{#2}%
+  \else
+    \def\DT@level{#1#2}%
+  \fi
+}
+
+\long\def\DT@typeset#1#2{%
+  \count@=#1\relax
+  \advance\count@ by -1\relax
+  \dimen@=\DT@indent\relax
+  \multiply\dimen@ by \count@\relax
+  \noindent\hspace*{\dimen@}|-- #2\par
+}
+
+\endinput
