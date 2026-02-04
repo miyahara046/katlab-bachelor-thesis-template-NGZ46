@@ -133,6 +133,8 @@
 \def\advisor{\def\@advisor}
 %\def\cource{\def\@cource}
 \def\department{\def\@department}
+\def\studentNumber{\def\@studentNumber}  % 学籍番号用のマクロを追加
+\def\submitDate{\def\@submitDate}  % 提出日用のマクロを追加
 
 % 令和年度を自動計算
 \newcount\reiwaYear
@@ -237,8 +239,8 @@
 %{\Large \@major \hskip 1em \@cource \par}\vskip 0.5em minus 0.5em
 %
 {\Large 宮崎大学 工学部 \@major \par}\vskip 0.5em minus 0.5em
-{\LARGE\textbf{\@author}\par}\vskip 6em minus 2em
-{\Large\textbf{\@date}}\vskip 4em minus 1em
+{\LARGE\textbf{\@studentNumber \hskip 1em \@author}\par}\vskip 6em minus 2em
+{\Large\textbf{\@submitDate}\par}\vskip 1em minus 0.5em
 %{\Large\textbf{\@major}\par}\vskip 2em minus 1em
 %{\Large\textbf{\@department}\par}
 \end{center}
