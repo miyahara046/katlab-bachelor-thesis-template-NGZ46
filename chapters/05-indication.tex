@@ -36,7 +36,7 @@
   \caption{手順を追記した「GUI操作による\VDM 仕様編集ページ」の外観}
   \label{fig:T-03}
 \end{figure}
-「スタートページ」の外観、「Markdown仕様記述ページ」の外観、「GUI操作による\VDM 仕様編集ページ」の外観に、ページ遷移ができるかどうかを確認する手順において、ボタンをクリックした箇所を図示してたものを、
+「スタートページ」の外観、「Markdown仕様記述ページ」の外観、「GUI操作による\VDM 仕様編集ページ」の外観に、ページ遷移ができるかどうかを確認する手順において、ボタンをクリックした箇所を図示したものを、
 それぞれ図\ref{fig:T-01}、図\ref{fig:T-02}、図\ref{fig:T-03}に示す。
 手順1を実行すると、図\ref{fig:T-01}の「スタートページ」から図\ref{fig:T-02}の「Markdown仕様記述ページ」へ遷移した。
 手順2を実行すると、図\ref{fig:T-02}の「Markdown仕様記述ページ」から図\ref{fig:T-01}の「スタートページ」へ遷移した。
@@ -48,7 +48,7 @@
 \section{描画機能の確認}
 本節では、描画機能が正しく動作することを確認する。
 なお、本節で適用対象とする画面遷移システムの仕様は、
-株式会社フルタイムシステム\cite{fts}が開発し、実際に運用している組込みシステムの画面の仕様の一部を参考に作成した。
+株式会社フルタイムシステム\cite{fts}が開発し、実際に運用している画面遷移システムの画面の仕様の一部を参考に作成した。
 作成した仕様を、図\ref{fig:FTSScreen}に示す。また、この仕様をもとに作成した画面一覧仕様をリスト\ref{lst:T-ScreenList}に、BOX数入力画面の画面仕様をリスト\ref{lst:T-Screen}に、それぞれ示す。
 さらに、本節で使用するプロジェクトフォルダの構成を、図\ref{fig:test-folder-structure}に示す。
 
@@ -181,7 +181,7 @@ CTM描画機能を、以下の2つについて確認する。
 \end{figure}
 
 次に、リスト\ref{lst:T-Screen}に示した画面仕様を\tool に入力する。
-リスト\ref{lst:T-Screen}に示した画面仕様のCTMを表示したCTM領域を図\ref{fig:T-CTM-Screen}、および、図\ref{fig:T-CTM-Screen2}に示す。
+リスト\ref{lst:T-Screen}に示した画面仕様のCTMを表示したCTM領域を図\ref{fig:T-CTM-Screen}に示す。
 
 \begin{figure}[tp]
   \centering
@@ -189,27 +189,15 @@ CTM描画機能を、以下の2つについて確認する。
   \caption{リスト\ref{lst:T-Screen}を入力したCTM領域}
   \label{fig:T-CTM-Screen}
 \end{figure}
-\begin{figure}[tp]
-  \centering
-  \includegraphics[width=0.8\linewidth]{./images/T-CTM-Screen2.png}
-  \caption{リスト\ref{lst:T-Screen}を入力したCTM領域の続き}
-  \label{fig:T-CTM-Screen2}
-\end{figure}
 
 最後に、リスト\ref{lst:T-Screen}に示した画面仕様の32行目の
 「\- 中止押下 \texttt{→} ボックス設定画面へ」を「\- 中止押下 \texttt{→} BOX設定画面へ」に変更して故意に誤りを加えた画面仕様を\tool に読み込ませる。
-この故意に誤りを加えた画面仕様のCTMを表示したCTM領域を、図\ref{fig:T-CTM-Screeneror2}、および、図\ref{fig:T-CTM-Screeneror}に示す。
+この故意に誤りを加えた画面仕様のCTMを表示したCTM領域を、図\ref{fig:T-CTM-Screeneror2}に示す。
 
 \begin{figure}[tp]
   \centering
-  \includegraphics[width=0.8\linewidth]{./images/T-CTM-Screen-eror2.png}
-  \caption{リスト\ref{lst:T-Screen}に故意に誤りを加えた画面仕様を入力したCTM領域}
-  \label{fig:T-CTM-Screeneror2}
-\end{figure}
-\begin{figure}[tp]
-  \centering
   \includegraphics[width=0.8\linewidth]{./images/T-CTM-Screen-eror.png}
-  \caption{リスト\ref{lst:T-Screen}に故意に誤りを加えた画面仕様を入力したCTM領域の続き}
+  \caption{リスト\ref{lst:T-Screen}に故意に誤りを加えた画面仕様を入力したCTM領域}
   \label{fig:T-CTM-Screeneror}
 \end{figure}
 
@@ -223,11 +211,11 @@ CTM描画機能を、以下の2つについて確認する。
 \begin{itemize}
   \item プロジェクトフォルダを表示できる
   \item フォルダを展開できる
-  \item フォルダとMarkdownファイル(拡張子が.md)のみを表示できる
+  \item フォルダとMarkdown仕様ファイル(拡張子が.md)のみを表示できる
   \item ファイルを選択することで、編集対象のファイルを変更できる
 \end{itemize}
 
-まず、フォルダ選択で図\ref{fig:test-folder-structure}に示したプロジェクトフォルダである「FTSフォルダ」を選択する。
+まず、フォルダ選択で、図\ref{fig:test-folder-structure}に示したプロジェクトフォルダである「FTSフォルダ」を選択する。
 「FTSフォルダ」を選択した直後のフォルダツリー表示領域を、図\ref{fig:T-Tree}に示す。
 次に、「FTSフォルダ」内にある「Screenフォルダ」を左クリックする。左クリックした直後のフォルダツリー表示領域を、図\ref{fig:T-Tree-2}に示す。
 \begin{figure}[tp]
@@ -243,7 +231,7 @@ CTM描画機能を、以下の2つについて確認する。
   \label{fig:T-Tree-2}
   \end{figure}
 図\ref{fig:T-Tree}、および、図\ref{fig:T-Tree-2}より、フォルダツリー表示領域に、プロジェクトフォルダを表示できていること、フォルダを展開できること、
-および、フォルダとMarkdownファイル(拡張子が.md)のみを表示できていることを確認できる。
+および、フォルダとMarkdown仕様ファイル(拡張子が.md)のみを表示できていることを確認できる。
 
 また、編集対象のファイルを変更できることを確認するために、フォルダツリー表示領域内の「BOX数入力画面.md」を左クリックする。
 左クリックする前の「Screenフォルダ」を表すCTM領域を図\ref{fig:T-CTM-Folder}に示す。フォルダツリー表示領域内の「BOX数入力画面.md」を左クリックした直後のCTM領域は、図\ref{fig:T-CTM-Screen}に示した表示に切り替わった。
@@ -251,7 +239,7 @@ CTM描画機能を、以下の2つについて確認する。
 \begin{figure}[tp]
   \centering
   \includegraphics[width=0.5\linewidth]{./images/T-CTM-Folder.png}
-  \caption{「Screenフォルダ」を表すCTM領域}
+  \caption{左クリック前の「Screenフォルダ」を表すCTM領域}
   \label{fig:T-CTM-Folder}
 \end{figure}
 
@@ -262,7 +250,7 @@ CTM描画機能を、以下の2つについて確認する。
 \VDM 仕様描画機能では「編集対象に選択したMarkdown仕様に対応する\VDM 仕様を描画できる」ことについて確認する。
 
 まず、図\ref{fig:T-Tree}に示したフォルダツリー表示領域内の「画面一覧.md」を左クリックする。「画面一覧.md」を左クリックした直後の\VDM 仕様表示領域を、図\ref{fig:T-VDM}に示す。
-次に、図\ref{fig:T-Tree-2}に示したフォルダツリー表示領域内の「BOX数入力画面.md」を左クリックする。「BOX数入力画面.md」を左クリックした直後の\VDM 仕様表示領域を、図\ref{fig:T-VDM-2}に示す。
+次に、図\ref{fig:T-Tree-2}に示したフォルダツリー表示領域内の「BOX数入力画面.md」を左クリックする。「BOX数入力画面.md」を左クリックした直後の\VDM 仕様表示領域の一部を、図\ref{fig:T-VDM-2}に示す。
 \begin{figure}[tp]
   \centering
   \includegraphics[width=0.8\linewidth]{./images/T-VDM.png}
@@ -272,7 +260,7 @@ CTM描画機能を、以下の2つについて確認する。
 \begin{figure}[tp]
   \centering
   \includegraphics[width=0.8\linewidth]{./images/T-VDM-2.png}
-  \caption{「BOX数入力画面.md」を左クリックした直後の\VDM 仕様表示領域}
+  \caption{「BOX数入力画面.md」を左クリックした直後の\VDM 仕様表示領域の一部}
   \label{fig:T-VDM-2}
 \end{figure}
 
@@ -344,7 +332,7 @@ CTM描画機能を、以下の2つについて確認する。
 \subsubsection{フォルダを選択}\label{sec:SelectFolder}\label{sec:folfol}
 本機能では、ユーザが、メニューバー内の「フォルダを選択」を選択した際に、
 フォルダ選択インターフェースを出力し、選択したフォルダに移動できることを確認する。本機能の確認では、図\ref{fig:test-folder-structure}に示した「FTSフォルダ」と、
-図\ref{fig:Folder-origin}に示す作成した「テストフォルダ」を用いて確認を行う。
+図\ref{fig:Folder-origin}に示すテスト用に作成した「テストフォルダ」を用いて確認を行う。
 \begin{figure}[tb]
 \centering
 \small % 全体を少し小さく（不要なら消してよい）
@@ -403,12 +391,13 @@ before computing xy={l=35pt},
   \includegraphics[width=1.0\linewidth]{./images/Select-Folder-interface.png}
   \caption{フォルダ選択インターフェースで「テストフォルダ」を選択時の\tool の外観}
   \label{fig:Select-Folder-interface}
+\end{figure}
 
 まず、「FTSフォルダ」を選択し、フォルダツリー表示領域に「FTSフォルダ」を表示する。この時のフォルダツリー表示領域は、図\ref{fig:T-Tree-2}に示したものである。
 次に、メニューバーの「フォルダを選択」を選択し、フォルダ選択インターフェース内で「テストフォルダ」を選択する。フォルダ選択インターフェースで「テストフォルダ」を
 選択時の\tool の外観を、図\ref{fig:Select-Folder-interface}に示す。
-最後に、フォルダ選択インターフェースの「フォルダーの選択」を左クリックする。クリック後のフォルダツリー表示領域を、図\ref{fig:T-Tree-3}に示す。
-\end{figure}
+最後に、フォルダ選択インターフェースの「フォルダの選択」を左クリックする。クリック後のフォルダツリー表示領域を、図\ref{fig:T-Tree-3}に示す。
+
 \begin{figure}[tp]
   \centering
   \includegraphics[width=0.4\linewidth]{./images/T-Tree-3.png}
@@ -419,13 +408,15 @@ before computing xy={l=35pt},
 図\ref{fig:Select-Folder-interface}、および、図\ref{fig:T-Tree-3}より、メニューバーの「フォルダを選択」を選択した際に、
 フォルダ選択インターフェースを出力し、フォルダ選択インターフェースの選択に応じたフォルダに移動できることを確認できる。
 
+\subsubsection{新規ファイル作成}
+
 本機能では、ユーザが、メニューバー内の「新規ファイル作成」を選択した際に、
 新規ファイル作成ダイアログを出力し、入力に則った新規ファイルをプロジェクトフォルダに作成できるかを確認する。
 本機能の確認では、図\ref{fig:Folder-origin}に示した「テストフォルダ」を用いて確認する。
 まず、「テストフォルダ」を選択し、フォルダツリー表示領域に図\ref{fig:T-Tree-3}に示したフォルダツリーを表示する。
 次に、メニューバーの「新規ファイル作成」を選択し、新規ファイル作成ダイアログに「画面2」を入力する。「画面2」を入力した新規ファイル作成ダイアログを、図\ref{fig:T-NewFile}に示す。
 最後に、新規ファイル作成ダイアログの「作成」を左クリックする。クリック後のフォルダツリー表示領域を、図\ref{fig:T-Tree-4}に示す。
-\subsubsection{新規ファイル作成}
+
 \begin{figure}[tp]
   \centering
   \includegraphics[width=0.5\linewidth]{./images/T-NewFile.png}
@@ -461,7 +452,7 @@ before computing xy={l=35pt},
 以降、各機能について確認する。
 \subsubsection{クラスの種類選択および追加}
 本機能では、ユーザが「クラスの種類選択・追加」ボタンを左クリックした際に、
-クラスの種類選択ダイアログを表示すること。クラスの種類選択ダイアログによる選択に応じて、\VDM 仕様に画面管理クラスを追すること。もしくは、
+クラスの種類選択ダイアログを表示すること、クラスの種類選択ダイアログによる選択に応じて、\VDM 仕様に画面管理クラスを追加すること、さらに、
 画面クラス追加ダイアログを表示し、入力に応じたクラス名の画面クラスを\VDM 仕様に追加することを確認する。
 
 まず、画面管理クラスの追加について確認する。
@@ -505,7 +496,7 @@ before computing xy={l=35pt},
 \end{figure}
 
 図\ref{fig:T_1}、図\ref{fig:T_2}、図\ref{fig:T_3}、および、図\ref{fig:T_4}より、ユーザが「クラスの種類選択・追加」ボタンを左クリックした際に、
-クラスの種類選択ダイアログを表示すること。クラスの種類選択ダイアログによる選択に応じて、\VDM 仕様に画面管理クラスを追加すること。もしくは、
+クラスの種類選択ダイアログを表示すること、クラスの種類選択ダイアログによる選択に応じて、\VDM 仕様に画面管理クラスを追加すること、さらに、
 画面クラス追加ダイアログを表示し、入力に応じたクラス名の画面クラスを\VDM 仕様に追加することを確認できる。
 
 \subsubsection{画面の追加}
@@ -620,14 +611,6 @@ before computing xy={l=35pt},
 次に、対象ボタン選択ダイアログで、「2ボタン」を選択する。「2ボタン」を選択し、分岐選択ダイアログの「はい」を選択することで分岐イベント入力ダイアログを表示する。分岐イベント入力ダイアログで、
 条件入力欄に「1を入力している」を入力し、イベント種別を「削除」にする。分岐イベント入力ダイアログの
 条件入力欄に「1を入力している」を入力し、イベント種別を「削除」にした\tool の外観を、図\ref{fig:T_17}に示す。
-入力項目を入れた状態で分岐イベント入力ダイアログの「OK」を選択することで、別の分岐イベント追加確認ダイアログを表示する。
-別の分岐イベント追加確認ダイアログを表示した\tool の外観を、図\ref{fig:T_18}に示す。
-別の分岐イベント追加確認ダイアログで「はい」を選択することで、再び、分岐イベント入力ダイアログを表示する。
-今度は、分岐イベント入力ダイアログの条件入力欄で「1を入力していない」を入力し、イベント種別を「遷移」にし、遷移先および操作内容入力欄に「スタート画面」を入力する。
-分岐イベント入力ダイアログの条件入力欄に「1を入力していない」を入力し、イベント種別を「遷移」にし、遷移先および操作内容入力欄に「スタート画面」を入力した\tool の外観を、図\ref{fig:T_19}に示す。
-入力項目をすべて入れた状態で分岐イベント入力ダイアログの「OK」を選択することで、別の分岐イベント追加確認ダイアログを表示する。
-今回は、別の分岐イベント追加確認ダイアログで「いいえ」を選択することで、CTM領域に分岐イベント要素を追加する。また、\VDM 仕様表示領域に分岐イベントに関する情報を追加する。
-分岐イベント要素を追加したCTM領域を図\ref{fig:T_20}に、分岐イベントに関する情報をオレンジの枠線で囲った\VDM 仕様表示領域を図\ref{fig:T_21}に、それぞれ示す。
 
 \begin{figure}[tp]
   \centering
@@ -635,19 +618,26 @@ before computing xy={l=35pt},
   \caption{分岐イベント入力ダイアログの条件入力欄に「1を入力している」を入力しイベント種別を「削除」にした\tool の外観}
   \label{fig:T_17}
 \end{figure}
-
+入力項目を入れた状態で分岐イベント入力ダイアログの「OK」を選択することで、別の分岐イベント追加確認ダイアログを表示する。
+別の分岐イベント追加確認ダイアログを表示した\tool の外観を、図\ref{fig:T_18}に示す。
 \begin{figure}[tp]
   \centering
   \includegraphics[width=1.0\linewidth]{./images/T_18.png}
   \caption{別の分岐イベント追加確認ダイアログを表示した\tool の外観}
   \label{fig:T_18}
 \end{figure}
+別の分岐イベント追加確認ダイアログで「はい」を選択することで、再び、分岐イベント入力ダイアログを表示する。
+今度は、分岐イベント入力ダイアログの条件入力欄で「1を入力していない」を入力し、イベント種別を「遷移」にし、遷移先および操作内容入力欄に「スタート画面」を入力する。
+分岐イベント入力ダイアログの条件入力欄に「1を入力していない」を入力し、イベント種別を「遷移」にし、遷移先および操作内容入力欄に「スタート画面」を入力した\tool の外観を、図\ref{fig:T_19}に示す。
 \begin{figure}[tp]
   \centering
   \includegraphics[width=1.0\linewidth]{./images/T_19.png}
   \caption{分岐イベント入力ダイアログの条件入力欄に「1を入力していない」を入力しイベント種別を「遷移」とし遷移先および操作内容入力欄に「スタート画面」を入力した\tool の外観}
   \label{fig:T_19}
 \end{figure}
+入力項目をすべて入れた状態で分岐イベント入力ダイアログの「OK」を選択することで、別の分岐イベント追加確認ダイアログを表示する。
+今回は、別の分岐イベント追加確認ダイアログで「いいえ」を選択することで、CTM領域に分岐イベント要素を追加する。また、\VDM 仕様表示領域に分岐イベントに関する情報を追加する。
+分岐イベント要素を追加したCTM領域を図\ref{fig:T_20}に、分岐イベントに関する情報をオレンジの枠線で囲った\VDM 仕様表示領域を図\ref{fig:T_21}に、それぞれ示す。
 \begin{figure}[tp]
   \centering
   \includegraphics[width=0.6\linewidth]{./images/T_20.png}
@@ -671,15 +661,15 @@ before computing xy={l=35pt},
 
 今回は、タイムアウト時間に「30秒」、タイムアウト後遷移先に「1画面」を追加する。
 まず、「タイムアウトの追加」ボタンを左クリックし、表示するタイムアウト追加ダイアログの秒数を入力する入力欄に「30」、遷移先を入力する入力欄に「1画面」を入力する。
-タイムアウト追加ダイアログに「30」と「1画面」を入力した\tool の外観を、図\ref{fig:T_9}に示す。次に「OK」を選択することで、タイムアウトを追加する。
-「30」と「1画面」を追加したCTM領域を図\ref{fig:T_10}に、追加したタイムアウトに関する情報をオレンジの枠線で囲った\VDM 仕様表示領域を図\ref{fig:T_11}に、それぞれ示す。
-
+タイムアウト追加ダイアログに「30」と「1画面」を入力した\tool の外観を、図\ref{fig:T_9}に示す。
 \begin{figure}[tp]
   \centering
   \includegraphics[width=1.0\linewidth]{./images/T_9.png}
   \caption{タイムアウト設定ダイアログで「30」と「1画面」を入力した\tool の外観}
   \label{fig:T_9}
 \end{figure}
+次に「OK」を選択することで、タイムアウトを追加する。
+「30」と「1画面」を追加したCTM領域を図\ref{fig:T_10}に、追加したタイムアウトに関する情報をオレンジの枠線で囲った\VDM 仕様表示領域を図\ref{fig:T_11}に、それぞれ示す。
 \begin{figure}[tp]
   \centering
   \includegraphics[width=0.6\linewidth]{./images/T_10.png}
@@ -688,7 +678,7 @@ before computing xy={l=35pt},
 \end{figure}
 \begin{figure}[tp]
   \centering
-  \includegraphics[width=0.5\linewidth]{./images/T_11.png}
+  \includegraphics[width=0.7\linewidth]{./images/T_11.png}
   \caption{追加したタイムアウトに関する情報をオレンジの枠線で囲った\VDM 仕様表示領域}
   \label{fig:T_11}
 \end{figure}
@@ -700,7 +690,7 @@ before computing xy={l=35pt},
 本機能では、ユーザが「クラス名(画面名)の変更」ボタンを左クリックした際に、クラス名変更ダイアログを表示し、
 入力に応じた変更を\VDM 仕様に追加できることを確認する。
 
-図\ref{fig:T_21}に示す\VDM 仕様に対応した画面仕様に対して「クラス名(画面名)の変更」を行いクラス名を「テスト」から「ログイン画面」へと変更する。
+図\ref{fig:T_11}に示した\VDM 仕様に対応した画面仕様に対して「クラス名(画面名)の変更」を行いクラス名を「テスト」から「ログイン画面」へと変更する。
 まず、「クラス名(画面名)の変更」ボタンを左クリックし、表示するクラス名変更ダイアログに「ログイン画面」を入力する。
 クラス名変更ダイアログに「ログイン画面」を入力した\tool の外観を、図\ref{fig:T_22}に示す。次に「変更」を選択することで、クラス名を変更する。
 クラス名を「ログイン画面」に変更した\VDM 仕様表示領域を、図\ref{fig:T_23}に示す。
@@ -799,7 +789,7 @@ CTM領域上でのユーザ操作によるCTM編集機能では、図\ref{fig:te
   \label{fig:Contextex}
 \end{figure}
 今回は、中止ボタン押下時の遷移先の画面を「設定画面」に変更する。編集用ダイアログの入力欄を「設定画面へ」に変更し、「OK」を選択することで、CTM領域、
-および、\VDM 仕様に該当箇所の変更を加える。変更を加えたCTM領域をオレンジ色の枠で囲ったものを図\ref{fig:T_26}に、変更を加えた\VDM 仕様表示領域をオレンジ色の枠で囲ったものを図\ref{fig:T_27}に、それぞれ示す。
+および、\VDM 仕様に該当箇所の変更を加える。変更を加えたCTM領域を図\ref{fig:T_26}に、変更を加えた\VDM 仕様表示領域をオレンジ色の枠で囲ったものを図\ref{fig:T_27}に、それぞれ示す。
 
 \begin{figure}[tp]
   \centering
@@ -825,7 +815,7 @@ CTM領域上でのユーザ操作によるCTM編集機能では、図\ref{fig:te
 \end{figure}
 ボタン要素に対するコンテキストメニューの「コピー」を選択することで対象のボタン要素をコピーする。
 その後、「貼り付け」を選択するとボタン貼り付け用のボタン名入力ダイアログを出力する。ボタン貼り付け用のボタン名入力ダイアログを表示した\tool の外観を、図\ref{fig:T_29}に示す。
-今回は、「確定」を入力し「OK」を選択することでCTM領域、および、\VDM 仕様にコピーした内容を追加する。貼り付けを行ったCTM領域の変更箇所をオレンジ色の枠で囲ったものを図\ref{fig:T_30}に、\VDM 仕様表示領域の変更箇所をオレンジ色の枠で囲ったものを図\ref{fig:T_31}に、それぞれ示す。
+今回は、「確定」を入力し「OK」を選択することでCTM領域、および、\VDM 仕様にコピーした内容を追加する。貼り付けを行ったCTM領域を図\ref{fig:T_30}に、\VDM 仕様表示領域の変更箇所をオレンジ色の枠で囲ったものを図\ref{fig:T_31}に、それぞれ示す。
 \begin{figure}[tp]
   \centering
   \includegraphics[width=1.0\linewidth]{./images/T_29.png}
@@ -854,7 +844,7 @@ CTM領域上でのユーザ操作によるCTM編集機能では、図\ref{fig:te
 左クリック操作では、「ドラッグ操作」、および、「画面管理クラスから対象画面クラスへの遷移」ができることを確認する。左クリック操作では、「編集対象CTM要素選択」も機能として持っているが、操作ボタン領域のボタン操作によるCTM編集機能の「削除」機能(\ref{sec:CTM-edit}節を参照)で削除対象のCTM要素を選択する際に使用するため、ここでは確認できているものと判断する。
 
 まず、「ドラッグ操作」を確認する。
-使用する仕様はリスト\ref{lst:T-Screen}に示した「BOX数入力画面.md」である。
+使用するMarkdown仕様はリスト\ref{lst:T-Screen}に示した「BOX数入力画面.md」である。
 図\ref{fig:T-CTM-Screen}に示した「BOX数入力画面.md」に対するCTM領域の「0押下 → 表示部に0を追加」に該当するイベント要素をドラッグ操作する。
 対象のイベント要素を下に2要素分ドラッグ操作する。ドラッグ前のCTM領域とドラッグ後のCTM領域の比較を図\ref{fig:T_32}に、
 ドラッグ前の\VDM 仕様表示領域とドラッグ後の\VDM 仕様表示領域の比較を図\ref{fig:T_33}に、それぞれ示す。
@@ -873,7 +863,7 @@ CTM領域上でのユーザ操作によるCTM編集機能では、図\ref{fig:te
 \end{figure}
 
 次に、「画面管理クラスから対象画面クラスへの遷移」を確認する。
-使用する仕様はリスト\ref{lst:T-ScreenList}に示した「画面管理.md」である。図\ref{fig:T-CTM-ScreenList}に示した「画面管理.md」に対するCTM領域の「BOX数入力画面」に該当する画面要素を左ダブルクリックし、対象画面クラスである「BOX数入力画面.md」
+使用するMarkdown仕様は、リスト\ref{lst:T-ScreenList}に示した「画面管理.md」である。図\ref{fig:T-CTM-ScreenList}に示した「画面管理.md」に対するCTM領域の「BOX数入力画面」に該当する画面要素を左ダブルクリックし、対象画面クラスである「BOX数入力画面.md」
 に対応する画面仕様に遷移する。左ダブルクリック直前の\tool の外観と左ダブルクリックによる遷移後の\tool の外観比較を、図\ref{fig:T_34}に示す。
 
 \begin{figure}[tp]
@@ -886,4 +876,4 @@ CTM領域上でのユーザ操作によるCTM編集機能では、図\ref{fig:te
 したがって、「左クリック操作」が正確に動作することを確認した。
 
 また、以上より、CTM領域上でのユーザ操作によるCTM編集機能が正しく動作できることを確認した。
-さらに、GUI編集による使用編集機能が正しく動作できることを確認した。
+さらに、GUI編集による仕様編集機能が正しく動作できることを確認した。

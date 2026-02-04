@@ -42,7 +42,7 @@ Model 層は、プロジェクト管理部、解析部、GUI要素生成部、�
 Markdown仕様の管理、各処理部間のデータ受け渡し、
 および、プロジェクトフォルダへのファイルの出力を担う。
 解析部は、Markdown仕様を解析し、CTM要素(\ref{sec:CTM}節を参照)の抽出を担う。
-GUI要素生成部は、解析部で抽出したCTM要素に、CTM上での表示、および、操作に必要なGUI属性である座標やサイズの付与を担う。
+GUI要素生成部は、解析部で抽出したCTM要素に、CTM領域上での表示、および、操作に必要なGUI属性である座標やサイズの付与を担う。
 変換部は、GUI操作による編集結果をMarkdown仕様、および、\VDM 仕様への変換を担う。
 この構成により、Model 層は View 層を直接参照せず、
 ViewModel 層を介してのみ情報を受け渡す。
@@ -150,7 +150,7 @@ ViewModel 層を介してのみ情報を受け渡す。
 本処理の流れを、以下に示す。
 
 \begin{enumerate}
-  \item ユーザ操作対応部が管理する、3つの表示パターンフラグの現在の値を取得する。
+  \item ユーザ操作対応部が管理する、表示パターンフラグの現在の値を取得する。
   
   \item 取得した表示パターンフラグをもとに、表\ref{tab:button_appear}の対応関係に応じて表示する表示パターンを決定する。
   
@@ -332,7 +332,7 @@ IsFile & bool & ファイルであることを示す真偽値 \\
 
   \item \VDM 文字列の描画
 
-  取得した \texttt{VdmContent} を、
+  1.で取得した \texttt{VdmContent} を、
   \texttt{Editor}コンポーネントの \texttt{Text} プロパティに設定する。
   これにより、
   改行やインデントを保持したまま表示できる。
@@ -381,13 +381,16 @@ CTM描画処理(\ref{sec:CreateCTM}節を参照)で生成したCTMを表示す�
 CTM領域上でのユーザ操作を検知する処理である。
 
 本処理では、CTM領域を縦横スクロール可能な表示領域として構成するため、
-\texttt{Microsoft.Maui.Controls} が提供する \texttt{ScrollView} コンポーネントを用いて
+\texttt{Microsoft.\allowbreak Maui.\allowbreak Controls}名前空間(\ref{sec:NET_MAUI}説を参照) が提供する \texttt{ScrollView} コンポーネントを用いて
 CTM表示用の表示枠を構成する。
 この表示枠の内部には、CTMの表示およびユーザ操作検知機能を担う
 \texttt{ContentView} コンポーネントを配置する。
 
-この \texttt{ContentView}コンポーネント は、CTM描画処理を接続することで、
-CTMの表示機能を実現する。
+この\texttt{ContentView}コンポーネントは、
+CTM描画用の\texttt{GraphicsView}コンポーネントを内部に配置し、
+当該\texttt{GraphicsView}コンポーネントの\texttt{Drawable}プロパティに
+\texttt{IDrawable}インターフェースを用いたCTM描画処理を設定することで、
+CTM の表示機能を実現する。
 
 また、CTM描画処理で生成するCTMのレイアウトに基づき、
 CTM領域を縦横スクロール可能な表示領域として構成するため、
@@ -395,28 +398,24 @@ CTM領域を縦横スクロール可能な表示領域として構成するた�
 
 
 また、\texttt{ContentView}コンポーネントは、CTM領域上で発生するユーザ操作を検知するため、
-\texttt{WinUI}のイベントを用いて、
+\texttt{WinUI}ライブラリのイベントを用いて、
 左クリック操作、
 ドラッグ操作、および右クリック操作を検知する。
 検知後、受け取ったポインタ座標および操作内容を、ユーザ操作対応部へ通知する。
 なお、ポインタ座標はCTM領域左上を基準座標
-($(x, y) = (0, 0)$) とする。
+($(x, y) = (0, 0)$) とする。 
 
-本処理の流れを、以下に示す。
-\begin{enumerate}
-  \item CTM表示領域の生成  
-
-  「GUI操作による\VDM 仕様編集ページ」のCTM領域部分に\texttt{ScrollView}コンポーネント、および、\texttt{ContentView}コンポーネントを配置し、
+  本処理では、「GUI操作による\VDM 仕様編集ページ」のCTM領域部分に\texttt{ScrollView}コンポーネント、および、\texttt{ContentView}コンポーネントを配置し、
   CTM表示用の表示枠を構成する。
 
-  以降、\texttt{ContentView}のCTMの描画およびユーザ操作検知機能について、以下に説明する。
+  以降、\texttt{ContentView}コンポーネントのCTMの描画およびユーザ操作検知機能について、説明する。
 
   \begin{itemize}
       \item CTMの描画
       
       \begin{enumerate}
 
-      \item CTM描画処理の実行
+      \item CTM描画処理を実行し、CTMのレイアウトを生成する。
 
       \item 描画領域サイズの初期設定 
 
@@ -424,10 +423,10 @@ CTM領域を縦横スクロール可能な表示領域として構成するた�
       描画領域の横幅、および、縦幅を設定し、
       \texttt{ScrollView}コンポーネントによりCTM領域をスクロール可能な状態とする。
 
-      \item 描画領域サイズの確定
+      \item 描画領域サイズの更新
   
-      CTM描画処理でCTMのレイアウトが変更した場合、.NET MAUIの標準ライブラリの\texttt{GraphicsView.SizeChanged}イベントにより、CTM描画処理で確定したCTMのレイアウトを検知し、
-      \texttt{ScrollView}コンポーネントのサイズをリサイズする。
+      CTM描画処理でCTMのレイアウトを変更した場合、.NET MAUIの標準ライブラリの\texttt{GraphicsView.SizeChanged}イベントにより、CTM描画処理で確定したCTMのレイアウトを検知し、
+      \texttt{ScrollView}コンポーネントのスクロール可能な範囲を更新する。
 
       \end{enumerate}
 
@@ -447,7 +446,7 @@ CTM領域を縦横スクロール可能な表示領域として構成するた�
       \texttt{PointerPressed}イベントによりポインタ座標を検知し、
       \texttt{PointerEventArgs}イベントにより左ボタンクリックを検知した場合、
       左クリック位置の座標 $(x, y)$ を入力として受け取る。
-      その後、左クリック位置の座標と左クリックであることをユーザ操作対応部の左クリック操作対応処理(\ref{sec:UOM_Click}節を参照)へ通知する。
+      その後、左クリック位置の座標と左クリックであることをユーザ操作対応部の左クリック操作対応処理(\ref{sec:UOM_Click}節を参照)へ出力する。
 
       \item ドラッグ操作
 
@@ -464,34 +463,33 @@ CTM領域を縦横スクロール可能な表示領域として構成するた�
       \begin{enumerate}[label=\roman*]
         \item 現在座標 $(x, y)$ を取得する。
         \item 現在座標 $(x, y)$ と直前の座標$(x_b, y_b)$との差分 $(\Delta x, \Delta y)$ を算出する。
-        \item ドラッグ中であること、および、$(\Delta x, \Delta y)$を移動量としてユーザ操作対応部へに通知する。
-        \item 直前の座標$(x_b, y_b)$を現在座標 $(x, y)$ で更新する。
+        \item ドラッグ中であること、および、$(\Delta x, \Delta y)$を移動量としてユーザ操作対応部へ出力する。
+        \item 直前の座標$(x_b, y_b)$を、現在座標 $(x, y)$ で更新する。
       \end{enumerate}
       \texttt{PointerReleased} イベントを検知した場合、
       解放位置の座標 $(x_r, y_r)$を取得し、
-      ドラッグ終了としてユーザ操作対応部のドラッグ移動操作対応処理(\ref{sec:UOM_Drag}節を参照)へ通知する。
+      ドラッグ終了としてユーザ操作対応部のドラッグ移動操作対応処理(\ref{sec:UOM_Drag}節を参照)へ出力する。
 
       \item 右クリック操作
 
-      右クリック操作は、
+      右クリック操作では、
       \texttt{WinUI}が提供する
       \texttt{PointerPressed} イベントによりポインタ座標を検知し、
       \texttt{PointerEventArgs} イベントにより右ボタンクリックを検知した場合、
       右クリック位置の座標 $(x, y)$ を入力として受け取る。
-      その後、右クリック位置の座標と右クリックであることをユーザ操作対応部の右クリック操作対応処理(\ref{sec:UOM_Context}節を参照)へ通知する。
+      その後、右クリック位置の座標と右クリックであることをユーザ操作対応部の右クリック操作対応処理(\ref{sec:UOM_Context}節を参照)へ出力する。
       \end{itemize}
 \end{itemize}
-      \end{enumerate}
 
 \subsection{CTM描画処理}
 \label{sec:CreateCTM}
 
-CTM描画処理は、ユーザ操作対応部が保持する、CTM領域に表示する各CTM要素のデータを格納した
-\texttt{GUIElement} のリストである \texttt{elements}を受け取り、CTM領域上にCTMを図として描画する処理である。
+CTM描画処理は、CTM領域上にCTMを図として描画する処理である。本処理は、ユーザ操作対応部が保持する、CTM領域に表示する各CTM要素のデータを格納した
+\texttt{GUIElement} のリストである \texttt{elements}を受け取り、CTM領域上にCTMを図として描画する。
 本処理では、CTM要素の種類(以降、CTM要素種別と呼ぶ)に応じて、形状、寸法、および描画スタイルを適用し、CTMを図として描画する。
 
 ここで、\texttt{GUIElement} は、各CTM 要素を構成する構造データである。\texttt{GUIElement}のデータ構造を、表\ref{tb:GUIElement}に示す。
-\texttt{GUIElement}では、各CTM要素種別を\texttt{Type}属性として保持する。\texttt{Type}属性は列挙型である\texttt{GuiElementType}型のデータである。
+\texttt{GUIElement}では、各CTM要素種別を\texttt{Type}属性として保持する。\texttt{Type}属性は、列挙型である\texttt{GuiElementType}型のデータである。
 \texttt{GuiElementType}型の要素を、以下に示す。
 \begin{itemize}
       \item \texttt{Screen}：画面要素
@@ -521,10 +519,10 @@ Name & string & CTM要素の名称 \\
 Target & string & 遷移先となるCTM要素名 \\
 
 \hline
-X & float & CTM上での X 座標 \\
+X & float & CTM領域上での X 座標 \\
 
 \hline
-Y & float & CTM上での Y 座標 \\
+Y & float & CTM領域上での Y 座標 \\
 
 \hline
 Width & float & CTM要素の横幅 \\
@@ -576,7 +574,7 @@ Target & string & 分岐条件成立時のイベント \\
 \label{tab:gui_node_spec}
 \begin{tabular}{|l|l|l|c|c|p{4.5cm}|}
 \hline
-\textbf{GUIElement.Type} & \textbf{形状} & \textbf{色} & \textbf{横幅(px)} & \textbf{高さ(px)} & \textbf{配置・備考} \\
+\textbf{GUIElement.Type} & \textbf{形状} & \textbf{色} & \textbf{横幅(Px)} & \textbf{高さ(Px)} & \textbf{配置・備考} \\
  \hline
 Screen
 & 角丸矩形
@@ -650,8 +648,7 @@ CTM生成処理は、
 \textbf{属性} & \textbf{型} & \textbf{説明} \\
 \hline
 Element & GUIElement &
-当該外接矩形に対応するCTM要素。
-ヒット判定が成立した場合、選択するCTM要素。 \\
+当該外接矩形に対応するCTM要素。 \\
 \hline
 X & float &
 外接矩形の左上 X 座標。 \\
@@ -667,7 +664,7 @@ H & float &
 \hline
 ZIndex & int &
 描画順序を表す値。
-ヒットテスト処理(\ref{sec:UOM_HitTest}節を参照)で複数の外接矩形がヒットした場合に、前面要素を判定するために用いる。 \\
+ヒットテスト処理(\ref{sec:UOM_HitTest}節を参照)で複数の外接矩形を検出した場合に、前面要素を判定するために用いる。 \\
 \hline
 BranchIndex& int &
 GUIElementが保持するBranches属性をもつ場合、分岐条件の順序を表す添字。\\
@@ -742,7 +739,7 @@ GUIElementが保持するBranches属性をもつ場合、分岐条件の順序�
             対応ボタン要素の\texttt{GUIElement.X}、\texttt{GUIElement.Y}の左上座標を $(X_b, Y_b)$、
             ノード高さ\texttt{GUIElement.H}を $H$ とすると、
             基準となる中心Y座標 $Y_{\mathrm{anchor}}$ は、
-            式\ref{eq:center}により算出する。
+            式\ref{eq:center}により算出できる。
 
             \begin{equation}\label{eq:center}
             Y_{\mathrm{anchor}} = Y_b + \frac{H}{2}
@@ -754,7 +751,7 @@ GUIElementが保持するBranches属性をもつ場合、分岐条件の順序�
             各分岐イベント要素の縦方向の間隔を $S$、
             各分岐イベント要素のノードの高さを$H_{\mathrm{branch}}$ とすると、
             同じ親イベント要素の分岐イベント要素全体の高さ $H_{\mathrm{total}}$ は、
-            式\ref{eq:totalhight}により算出する。
+            式\ref{eq:totalhight}により算出できる。
 
             \begin{equation}\label{eq:totalhight}
             H_{\mathrm{total}} = n \cdot H_{\mathrm{branch}} + (n - 1) \cdot S
@@ -766,7 +763,7 @@ GUIElementが保持するBranches属性をもつ場合、分岐条件の順序�
             基準中心 $Y_{\mathrm{anchor}}$ に対して
             上下対称となるように配置するため、
             分岐条件群の上端Y座標 $Y_{\mathrm{top}}$ は、
-            式\ref{eq:topY}により算出する。
+            式\ref{eq:topY}により算出できる。
 
             \begin{equation}\label{eq:topY}
             Y_{\mathrm{top}} = Y_{\mathrm{anchor}} - \frac{H_{\mathrm{total}}}{2}
@@ -776,7 +773,7 @@ GUIElementが保持するBranches属性をもつ場合、分岐条件の順序�
 
             $i$ 番目の分岐条件($i = 0, 1, \dots, n-1$)の
             中心Y座標 $Y^{(i)}_{\mathrm{center}}$ は、
-            式\ref{eq:centerY}により算出する。
+            式\ref{eq:centerY}により算出できる。
 
             \begin{equation}\label{eq:centerY}
             Y^{(i)}_{\mathrm{center}} =
@@ -785,7 +782,7 @@ GUIElementが保持するBranches属性をもつ場合、分岐条件の順序�
 
             分岐条件の左上座標 $Y^{(i)}$ は、
             中心座標から高さの半分を引くことで決定する。
-            $Y^{(i)}$ は、式\ref{eq:yi}により算出する。
+            $Y^{(i)}$ は、式\ref{eq:yi}により算出できる。
 
             \begin{equation}\label{eq:yi}
             Y^{(i)} = Y^{(i)}_{\mathrm{center}} - \frac{H_{\mathrm{branch}}}{2}
@@ -796,7 +793,7 @@ GUIElementが保持するBranches属性をもつ場合、分岐条件の順序�
             分岐先イベント要素が存在する場合、
             その縦方向位置は対応する分岐条件の中心に揃える。
             分岐先イベント要素の左上Y座標 $Y^{(i)}_t$ は、
-            式\ref{eq:YT}により算出する。
+            式\ref{eq:YT}により算出できる。
 
             \begin{equation}\label{eq:YT}
             Y^{(i)}_t = Y^{(i)}_{\mathrm{center}} - \frac{H_{\mathrm{branch}}}{2}
@@ -847,7 +844,7 @@ GUIElementが保持するBranches属性をもつ場合、分岐条件の順序�
 具体的には、接続元CTM要素の右端中央を開始点とし、接続先CTM要素の左端中央を終了点とする。
 ここで、接続元CTM要素の左上座標を$(X_s, Y_s)$、幅を$W_s$、高さを$H_s$、
 接続先CTM要素の左上座標を$(X_t, Y_t)$、幅を$W_t$、高さを$H_t$とすると、
-開始点$(x_s, y_s)$および終了点$(x_t, y_t)$は、式\ref{eq:arrow_points_start}、と式\ref{eq:arrow_points_end}によりそれぞれ算出する。
+開始点$(x_s, y_s)$および終了点$(x_t, y_t)$は、式\ref{eq:arrow_points_start}、と式\ref{eq:arrow_points_end}によりそれぞれ算出できる。
 
 \begin{equation}\label{eq:arrow_points_start}
       (x_s, y_s) = (X_s + W_s, Y_s + \frac{H_s}{2})
@@ -1030,7 +1027,7 @@ CTM領域の中央にコンテキストメニューを描画する。
 本処理は、描画部が生成し、ユーザ操作対応部が保持する\texttt{HitRegions}を用いて、ポインタ座標が外接矩形内に存在するかどうかを判定する。
 
 ユーザのクリックによるポインタ座標 $(x, y)$ が矩形内に存在するかどうかは、
-式\ref{eq:hit}により判定する。式中のX、Y、W、および、H、は表\ref{tab:hit_test_rect}に示した属性である。
+式\ref{eq:hit}により判定する。式中のX、Y、W、および、Hは、表\ref{tab:hit_test_rect}に示した属性である。
 
 \begin{equation}\label{eq:hit}
 X \leq x \leq X + W \;\land\; Y \leq y \leq Y + H
@@ -1068,7 +1065,7 @@ X \leq x \leq X + W \;\land\; Y \leq y \leq Y + H
 ユーザ操作対応部では、直前の左クリック情報として「直前クリック時刻\texttt{LastClickTime}」と「直前クリック対象要素\texttt{LastClickElement}」を保持する。
 本研究では、ダブルクリック判定の閾値を 400 msとする。
 なお、時刻取得には.NET(\ref{sec:NET}節を参照)標準ライブラリの協定世界時(UTC)
-に基づく現在時刻を取得する静的プロパティである\texttt{DateTime.UtcNow} を用いて\texttt{LastClickElement}との差分を計算する。
+に基づく現在時刻を取得する静的プロパティである\texttt{DateTime.UtcNow} を用いて、\texttt{LastClickElement}との差分を計算する。
 
 本処理の流れを、以下に示す。
 \begin{enumerate}
@@ -1123,8 +1120,7 @@ CTM要素の配置変更を反映する処理である。
 
   \item ポインタ解放時に、最終的な CTM 要素座標(\texttt{GUIElement.X}, \texttt{GUIElement.Y})を確定する。
   
-  \item プロジェクト管理部のファイル更新処理(\ref{sec:FileUpdateProcess}節を参照)を呼び出し、
-        CTM要素の座標情報(\texttt{GUIElement.X}, \texttt{GUIElement.Y})をファイルに保存する。
+  \item プロジェクト管理部のファイル更新処理(\ref{sec:FileUpdateProcess}節を参照)を呼び出す。
 \end{enumerate}
 
 
@@ -1163,7 +1159,7 @@ CTM要素リストを更新する処理である。
 \texttt{elements}に、要素の追加、更新、削除を行った上で、更新後の\texttt{elements}、描画部のCTM描画処理の呼び出し、
 プロジェクト管理部のファイル更新処理の呼び出し、および、新規ファイル作成処理の呼び出しを行う。
 
-編集コマンドは、CommunityToolkit.Mvvm(\ref{sec:CommunityToolkit.Mvvm}節を参照)の\texttt{RelayCommand} で定義する。
+編集コマンドは、CommunityToolkit.Mvvm(\ref{sec:MVVM}節を参照)の\texttt{RelayCommand} で定義する。
 
 本処理の流れを、以下に示す。
 
@@ -1226,7 +1222,7 @@ CTM要素リストを更新する処理である。
       \begin{enumerate}[label=\roman*]
             \item ユーザによる入力を受け取る。
             \item 新しいタイムアウト要素(\texttt{Type \allowbreak == \allowbreak Timeout})と、タイムアウト要素に対応したイベント要素(\texttt{Type \allowbreak ==\allowbreak  Event})である\texttt{GUIElement}を生成し、
-            \texttt{elements}に追加する。タイムアウトは1画面につき1つとする規則により、既存のタイムアウト要素が存在する場合は更新(上書き)する。
+            \texttt{elements}に追加する。タイムアウトは1画面につき1つであるため、既存のタイムアウト要素が存在する場合は更新(上書き)する。
             \item プロジェクト管理部のファイル更新処理を呼び出し、ファイルの更新を行う。
             \item 描画部のCTM描画処理を呼び出し、CTMの再描画を行う。
       \end{enumerate}
@@ -1270,7 +1266,7 @@ CTM要素リストを更新する処理である。
             \item \textbf{クラス名(画面名)変更}：
       \begin{enumerate}[label=\roman*]
             \item ユーザによる入力を受け取る。
-            \item ユーザ操作対応部が保持する\texttt{elements}の画面クラスのクラス名(以降、画面クラス名と呼ぶ)(GUIElement.Type\allowbreak  ==\allowbreak  Screen)の\texttt{GUIElement}の\texttt{Name}を取得したクラス名(画面名)で更新する。
+            \item ユーザ操作対応部が保持する\texttt{elements}の画面クラスのクラス名(以降、画面クラス名と呼ぶ)(\texttt{GUIElement.Type\allowbreak  ==\allowbreak  Screen})の\texttt{GUIElement}の\texttt{Name}を取得したクラス名(画面名)で更新する。
             \item プロジェクト管理部のファイル更新処理を呼び出し、ファイルの更新を行う。
             \item 描画部のCTM描画処理を呼び出し、CTMの再描画を行う。
       \end{enumerate}
@@ -1279,7 +1275,7 @@ CTM要素リストを更新する処理である。
       \begin{enumerate}[label=\roman*]
             \item 選択中CTM要素\texttt{SelectedElement}を参照し、コピー対象を確定する。
             \item \texttt{SelectedElement}が\texttt{null}の場合は、中断する。
-            \item コピー対象の\texttt{GUIElement}を複製し、ユーザ操作対応部が保持する\texttt{SelectedElement}のコピー用バッファ\texttt{CopiedElement}へ格納する。\texttt{CopiedElement}のデータ構造を表\ref{tab:copy-data}に、コピー処理を以下に示す。
+            \item コピー対象の\texttt{GUIElement}を複製し、ユーザ操作対応部が保持する\texttt{SelectedElement}のコピー用バッファ\texttt{CopiedElement}へ格納する。\texttt{CopiedElement}のデータ構造を表\ref{tab:copy-data}に示し、コピー処理を以下に示す。
             
             \begin{table}[tp]
                   \centering
@@ -1342,8 +1338,8 @@ CTM要素リストを更新する処理である。
             \begin{itemize}
             \item \texttt{GUIElement.\allowbreak Name}にユーザ操作から受け取った名称を設定する。
             \item \texttt{GUIElement.\allowbreak Target}に\texttt{null}を設定する。
-            \item \texttt{GUIElement.\allowbreak X}に貼り付け位置の$Xs$座標を設定する。
-            \item \texttt{GUIElement.\allowbreak Y}に貼り付け位置の$Ys + 30$座標を設定する。
+            \item \texttt{GUIElement.\allowbreak X}に貼り付け位置であるX座標$Xs$を設定する。
+            \item \texttt{GUIElement.\allowbreak Y}に貼り付け位置であるY座標$Ys + 30$を設定する。
             \item \texttt{GUIElement.\allowbreak Width}に160を設定する。
             \item \texttt{GUIElement.\allowbreak Height}に45を設定する。
             \item \texttt{GUIElement.\allowbreak IsMovable}に\texttt{true}を設定する。
@@ -1362,8 +1358,8 @@ CTM要素リストを更新する処理である。
                         \begin{itemize}
                               \item \texttt{GUIElement.\allowbreak Name}に\texttt{\textless ユーザから受け取った名称 \textgreater へ}を設定。
                               \item \texttt{GUIElement.\allowbreak Target}に\texttt{null}を設定する。
-                              \item \texttt{GUIElement.\allowbreak X}に貼り付け位置の$Xs + 240$座標を設定する。
-                              \item \texttt{GUIElement.\allowbreak Y}に貼り付け位置の$Ys + 30$座標を設定する。
+                              \item \texttt{GUIElement.\allowbreak X}に貼り付け位置であるX座標$Xs + 240$を設定する。
+                              \item \texttt{GUIElement.\allowbreak Y}に貼り付け位置であるY座標$Ys + 30$を設定する。
                               \item \texttt{GUIElement.\allowbreak IsMovable}に\texttt{true}を設定する。
                               \item \texttt{GUIElement.\allowbreak IsSelected}に\texttt{false}を設定する。
                               \item \texttt{GUIElement.\allowbreak IsBranch}に\texttt{true}を設定する。  
@@ -1377,8 +1373,8 @@ CTM要素リストを更新する処理である。
                         \begin{itemize}
                               \item \texttt{GUIElement.\allowbreak Name}に\texttt{コピーへ}を設定。
                               \item \texttt{GUIElement.\allowbreak Target}に\texttt{コピーへ}を設定する。
-                              \item \texttt{GUIElement.\allowbreak X}に貼り付け位置の$Xs + 240$座標を設定する。
-                              \item \texttt{GUIElement.\allowbreak Y}に貼り付け位置の$Ys + 30$座標を設定する。
+                              \item \texttt{GUIElement.\allowbreak X}に貼り付け位置であるX座標の$Xs + 240$を設定する。
+                              \item \texttt{GUIElement.\allowbreak Y}に貼り付け位置であるY座標の$Ys + 30$を設定する。
                               \item \texttt{GUIElement.\allowbreak IsMovable}に\texttt{true}を設定する。
                               \item \texttt{GUIElement.\allowbreak IsSelected}に\texttt{false}を設定する。
                               \item \texttt{GUIElement.\allowbreak IsBranch}に\texttt{false}を設定する。  
@@ -1389,8 +1385,8 @@ CTM要素リストを更新する処理である。
                   \begin{itemize}
                         \item \texttt{GUIElement.Name}にユーザ操作から受け取った名称を設定する。
                         \item \texttt{GUIElement.\allowbreak Target}に、新しく生成したイベント要素の\texttt{Name}を設定する。
-                        \item \texttt{GUIElement.X}に貼り付け位置の$Xs$座標を設定する。
-                        \item \texttt{GUIElement.Y}に貼り付け位置の$Ys + 30 $座標を設定する。
+                        \item \texttt{GUIElement.X}に貼り付け位置であるX座標の$Xs$を設定する。
+                        \item \texttt{GUIElement.Y}に貼り付け位置であるY座標の$Ys + 30 $を設定する。
                         \item \texttt{GUIElement.Width}に80を設定する。
                         \item \texttt{GUIElement.Height}に45を設定する。
                         \item \texttt{GUIElement.IsMovable}に\texttt{true}を設定する。
@@ -1446,9 +1442,9 @@ CTM要素リストを更新する処理である。
 
 本処理部の入力は、ユーザ操作対応部(\ref{sec:UserOperationMonitoring}節を参照)による\texttt{elements}、および、プロジェクトフォルダのデータである。
 出力は、解析部、および、変換部へ渡すMarkdown仕様の文字列(以降、Markdown文字列と呼ぶ)、GUI要素生成部へ渡すCTM要素配置データ、\texttt{elements}、および、
-プロジェクトフォルダへ出力する各ファイル(Markdownファイル、VDM++ファイル、JSONファイル)である。
+プロジェクトフォルダへ出力する各ファイル(Markdown仕様ファイル、VDM++仕様ファイル、CTM要素配置データファイル)である。
 CTM要素配置データには、CTM要素の名称(\texttt{GUIElement.\allowbreak Name})とCTM領域での座標情報を含み、
-Markdown仕様の記述ルール(\ref{sec:Specrule}節を参照)に含まない位置情報のみを保持する。CTM要素配置データの構造をリスト\ref{lst:JSON_data}に示す。
+Markdown仕様の記述ルール(\ref{sec:Specrule}節を参照)に含まない位置情報のみを保持する。CTM要素配置データの構造を、リスト\ref{lst:JSON_data}に示す。
 
 \begin{figure}[tp]
 \begin{lstlisting}[caption={CTM要素の配置情報を示すCTM要素配置データの構造}, label={lst:JSON_data}, language={}]
@@ -1502,7 +1498,7 @@ System.IO
 
   フォルダおよびファイル探索処理を呼び出し、
   \texttt{SelectedFolderPath} 配下のフォルダおよび
-  Markdown ファイルを走査して
+  Markdown 仕様ファイルを走査して
   ツリー表示用データ構造である
   \texttt{FolderItems} を生成する
   (\ref{sec:PM_FolderFileSearch}節を参照)。
@@ -1595,7 +1591,7 @@ System.IO
 ファイル読込処理は、
 ユーザがツリー表示上で選択した Markdown仕様ファイルを対象として、
 その内容を文字列として読み込む。そして、操作ボタン領域に表示する操作ボタンの判定を行う表示パターンフラグ(\ref{sec:DrawingComponent_OperationButtons}節を参照)の切り替えを行う。
-読み込んだMarkdownファイル内の文字列は、解析部、および、変換部で処理の対象となるため、\texttt{MarkdownText}としてプロジェクト管理部が保持する。
+読み込んだMarkdown仕様ファイル内の文字列は、解析部、および、変換部で処理の対象となるため、\texttt{MarkdownText}としてプロジェクト管理部が保持する。
 
 なお、ファイル読込処理を行う前までは、事前に3つの表示パターンフラグすべての値を\texttt{false}で初期化する。
 
@@ -1658,7 +1654,7 @@ System.IO
 
   \item CTM要素配置データファイルの存在確認
 
-  選択対象 Markdown ファイルと同名のCTM要素の配置情報を記した、
+  選択対象 Markdown仕様ファイルと同名の
   CTM要素配置データファイル
   (拡張子 \texttt{.positions.json})が存在するかどうかを確認する。
 
@@ -1684,7 +1680,7 @@ System.IO
 ファイル更新処理は、ユーザ操作対応部が保持する\texttt{elements}を受け取り、変換部へ\texttt{elements}を渡し、
 変換部から受け取った
 Markdown文字列、\VDM  文字列、
-および JSONを、
+および CTM要素配置データを、
 プロジェクトファイルへ各ファイルとして反映する処理である。
 本処理では、
 System.IO(\ref{sec:NET}節を参照)、
@@ -1710,7 +1706,7 @@ System.IO(\ref{sec:NET}節を参照)、
   更新後の Markdown 文字列
   \texttt{updatedMarkdown} を生成する。
 
-  \item Markdown ファイルの保存
+  \item Markdown 仕様ファイルの保存
 
   2.で生成した \texttt{updatedMarkdown} を、
   \texttt{SelectedFilePath} が示す Markdown仕様ファイルへ
@@ -1746,17 +1742,11 @@ System.IO(\ref{sec:NET}節を参照)、
   要素名 \texttt{GUIElement.Name} と
   座標 (\texttt{GUIElement.X} , \texttt{GUIElement.Y}) を抽出する。
 
-  \item JSON形式のCTM要素配置データの生成
+  \item CTM要素配置データファイルの保存
 
   6.で抽出した(要素名, 座標)の組をもとに、
-  JSON 形式のCTM要素配置データ
-  \texttt{positionsJson} を生成する。
-
-  \item 配置情報ファイルの保存
-
-  7.で生成した \texttt{positionsJson} を、
-  プロジェクト管理部内で保持する\texttt{SelectedFilePath} の Markdown ファイルと同名の
-  \texttt{.positions.json} ファイルへ書き込み、保存する。
+  プロジェクト管理部内で保持する\texttt{SelectedFilePath} の Markdown仕様ファイルと同名の
+  CTM要素配置データファイル\texttt{.positions.json} へ書き込み、保存する。
   同名のファイルが存在しない場合は、新規作成する。
 
   \item \texttt{MarkdownText}の更新
@@ -1800,7 +1790,7 @@ System.IO(\ref{sec:NET}節を参照)、
       \item ファイル名を入力として受け取る。
       \item プロジェクト管理部内で保持する、\texttt{SelectedFolderPath}のパスに「新規ファイル名.md」を加え、
       新規Markdown仕様ファイルのパスを生成する。
-      \item 2.で作成したパスに、空のMarkdownファイルを作成する。
+      \item 2.で作成したパスに、空のMarkdown仕様ファイルを作成する。
       \item フォルダおよびファイル探索処理を呼び出し、\texttt{FolderItems}を更新する。
       \item ファイル読込処理を呼び出し、\texttt{SelectedFilePath}へ新規Markdown仕様ファイルのパスを格納し、編集対象を、新規作成したMarkdown仕様ファイルにする。
 \end{enumerate}
@@ -1817,7 +1807,7 @@ Markdown文字列の各行を解析する。
 
 本処理部の入力は、プロジェクト管理部から受けとるMarkdown文字列であり、出力はプロジェクト管理部に渡す\texttt{elements}である。
 
-具体例として、リスト\ref{lst:markdown_example}に示すMarkdown仕様を活用する。
+具体例として、リスト\ref{lst:markdown_example}に示すMarkdown仕様を用いる。
 リスト\ref{lst:markdown_example}のMarkdown仕様に対して本処理部が生成する
 GUIElement一覧を表\ref{tab:gui_element_example}に、\texttt{EventBranch}を表\ref{tab:event_branch_example}に、それぞれ示す。
 本研究では、Markdown仕様の記述ルールに基づき、Markdown仕様内で「\texttt{\#\#\#}」で始まる行を見出し行と呼ぶ。
@@ -2428,11 +2418,11 @@ $i_{\mathrm{screen}}, i_{\mathrm{button}}, i_{\mathrm{event}}$
 とし、同一CTM要素種別内の出現順に増加させる。
 
 初期配置に用いる定数を、以下に定義する。
-左列の基準X座標を $X_{\mathrm{left}}=40\mathrm{px}$、
-ノード幅を $W_{\mathrm{node}}=160\mathrm{px}$、
-ノード高さを $H_{\mathrm{node}}=45\mathrm{px}$、
-列間隔を $S_{\mathrm{col}}=40\mathrm{px}$、
-縦方向間隔を $d=80\mathrm{px}$ とする。
+左列の基準X座標を $X_{\mathrm{left}}=40\mathrm{Px}$、
+ノード幅を $W_{\mathrm{node}}=160\mathrm{Px}$、
+ノード高さを $H_{\mathrm{node}}=45\mathrm{Px}$、
+列間隔を $S_{\mathrm{col}}=40\mathrm{Px}$、
+縦方向間隔を $d=80\mathrm{Px}$ とする。
 
 イベント要素のX座標 $X_{\mathrm{mid}}$を、式\ref{eq:column_x_positions_single_timeout}で定義する。
 \begin{equation}\label{eq:column_x_positions_single_timeout}
@@ -2801,7 +2791,7 @@ CTM上の配置順序に一致するよう再構成する。
                   具体的には、
                   各ボタン要素またはタイムアウト要素に対応付けた
                   イベント要素について、
-                  以下の規則に基づき Markdown 形式のイベント記述を生成する。生成したイベント記述を1つのイベント記述ブロックとして、イベント記述ブロックの順序を表す配列
+                  以下の規則に基づき Markdown 仕様のイベント記述を生成する。生成したイベント記述を1つのイベント記述ブロックとして、イベント記述ブロックの順序を表す配列
                   \texttt{blocksOrder}に格納する。
 
                   \begin{itemize}
