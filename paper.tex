@@ -68,6 +68,8 @@
 \usepackage{longtable}
 \usepackage{tabularx}
 \usepackage{booktabs} % プリアンブルに追加してください
+\usepackage{adjustbox}
+
 
 
 
@@ -136,7 +138,18 @@
   captionpos=t
 }
 
+
 \newcommand{\vdmtag}[1]{\textless #1\textgreater}
+\newcommand{\ctmrowh}{3cm}
+\newcommand{\ctmfig}[2]{%
+  \begin{minipage}[c][\ctmrowh][c]{\linewidth}
+    \centering
+    \adjustbox{valign=c}{\includegraphics[width=#1\linewidth]{#2}}
+  \end{minipage}%
+}
+\newcommand{\ctmlabel}[1]{\raisebox{-2.4ex}{#1}}
+
+
 
 %
 % 図表の自動参照設定
@@ -201,7 +214,6 @@
 
 \preface{概要}
 
-ここには概要を書くよ
 
 
 %%

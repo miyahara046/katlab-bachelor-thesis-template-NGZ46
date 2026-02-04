@@ -27,6 +27,7 @@ VDM++とは、VDM-SLにオブジェクト指向拡張を施した形式仕様記
 VDMには、VDMTools\cite{VDMTools}やOverture IDE\cite{Overture}などの支援ツールが揃っており、
 仕様の検証などを他の形式手法よりも比較的行いやすいという利点がある。
 VDM\texttt{++}は、クラス定義において、型定義や関数定義などをブロックで定義する。
+\VDM のファイルは .vdmppという拡張子を持つ。
 
 VDM\texttt{++}における各定義について、以下で説明する。
 \begin{itemize}
@@ -54,13 +55,12 @@ VDM\texttt{++}における各定義について、以下で説明する。
     VDM\texttt{++}の操作は、操作の特性を記述する陰操作定義と、計算アルゴリズムを示す陽操作定義の2つの定義スタイルがある。
 \end{itemize}
 
-本研究では、画面遷移システムの仕様をVDM\texttt{++}形式で出力する。
+本研究では、画面遷移システムの仕様をVDM\texttt{++}で出力する。
 
 \section{Markdown}\label{sec:markdown}
 
 Markdownは、2004年にJohn Gruber氏によって開発された軽量マークアップ言語である\cite{markdown}。
-Markdownを使用することで、プレーンテキストを使って簡単に文書を記述できる。
-
+Markdownを使用することで、プレーンテキストを使って簡単に文書を記述できる。Markdownのファイルは .mdという拡張子を持つ
 Markdownの主な記法を、表\ref{tab:Markdown_Example}に示す。
 
 
@@ -86,16 +86,16 @@ Markdownの主な記法を、表\ref{tab:Markdown_Example}に示す。
 
 
 本研究では、画面遷移システムの仕様をMarkdownで記述し、
-Markdownで記述した画面遷移システムの仕様を解析することで、本研究で提案するCTMの表示、および、VDM++仕様の生成を行う。以降、本論文ではMarkdownで記述した画面遷移システムの仕様をMarkdoen仕様と呼ぶ。
+Markdownで記述した画面遷移システムの仕様を解析することで、本研究で提案するCTMの表示、および、VDM++仕様の生成を行う。以降、本論文ではMarkdownで記述した画面遷移システムの仕様をMarkdowm仕様と呼ぶ。
 
 \section{JSON}\label{sec:JSON}
 JSON(JavaScript Object Notation)\cite{JSON}は、軽量のテキストベースのデータ交換フォーマットである。
 JSONは、データをキーと値のペアで表現し、人間にも機械にも理解しやすい構造を持っている。
 JSONはWebサービスやアプリケーションの設定ファイルとして広く利用されている。
-JSON形式のデータは .json という拡張子を持つ。
+JSON形式のファイルは .json という拡張子を持つ。
 JSONは構造化データを簡潔に表現でき、言語や環境を問わずパース(解析)、および、シリアライズ(生成)が容易である
 
-本研究では、Markdoen仕様を解析した後、
+本研究では、Markdown仕様を解析した後、
 CTMのノード配置の内部表現としてJSONを扱う。その後JSONの読み出し、および、書き込みを行う。
 
 \section{MVVM}\label{sec:MVVM}
@@ -148,6 +148,7 @@ C\#を主なプログラミング言語として用い、デスクトップア�
     本研究では、「1画面」を表すページクラスであるContentPageを、各画面の基底クラスとして使用し、ボタン、ラベル、入力欄などのUI要素を配置することで、
     仕様編集画面や操作画面を構成する。
     また、Shellクラスを用いてスタートページと仕様編集ページ間の画面遷移を管理する。
+    さらに、UIコンテナである\texttt{ContentView}、描画用UIコンポーネントである\texttt{GraphicsView}、スクロール用コンテナである\texttt{ScrollView}を用いてCTMの表示を行う。
 
     \item Microsoft.Maui.Controls.Xaml：
 
@@ -226,8 +227,8 @@ WinUIが提供するポインタイベントAPIを利用している。
 
 \subsection{画面遷移システムを対象とした\VDM 仕様記述作成手法}\label{spec:way-of-convert}
 
-本手法では、Markdown仕様を一定の構造で記述することを前提とし、
-その構造に基づいて、自然言語仕様から\VDM 仕様記述への変換を行う。
+本手法では、Markdown仕様を一定の文法で記述することを前提とし、
+その文法に基づいて、記述したMarkdown仕様から\VDM 仕様記述への変換を行う。
 本手法が対象とするMarkdown仕様の構成を、以下に示す。
 
 \begin{itemize}
@@ -341,14 +342,14 @@ end (*@「@*)画面A(*@」@*)
 本手法では、画面遷移システムの\VDM 仕様を作成するために、以下の2つのルールを定義する。
 
 \begin{itemize}
-    \item 自然言語仕様記述ルール(\ref{sec:Specrule}節で後述)
+    \item 自然言語記述ルール(\ref{sec:Specrule}節で後述)
 
-    Markdown仕様の自然言語仕様記述ルール。以降、Markdown仕様の記述ルールと呼ぶ。
+    Markdown仕様の自然言語記述ルール。以降本論文では、Markdown仕様の記述ルールと呼ぶ。
     
     \item \VDM 変換ルール(\ref{sec:ConvRule}節で後述)
 
     Markdown仕様の記述ルールに基づいたMarkdown仕様から、\VDM 仕様への変換ルール。
-    以下の2つのルールがある。
+    以下の2つの変換ルールがある。
     \begin{itemize}
         \item 変換ルールA\\
         画面一覧仕様から画面管理クラスへの変換ルール。
@@ -367,10 +368,10 @@ end (*@「@*)画面A(*@」@*)
 
 \subsection{Markdown仕様の記述ルール}\label{sec:Specrule}
 
-本手法でのMarkdown仕様作成に用いる、自然言語仕様記述ルールについて説明する。
-画面一覧仕様の自然言語仕様記述ルールを、以下に示す。図\ref{fig:specRuleA}に示した画面一覧仕様は、以下のルールに則って記述している。
+本手法でのMarkdown仕様の記述ルールについて説明する。
+画面一覧仕様のMarkdown仕様の記述ルールを、以下に示す。図\ref{fig:specRuleA}に示した画面一覧仕様は、以下のルールに則って記述している。
 \begin{itemize}
-\item Markdown記法で記述していること。
+\item Markdownで記述していること。
 \item "画面一覧" をタイトルとしたレベル1見出しに続けて、システムに存在する画面の名前をアイテムとしたリストを記述していること。
 このリスト記述範囲を、画面一覧フィールドとする。
 \end{itemize}
@@ -378,7 +379,7 @@ end (*@「@*)画面A(*@」@*)
 画面仕様のMarkdown仕様の記述ルールを、以下に示す。図\ref{fig:specRuleB}に示した画面仕様は、以下のルールに則って記述している。
 
 \begin{itemize}
-    \item Markdown記法で記述していること。
+    \item Markdownで記述していること。
     \item 画面の名前をタイトルとしたレベル2見出しを記述していること。
     このタイトル記述範囲を、画面名記述フィールドとする。
     \item 対象画面にタイムアウト時間が存在する場合、
@@ -556,7 +557,7 @@ Markdown仕様からVDM\texttt{++}仕様記述へ変換を行う際、画面仕�
 
 \subsection{機能}\label{sec:Function}
 既存の\tool の外観を、図\ref{fig:old2VSG} に示す。
-既存の\tool は、Markdown仕様作成を支援するため、
+既存の\tool は、Markdown仕様を編集するファイル内容編集エリア、VDM++仕様を表示する変換後\VDM 記述表示エリアを持ち、Markdown仕様の作成を支援するため、
 以下の機能を提供する。
 \begin{figure}[tp]
   \centering
@@ -580,15 +581,15 @@ Markdownで記述、および、編集する機能である。
 \tool は、
 画面一覧仕様および各画面に対応する画面仕様を
 Markdown仕様として管理し、
-ユーザに対してMarkdown編集領域を提供することで、
+ユーザに対してファイル内容編集エリアを提供することで、
 Markdown仕様の作成および修正を可能にする。
 
 ユーザは、
-Markdown編集領域を用いて、
+ファイル内容編集エリアを用いて、
 画面一覧仕様および画面仕様を直接記述し、
 Markdown仕様の記述ルールに従ったMarkdown仕様を作成する。
 また、
-Markdownファイルの新規作成、
+Markdown仕様ファイルの新規作成、
 既存ファイルの編集、
 および保存といった基本的なファイル操作を
 ツール上から実行できるため、
@@ -617,11 +618,11 @@ Markdown仕様から、
 
 \subsubsection{生成した\VDM 仕様の表示および保存機能}
 本機能は、
-変換ルールAおよび変換ルールBに基づく\VDM 仕様への変換機能によって生成した\VDM 仕様を\VDM 表示領域に表示し、
+変換ルールAおよび変換ルールBに基づく\VDM 仕様への変換機能によって生成した\VDM 仕様を変換後\VDM 記述表示エリアに表示し、
 ファイルとして保存する機能である。
 
 \tool は、
-Markdown編集領域とは独立した\VDM の表示領域を設け、
+ファイル内容編集エリアとは独立した変換後\VDM 記述表示エリアを設け、
 変換後の\VDM 仕様を即座に表示する。
 これにより、
 ユーザは、

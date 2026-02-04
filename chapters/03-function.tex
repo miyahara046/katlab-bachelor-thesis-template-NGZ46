@@ -55,31 +55,33 @@ CTMの6つの構成要素を、以下に示す。また、各要素の表示例�
 CTMでは、
 ボタン、分岐条件、および、イベントを左から右へ配置することで、
 ユーザ操作からシステムの反応までの流れを一方向に表現する。
-なお、イベント要素、および、タイムアウト要素では、分岐条件を省略する。
 
 
 \begin{table}[tp]
   \caption{CTMを構成する要素表示例}
   \centering
   \label{tab:ctm_elements}
-  \begin{tabular}{|>{\centering\arraybackslash}m{5cm}|>{\centering\arraybackslash}m{6cm}|}
-    \hline
-    \textbf{要素名} & \textbf{図} \\
-    \hline
-    画面要素 & \includegraphics[width=0.5\linewidth]{./images/画面.png} \\
-    \hline
-    ボタン要素 & \includegraphics[width=0.4\linewidth]{./images/ボタン.png} \\
-    \hline
-    イベント要素 & \includegraphics[width=0.4\linewidth]{./images/イベント.png} \\
-    \hline
-    分岐イベント要素 & \includegraphics[width=0.9\linewidth]{./images/条件分岐イベント.png} \\
-    \hline
-    タイムアウト要素 & \includegraphics[width=0.9\linewidth]{./images/タイムアウト.png} \\
-    \hline
-    遷移先のないイベント要素 & \includegraphics[width=0.4\linewidth]{./images/遷移エラー.png}\\
-    \hline
-  \end{tabular}
+\begin{tabular}{|>{\centering\arraybackslash}m{5cm}|>{\centering\arraybackslash}m{6cm}|}
+\hline
+\textbf{要素名} & \textbf{図} \\
+\hline
+\ctmlabel{画面要素}
+ & \ctmfig{0.7}{./images/画面.png} \\
+\hline
+\ctmlabel{ボタン要素} & \ctmfig{0.6}{./images/ボタン.png} \\
+\hline
+\ctmlabel{イベント要素} & \ctmfig{0.6}{./images/イベント.png} \\
+\hline
+\ctmlabel{分岐イベント要素} & \ctmfig{1.0}{./images/条件分岐イベント.png} \\
+\hline
+\ctmlabel{タイムアウト要素} & \ctmfig{1.0}{./images/タイムアウト.png} \\
+\hline
+\ctmlabel{遷移先のないイベント要素} & \ctmfig{0.6}{./images/遷移エラー.png} \\
+\hline
+\end{tabular}
+
 \end{table}
+
 
 \section{スタートページ}\label{sec:start-page}
 
@@ -179,7 +181,7 @@ CTM要素のプロパティの編集、および、位置関係を調整でき�
 フォルダツリー描画機能は、フォルダツリー表示領域に、ユーザが選択したプロジェクトフォルダのアイテムをツリー形式で描画する機能である。
 本機能は、ユーザがフォルダを選択した際にフォルダツリーを描画し、ユーザのフォルダツリーに対する操作に応じて再描画する。
 
-フォルダツリー表示領域に表示するアイテムの対象は、フォルダ、および、拡張子が.mdのファイルである。
+フォルダツリー表示領域に表示するアイテムの対象は、フォルダ、および、拡張子が.mdのMarkdown仕様ファイルである。
 ツリーに表示するフォルダには、フォルダ名の左側にフォルダアイコンを表示する。
 フォルダツリー表示領域の表示例を、図\ref{fig:folder}に示す。
 
@@ -361,8 +363,8 @@ GUI操作による仕様編集機能は、この3つの機能に基づいて、�
 以降、各機能の詳細を示す。
 
 \subsubsection{メニューバーの操作による仕様生成補助機能}
-メニューバーの操作による仕様生成補助機能は、\VDM 仕様生成の補助を行う機能である。メニューバーに表示する、ファイル、および、フォルダに関する機能を操作する。
-メニューバーは、ファイル、および、フォルダに関する機能をまとめたメニューである。メニューバーの項目を押すことで開くドロップダウンメニューから、各機能を使用することが可能である。
+メニューバーの操作による仕様生成補助機能は、\VDM 仕様生成の補助を行う機能である。メニューバーに表示する、ファイルおよびフォルダに関する機能を操作する。
+メニューバーは、ファイルおよびフォルダに関する機能をまとめたメニューである。メニューバーの項目を押すことで開くドロップダウンメニューから、各機能を使用できる。
 メニューバーを押すことで開くドロップダウンメニューを、図\ref{fig:drop}に示す。
 \begin{figure}[tp]
   \centering
@@ -394,7 +396,7 @@ GUI操作による仕様編集機能は、この3つの機能に基づいて、�
 \item \textbf{新規ファイル作成}
 
 「新規ファイル作成」機能は、空のMarkdown仕様ファイルを作成し、プロジェクトフォルダに追加する機能である。
-なお、この際にVDM++ファイルは作成しない。
+なお、この際に\VDM 仕様ファイルは作成しない。
 本機能では、ユーザが「新規ファイル作成」項目を押した際に、新規ファイル作成ダイアログを表示する。
 新規ファイル作成ダイアログの外観を、図\ref{fig:createFile}に示す。
 
@@ -448,13 +450,13 @@ GUI操作による仕様編集機能は、この3つの機能に基づいて、�
 \begin{figure}[tp]
   \centering
     \centering
-    \includegraphics[width=0.5\linewidth]{./images/1-01.png}
+    \includegraphics[width=0.4\linewidth]{./images/1-01.png}
     \caption{クラスの種類選択ダイアログの外観}
     \label{fig:class_type_dialog}
 \end{figure}
 \begin{figure}[tp]
     \centering
-    \includegraphics[width=0.5\linewidth]{./images/1-02.png}
+    \includegraphics[width=0.4\linewidth]{./images/1-02.png}
     \caption{画面クラス追加ダイアログの外観}
     \label{fig:screen_name_dialog}
 \end{figure}
@@ -462,7 +464,6 @@ GUI操作による仕様編集機能は、この3つの機能に基づいて、�
 \item \textbf{画面の追加}
 
 画面の追加は、画面管理クラスのCTM上に新たな画面要素を追加する機能である。
-本機能により、CTMに新たな画面要素を追加できる。
 なお、本機能は、表示パターンBにおいてのみ有効である。
 
 本機能では、ユーザが「画面の追加」ボタンをクリックした際に画面追加ダイアログを表示する。
@@ -490,7 +491,6 @@ CTM上に新たな画面要素を生成し、
 \item \textbf{ボタンの追加}
 
 ボタンの追加は、画面クラスのCTM上に新たなボタン要素を追加する機能である。
-本機能により、CTMに新たなボタン要素を追加できる。
 なお、本機能は、表示パターンCにおいてのみ有効である。
 
 本機能では、ユーザが「ボタンの追加」ボタンをクリックした際に、
@@ -518,7 +518,6 @@ CTM上に新たなボタン要素を生成し、対応するボタンに関す�
 
 イベントの追加は、CTM上の特定のボタン要素に対して
 新たなイベント要素を追加する機能である。
-本機能により、CTMに新たなイベント要素を追加できる。
 なお、本機能は、表示パターンCにおいてのみ有効である。
 
 まず、ユーザが「イベントの追加」ボタンをクリックした際に、
@@ -543,13 +542,13 @@ CTM上に新たなイベント要素、または、分岐イベント要素を�
 
 \begin{figure}[tp]
     \centering
-    \includegraphics[width=0.5\linewidth]{./images/5-01.png}
+    \includegraphics[width=0.4\linewidth]{./images/5-01.png}
     \caption{対象ボタン選択ダイアログの外観}
     \label{fig:target_button_selection_dialog}
   \end{figure}
   \begin{figure}[tp]
     \centering
-    \includegraphics[width=0.5\linewidth]{./images/5-02.png}
+    \includegraphics[width=0.4\linewidth]{./images/5-02.png}
     \caption{分岐イベント選択ダイアログの外観}
     \label{fig:branch_event_selection_dialog}
   \end{figure}
@@ -608,7 +607,7 @@ CTM上に新たなイベント要素、または、分岐イベント要素を�
 \item \textbf{タイムアウトの追加}
 
 タイムアウトの追加は、CTM上に新たなタイムアウト要素を追加する機能である。
-本機能により、CTMに新たなタイムアウト要素を追加、および、更新できる。
+本機能により、CTMに新たなタイムアウト要素を追加、および、更新ができる。
 なお、本機能は、表示パターンCにおいてのみ有効である。
 
 本機能では、ユーザが「タイムアウトの追加」ボタンをクリックした際に、タイムアウト設定ダイアログを表示する。
@@ -687,7 +686,7 @@ CTM上に新たなタイムアウト要素を生成する。この際、
 フォルダの選択は、メニューバーの操作による仕様生成補助機能の「フォルダを選択」と同様の機能である。本機能は、表示パターンDにおいてのみ有効である。
 
 ユーザは「フォルダを選択」ボタンを押した際に、図\ref{fig:fo}に示したインターフェースにより、編集対象とするプロジェクトフォルダを選択する。
-ユーザがプロジェクトフォルダを選択した後、フォルダツリー表示領域に、選択したプロジェクトフォルダ内のフォルダ、および、Markdownファイルをツリー状に表示する。
+ユーザがプロジェクトフォルダを選択した後、フォルダツリー表示領域に、選択したプロジェクトフォルダ内のフォルダ、および、Markdown仕様ファイルをツリー状に表示する。
 
 \item \textbf{スタートページに戻る}
 
@@ -765,7 +764,7 @@ CTM領域上でのユーザ操作によるCTM編集機能は、CTM領域内のCT
 ユーザは、コンテキストメニュー内の「コピー」を選択し、「貼り付け」をクリックすることで対象要素を複製できる。
 なお、コピー\&ペーストは、ボタン要素、および、画面要素に対してのみ行うことができる機能である。
 複製の際、名称を定義するため、要素の名称を入力するダイアログを表示する。コピー時ボタン名入力ダイアログの外観を図\ref{fig:copyB}に、
-コピー時画面名入力ダイアログの外観を図\ref{fig:copyS}に、それぞれ示す。この際、ユーザが元の名称のまま「OK」をクリックした場合、エラーを表示し、処理を中断する。エラー表示を図\ref{fig:copyError}に示す。
+コピー時画面名入力ダイアログの外観を図\ref{fig:copyS}に、それぞれ示す。この際、ユーザが元の名称のまま「OK」をクリックした場合、エラーを表示し、処理を中断する。エラー表示を、図\ref{fig:copyError}に示す。
 また、ボタン要素にイベント要素が関連づいている場合、そのイベント要素も自動で複製する。
 ただし、イベント名は、「コピー」として複製する。
 
@@ -825,9 +824,9 @@ CTM要素が存在しないCTM領域を左クリックした場合は、選択�
 \subparagraph{ドラッグ操作}
 
 ドラッグ操作は、CTM要素を左クリックしている間移動可能な要素(\ref{sec:GUIElementGenerationComponent}節を参照)に限り、CTM領域内を移動できる機能である。
-このドラッグ操作の結果は、\VDM 仕様上での定義の順序に関係しており、ドラッグ操作によるCTM要素の新しい配置情報は、ドラッグ操作ごとにCTM要素の配置情報を示すJSONファイルとして出力する。
-図\ref{fig:pick}に示すCTMのボタン要素(1,2,3)の配置情報を示すJSONファイルの例を、リスト\ref{lst:JSON_example}に示す。
-また、CTM要素の配置変更を\VDM 仕様にも反映する。
+このドラッグ操作の結果は、\VDM 仕様上での定義の順序に関係しているため、ドラッグ操作によるCTM要素の新しい配置情報は、ドラッグ操作ごとにCTM要素の配置情報を示すJSONファイルとして出力する(\ref{sec:FileUpdateProcess}を参照)。
+図\ref{fig:pick}に示すCTMのボタン要素(1,2,3)の配置情報を示すJSONファイルの例を、リスト\ref{lst:JSON_example}に示す。ドラッグ操作の結果に応じて配置情報を示すJSONファイルの内容を書き換える。
+また、CTM要素の配置変更を\VDM 仕様の定義の順序にも反映する。
 
 \begin{figure}[tp]
 \begin{lstlisting}[caption={CTM要素の配置情報を示すJSONファイルの例}, label={lst:JSON_example}, language={}]
