@@ -64,7 +64,7 @@ Markdownを使用することで、プレーンテキストを使って簡単に
 Markdownの主な記法を、表\ref{tab:Markdown_Example}に示す。
 
 本研究では、
-Markdownで記述した画面遷移システムの仕様を解析することで、本研究で提案するCTMの表示、および、VDM++仕様の生成を行う。以降、本論文では、Markdownで記述した画面遷移システムの仕様を、Markdowm仕様と呼ぶ。
+Markdownで記述した画面遷移システムの仕様を解析することで、本研究で提案するCTMの表示、および、VDM++仕様の生成を行う。以降、本論文では、Markdownで記述した画面遷移システムの仕様を、Markdown仕様と呼ぶ。
 
 \begin{table}[tp]
 \centering
@@ -95,7 +95,7 @@ JSON形式のファイルは .json という拡張子を持つ。
 JSONは構造化データを簡潔に表現でき、言語や環境を問わずパース(解析)、および、シリアライズ(生成)が容易である
 
 本研究では、Markdown仕様を解析した後、
-CTMのノード配置の内部表現としてJSONを用いる。
+CTM要素の配置情報(\ref{sec:ProjectManagementComponent}節を参照)の保持にJSONを用いる。
 
 \section{MVVM}\label{sec:MVVM}
 MVVM(Model-View-ViewModel)\cite{MVVM}は、Model、View、ViewModelの 3 つのコンポーネントからなるソフトウェアアーキテクチャの一種である。
@@ -126,8 +126,8 @@ C\#を主なプログラミング言語として用い、デスクトップア�
     正規表現による文字列解析機能を提供する.NET 標準ライブラリである。本研究では、Markdown仕様を解析する際に用いる。
     \item System.Collections.Generic：
 
-    ジェネリックコレクションを提供する.NET 標準ライブラリである。本研究では、Markdown仕様の解析結果やCTMの要素の集合を管理するために List\textless T \textgreater を用いている。
-    また、画面名やボタン名の重複生成を防止するため、HashSet\textless T \textgreater を用いた一意性の管理を行う。
+    ジェネリックコレクションを提供する.NET 標準ライブラリである。本研究では、Markdown仕様の解析結果やCTMの要素の集合を管理するために List\textless T\textgreater を用いている。
+    また、画面名やボタン名の重複生成を防止するため、HashSet\textless T\textgreater を用いた一意性の管理を行う。
     \item System.IO：
 
     ファイルおよびディレクトリ操作を行うための .NET 標準ライブラリである。本研究では、Markdown 仕様ファイルの読み込み、JSON 形式の中間データの保存、および、生成した VDM\texttt{++} 仕様ファイルの書き込みに用いる。
@@ -219,7 +219,7 @@ WinUIが提供するポインタイベントAPIを利用している。
 画面遷移システムの自然言語仕様から\VDM 仕様を作成するための
 仕様記述作成手法を内部に持ち、
 ユーザが記述したMarkdown仕様に対して、
-当該手法に基づく解析、および、\VDM への変換処理を行うツールである。
+当該手法に基づく解析、および、\VDM 仕様への変換処理を行うツールである。
 本節では、\tool が採用している
 画面遷移システムを対象とした\VDM 仕様記述作成手法について説明し、
 その後、\tool の機能について述べる。

@@ -1,15 +1,14 @@
 \chapter{拡張後の\tool の実装}\label{cha:Implementation}
 
 本章では、拡張後の\tool の実装について説明する。
-なお、本研究の拡張はWindows OSにのみ対応しており、それ以外のOSには対応していない。
 拡張後の\tool のシステム構成を、図\ref{fig:system-architecture}に示す。
 
-本研究で拡張後の\tool は、既存の\tool 同様にMVVMアーキテクチャ(\ref{sec:MVVM}節を参照)を採用している。MVVMアーキテクチャ実装のために、本研究では
-CommunityToolkit.Mvvmを使用している。
+拡張後の\tool は、既存の\tool 同様にMVVMアーキテクチャ(\ref{sec:MVVM}節を参照)を採用する。MVVMアーキテクチャ実装のために、本研究では
+CommunityToolkit.Mvvmを使用する。
 拡張後の\tool は、以下の6つの主要な処理部で構成する。
 \begin{figure}[tp]
   \centering
-  \includegraphics[width=0.8\linewidth]{./images/system-architecture.png}
+  \includegraphics[width=1.0\linewidth]{./images/system-architecture.png}
   \caption{拡張後の\tool のシステム構成}
   \label{fig:system-architecture}
 \end{figure}
@@ -230,7 +229,7 @@ ViewModel 層を介してのみ情報を受け渡す。
 のコレクションである。
 \texttt{FolderItem}のデータ構造を、表\ref{tb:FolderItem}に示す。
 \texttt{FolderItem}は、フォルダまたはファイルの絶対パスである\texttt{FullPath}を持ち、
-それの表示名である\texttt{Name}、フォルダかファイルかを判定する\texttt{IsFolder}、\texttt{IsFile}、ルートフォルダからどれだけ下の階層かを表す\texttt{Level}を保持する。
+それの表示名である\texttt{Name}、フォルダかファイルかを判定する\texttt{IsFolder}と\texttt{IsFile}、ルートフォルダからどれだけ下の階層かを表す\texttt{Level}を保持する。
 さらに、展開状態を制御する\texttt{IsExpanded}、および、可視状態を制御する\texttt{IsVisible} を保持する。
 \begin{table}[tp]
 \centering
@@ -259,7 +258,7 @@ IsFile & bool & ファイルであることを示す真偽値 \\
 
 描画部は、ユーザ操作対応部が保持する\texttt{FolderItems} の各要素\texttt{FolderItem}が保持する
 階層情報\texttt{Level}、展開状態\texttt{IsExpanded}、可視状態\texttt{IsVisible}、
-および種別情報\texttt{IsFolder}、\texttt{IsFile}に基づき、表示内容を構成する。
+および種別情報\texttt{IsFolder}と\texttt{IsFile}に基づき、表示内容を構成する。
 本処理では、.NET MAUI(\ref{sec:NET_MAUI}節を参照)が提供する
 \texttt{CollectionView} を用いてフォルダツリーを表示する。
 \texttt{CollectionView} は項目集合を縦方向に一覧表示するUIコンポーネントであり、
@@ -398,7 +397,7 @@ CTM領域を縦横スクロール可能な表示領域として構成するた�
 \texttt{ScrollView} コンポーネントにCTMの描画範囲を配置し、CTM全体をスクロール操作で閲覧可能とする。
 
 
-また、\texttt{ContentView}コンポーネントは、CTM領域上で発生するユーザ操作を検知するため、
+さらに、\texttt{ContentView}コンポーネントは、CTM領域上で発生するユーザ操作を検知するため、
 \texttt{WinUI}ライブラリのイベントを用いて、
 左クリック操作、
 ドラッグ操作、および右クリック操作を検知する。
@@ -609,7 +608,7 @@ Timeout
 \label{tab:gui_node_branch}
 \begin{tabular}{|c|c|c|c|c|c|}
 \hline
-\textbf{GUIElement.Banches} & \textbf{形状} & \textbf{色} & \textbf{横幅(px)} & \textbf{高さ(px)} & \textbf{備考} \\
+\textbf{GUIElement.Banches} & \textbf{形状} & \textbf{色} & \textbf{横幅(Px)} & \textbf{高さ(Px)} & \textbf{備考} \\
  \hline
 Condition
 & 菱形
@@ -1023,7 +1022,7 @@ CTM領域の中央にコンテキストメニューを描画する。
 
 \subsection{ヒットテスト処理}\label{sec:UOM_HitTest}
 ヒットテスト処理は、ユーザのクリックによるポインタ座標を受け取り、ユーザの操作座標がどのCTM要素に該当するかを判定し、
-操作対象のCTM要素を確定する処理である。
+操作対象のCTM要素を確定する処理である。ここで、CTM要素の編集(\ref{sec:UOM_EditCommand}節を参照)において、CTM要素をコピーして貼り付けた場合に、CTM領域上で、貼り付けたCTM要素が元のCTM要素と重なってしまう。そのため、CTM要素の一部が重なっており、複数のCTM要素がユーザのクリックによるポインタ座標に該当する場合は、描画順序(前面優先)に基づき最前面CTM要素を選択する。
 本処理は、描画部が生成し、ユーザ操作対応部が保持する\texttt{HitRegions}を用いて、ポインタ座標が外接矩形内に存在するかどうかを判定する。
 
 ユーザのクリックによるポインタ座標 $(x, y)$ が矩形内に存在するかどうかは、
@@ -1037,7 +1036,7 @@ X \leq x \leq X + W \;\land\; Y \leq y \leq Y + H
 \begin{enumerate}
   \item ユーザのクリックによるポインタ座標を受け取る。   
   \item \texttt{HitRegions}を先頭から末尾まで走査し、式\ref{eq:hit}により包含判定を行う。
-  \item CTM要素の一部が重なっており、複数のCTM要素がユーザのクリックによるポインタ座標に該当する場合は、描画順序(前面優先)に基づき最前面CTM要素を採用する。
+  \item CTM要素の一部が重なっており、複数のCTM要素がユーザのクリックによるポインタ座標に該当する場合は、描画順序(前面優先)に基づき最前面CTM要素を選択する。
       描画順序は、\texttt{BRectangle}の \texttt{ZIndex} 属性を参照し、値が大きいCTM要素ほど前面に描画していると判定する。
   \item 採用したCTM要素をユーザ操作対応部で状態変数\texttt{SelectedElement}として保持する。
   \item 包含判定により該当するCTM要素が存在しない場合、\texttt{SelectedElement} を \texttt{null} に設定する。
@@ -1291,6 +1290,10 @@ CTM要素リストを更新する処理である。
                       \hline
                       EventNameKey & string & ボタンのTarget属性の値(SelectedElement.Target) \\
                       \hline
+                      X& float & コピー元のX座標(SelectedElement.X)\\
+                      \hline
+                      Y& float & コピー元のY座標(SelectedElement.Y)\\
+                      \hline
                   \end{tabularx}
             \end{table}
 
@@ -1299,12 +1302,16 @@ CTM要素リストを更新する処理である。
                   \begin{enumerate}[label=\alph*]
                         \item \texttt{CopiedElement.Type}に\texttt{SelectedElement.Type}の値をコピーする。
                         \item \texttt{CopiedElement.Name}に\texttt{SelectedElement.Name}の値をコピーする。
+                        \item \texttt{CopiedElement.X}に\texttt{SelectedElement.X}の値をコピーする。
+                        \item \texttt{CopiedElement.Y}に\texttt{SelectedElement.Y}の値をコピーする。
                   \end{enumerate}
                   \item \texttt{SelectedElement}がボタン要素の場合:
                   \begin{enumerate}[label=\alph*]
                         \item \texttt{CopiedElement.Type}に\texttt{SelectedElement.Type}の値をコピーする。
                         \item \texttt{CopiedElement.Name}に\texttt{SelectedElement.Name}の値をコピーする。
                         \item \texttt{CopiedElement.EventNameKey}に\texttt{SelectedElement.Target}の値をコピーする。
+                        \item \texttt{CopiedElement.X}に\texttt{SelectedElement.X}の値をコピーする。
+                        \item \texttt{CopiedElement.Y}に\texttt{SelectedElement.Y}の値をコピーする。
                   \end{enumerate}
             \end{itemize}
             \item コピー結果の通知として、描画部に通知用ダイアログに対してダイアログ描画処理を呼び出し、ユーザに通知する。
@@ -1328,6 +1335,7 @@ CTM要素リストを更新する処理である。
 \subsubsection{貼り付け処理}
 貼り付け処理は、ユーザがコピー済みの CTM 要素を複製する処理である。
 ユーザ操作対応部は、コピー用バッファ\texttt{CopiedElement}の内容を参照し、新しい要素名を確定し、要素の生成および配置を行う。
+なお、配置する座標は、コピー元の要素の座標に定数値を加算することで決定する。そのため、CTM要素の重なりが発生する。
 貼り付け処理は編集コマンド実行処理の一部である。
 
 処理の流れを以下に示す。
@@ -1338,8 +1346,8 @@ CTM要素リストを更新する処理である。
             \begin{itemize}
             \item \texttt{GUIElement.\allowbreak Name}にユーザ操作から受け取った名称を設定する。
             \item \texttt{GUIElement.\allowbreak Target}に\texttt{null}を設定する。
-            \item \texttt{GUIElement.\allowbreak X}に貼り付け位置であるX座標$Xs$を設定する。
-            \item \texttt{GUIElement.\allowbreak Y}に貼り付け位置であるY座標$Ys + 30$を設定する。
+            \item \texttt{GUIElement.\allowbreak X}に貼り付け位置であるX座標を設定する。ここでX座標に$\texttt{CopiedElement.X}$(表\ref{tab:copy-data}を参照)を用いる。
+            \item \texttt{GUIElement.\allowbreak Y}に貼り付け位置であるY座標を設定する。ここでY座標に$\texttt{CopiedElement.Y} + 30$(表\ref{tab:copy-data}を参照)を用いる。
             \item \texttt{GUIElement.\allowbreak Width}に160を設定する。
             \item \texttt{GUIElement.\allowbreak Height}に45を設定する。
             \item \texttt{GUIElement.\allowbreak IsMovable}に\texttt{true}を設定する。
@@ -1358,8 +1366,8 @@ CTM要素リストを更新する処理である。
                         \begin{itemize}
                               \item \texttt{GUIElement.\allowbreak Name}に\texttt{\textless ユーザから受け取った名称\textgreater へ}を設定。
                               \item \texttt{GUIElement.\allowbreak Target}に\texttt{null}を設定する。
-                              \item \texttt{GUIElement.\allowbreak X}に貼り付け位置であるX座標$Xs + 240$を設定する。
-                              \item \texttt{GUIElement.\allowbreak Y}に貼り付け位置であるY座標$Ys + 30$を設定する。
+                              \item \texttt{GUIElement.\allowbreak X}に貼り付け位置であるX座標を設定する。ここでX座標に$\texttt{CopiedElement.X} + 240$を用いる。
+                              \item \texttt{GUIElement.\allowbreak Y}に貼り付け位置であるY座標を設定する。ここでY座標に$\texttt{CopiedElement.Y} + 30$を用いる。
                               \item \texttt{GUIElement.\allowbreak IsMovable}に\texttt{true}を設定する。
                               \item \texttt{GUIElement.\allowbreak IsSelected}に\texttt{false}を設定する。
                               \item \texttt{GUIElement.\allowbreak IsBranch}に\texttt{true}を設定する。  
@@ -1373,8 +1381,8 @@ CTM要素リストを更新する処理である。
                         \begin{itemize}
                               \item \texttt{GUIElement.\allowbreak Name}に\texttt{コピーへ}を設定。
                               \item \texttt{GUIElement.\allowbreak Target}に\texttt{コピーへ}を設定する。
-                              \item \texttt{GUIElement.\allowbreak X}に貼り付け位置であるX座標の$Xs + 240$を設定する。
-                              \item \texttt{GUIElement.\allowbreak Y}に貼り付け位置であるY座標の$Ys + 30$を設定する。
+                              \item \texttt{GUIElement.\allowbreak X}に貼り付け位置であるX座標を設定する。ここでX座標に$\texttt{CopiedElement.X} + 240$を用いる。。
+                              \item \texttt{GUIElement.\allowbreak Y}に貼り付け位置であるY座標を設定する。ここでY座標に$\texttt{CopiedElement.Y} + 30$を用いる。
                               \item \texttt{GUIElement.\allowbreak IsMovable}に\texttt{true}を設定する。
                               \item \texttt{GUIElement.\allowbreak IsSelected}に\texttt{false}を設定する。
                               \item \texttt{GUIElement.\allowbreak IsBranch}に\texttt{false}を設定する。  
@@ -1385,8 +1393,8 @@ CTM要素リストを更新する処理である。
                   \begin{itemize}
                         \item \texttt{GUIElement.Name}にユーザ操作から受け取った名称を設定する。
                         \item \texttt{GUIElement.\allowbreak Target}に、新しく生成したイベント要素の\texttt{Name}を設定する。
-                        \item \texttt{GUIElement.X}に貼り付け位置であるX座標の$Xs$を設定する。
-                        \item \texttt{GUIElement.Y}に貼り付け位置であるY座標の$Ys + 30 $を設定する。
+                        \item \texttt{GUIElement.X}に貼り付け位置であるX座標を設定する。ここでX座標に$\texttt{CopiedElement.X}$を用いる。
+                        \item \texttt{GUIElement.Y}に貼り付け位置であるY座標を設定する。ここでY座標に$\texttt{CopiedElement.Y} + 30$を用いる。
                         \item \texttt{GUIElement.Width}に80を設定する。
                         \item \texttt{GUIElement.Height}に45を設定する。
                         \item \texttt{GUIElement.IsMovable}に\texttt{true}を設定する。
@@ -1445,7 +1453,7 @@ CTM要素リストを更新する処理である。
 プロジェクトフォルダへ出力する各ファイル(Markdown仕様ファイル、VDM++仕様ファイル、CTM要素配置データファイル)である。
 CTM要素配置データには、CTM要素の名称(\texttt{GUIElement.\allowbreak Name})とCTM領域での配置情報(\texttt{GUIElement.X} , \texttt{GUIElement.Y})を含み、
 Markdown仕様の記述ルール(\ref{sec:Specrule}節を参照)に含まない配置情報のみを保持する。CTM要素配置データの構造を、リスト\ref{lst:JSON_data}に示す。
-
+CTM要素配置データファイルは、CTM要素配置データの情報を保持するJSON形式のファイルであり、拡張子として .positions.jsonを持つ。
 \begin{figure}[tp]
 \begin{lstlisting}[caption={CTM要素の配置情報を示すCTM要素配置データの構造}, label={lst:JSON_data}, language={}]
 [
@@ -1655,8 +1663,7 @@ System.IO
   \item CTM要素配置データファイルの存在確認
 
   選択対象 Markdown仕様ファイルと同名の
-  CTM要素配置データファイル
-  (拡張子 \texttt{.positions.json})が存在するかどうかを確認する。
+  CTM要素配置データファイル(拡張子 .positions.json)が存在するかどうかを確認する。
 
   \item GUI要素生成部の呼び出し
 
@@ -1746,8 +1753,9 @@ System.IO(\ref{sec:NET}節を参照)、
 
   6.で抽出した(要素名, 座標)の組をもとに、
   プロジェクト管理部内で保持する\texttt{SelectedFilePath} の Markdown仕様ファイルと同名の
-  CTM要素配置データファイル\texttt{.positions.json} へ書き込み、保存する。
-  同名のファイルが存在しない場合は、新規作成する。
+  CTM要素配置データファイル(拡張子 .positions.json)へ書き込み、保存する。
+  同名のファイルが存在しない場合は、Markdown仕様ファイルと同名の CTM要素配置データファイル(拡張子 .positions.json)を
+  新規作成する。
 
   \item \texttt{MarkdownText}の更新
 
@@ -2381,10 +2389,7 @@ OperationPattern
       条件分岐として成立しない記述であるため、
       親イベント要素を生成せず、
       当該親イベント行はスキップする。
-
 \end{enumerate}
-
-
 \section{GUI要素生成部}\label{sec:GUIElementGenerationComponent}
 
 GUI要素生成部は、解析部(\ref{sec:ParsingComponent}節を参照)で生成した
@@ -2445,7 +2450,7 @@ X_{\mathrm{mid}} = X_{\mathrm{left}} + W_{\mathrm{node}} + S_{\mathrm{col}}
 固定位置の設定を、式\ref{eq:timeout_position_single}に示す。ここで、タイムアウト要素の基準座標を($X(time)$ , $Y(time)$)とする。
 \begin{equation}\label{eq:timeout_position_single}
 X(time)=X_{\mathrm{left}},\quad
-Y(time)=8\mathrm{px}
+Y(time)=8\mathrm{Px}
 \end{equation}
 
 \item \textbf{画面要素}
@@ -2466,8 +2471,8 @@ Y(s_{i_{\mathrm{screen}}})=i_{\mathrm{screen}}\cdot d
 \begin{equation}\label{eq:y_base_single_timeout}
 Y_{\mathrm{base}}=
 \begin{cases}
-Y(time)+H_{\mathrm{node}}+10\mathrm{px} & (\text{タイムアウト要素が存在する})\\
-40\mathrm{px} & (\text{タイムアウト要素が存在しない})
+Y(time)+H_{\mathrm{node}}+10\mathrm{Px} & (\text{タイムアウト要素が存在する})\\
+40\mathrm{Px} & (\text{タイムアウト要素が存在しない})
 \end{cases}
 \end{equation}
 
@@ -2484,7 +2489,7 @@ Y(b_{i_{\mathrm{button}}})=Y_{\mathrm{base}} + i_{\mathrm{button}}\cdot d
 イベントをタイムアウトと同じY座標に配置する。タイムアウトに対応する
 未配置のイベント要素 $e_{i_{\mathrm{event}}}$の座標は、式\ref{eq:event_timeout_position_single_timeout}で決定する。
 \begin{equation}\label{eq:event_timeout_position_single_timeout}
-X(e_{i_{\mathrm{event}}})=X(time)+\left(W_{\mathrm{node}}+120\mathrm{px}\right),\quad
+X(e_{i_{\mathrm{event}}})=X(time)+\left(W_{\mathrm{node}}+120\mathrm{Px}\right),\quad
 Y(e_{i_{\mathrm{event}}})=Y(time)
 \end{equation}
 
