@@ -359,6 +359,7 @@ IsFile & bool & ファイルであることを示す真偽値 \\
 
 \begin{enumerate}
 \item メニューバーの配置
+
 \texttt{MenuBarItem}コンポーネントを用いてメニューバーを構成し、
 \texttt{MenuFlyoutItem}コンポーネントを用いて「フォルダ選択」、および、「新規ファイル作成」をメニューバーに配置する。
 
@@ -381,7 +382,7 @@ CTM描画処理(\ref{sec:CreateCTM}節を参照)で生成したCTMを表示す�
 CTM領域上でのユーザ操作を検知する処理である。
 
 本処理では、CTM領域を縦横スクロール可能な表示領域として構成するため、
-\texttt{Microsoft.\allowbreak Maui.\allowbreak Controls}名前空間(\ref{sec:NET_MAUI}説を参照) が提供する \texttt{ScrollView} コンポーネントを用いて
+\texttt{Microsoft.\allowbreak Maui.\allowbreak Controls}名前空間(\ref{sec:NET_MAUI}節を参照) が提供する \texttt{ScrollView} コンポーネントを用いて
 CTM表示用の表示枠を構成する。
 この表示枠の内部には、CTMの表示およびユーザ操作検知機能を担う
 \texttt{ContentView} コンポーネントを配置する。
@@ -694,7 +695,7 @@ GUIElementが保持するBranches属性をもつ場合、分岐条件の順序�
 
       ユーザ操作対応部から受け取った\texttt{elements} を順に走査し、
       各\texttt{GUIElement}について\texttt{GUIElement.Type}を参照して
-      CTM要素種別を判定する。判定後、以下の処理をすべてのCTM要素について繰り返す
+      CTM要素種別を判定する。判定後、以下の処理をすべてのCTM要素について繰り返す。
 
       \begin{enumerate}[label=\alph*.]
       \item ノード形状および描画スタイルの決定  
@@ -718,7 +719,20 @@ GUIElementが保持するBranches属性をもつ場合、分岐条件の順序�
       接続元CTM要素の右辺中央を開始点、
       接続先CTM要素の左辺中央を終了点として
       矢印を描画する。
-      矢印の開始点および終了点の算出方法は、以下に示す。
+
+      矢印の開始点および終了点は、接続元CTM要素および接続先CTM要素の\texttt{BRectangle}をもとに算出する。
+      具体的には、接続元CTM要素の右端中央を開始点とし、接続先CTM要素の左端中央を終了点とする。
+      ここで、接続元CTM要素の左上座標を$(X_s, Y_s)$、幅を$W_s$、高さを$H_s$、
+      接続先CTM要素の左上座標を$(X_t, Y_t)$、幅を$W_t$、高さを$H_t$とすると、
+      開始点$(x_s, y_s)$および終了点$(x_t, y_t)$は、式\ref{eq:arrow_points_start}、と式\ref{eq:arrow_points_end}によりそれぞれ算出できる。
+
+      \begin{equation}\label{eq:arrow_points_start}
+            (x_s, y_s) = (X_s + W_s, Y_s + \frac{H_s}{2})
+      \end{equation}
+
+      \begin{equation}\label{eq:arrow_points_end}
+            (x_t, y_t) = (X_t, Y_t + \frac{H_t}{2})
+      \end{equation}
 
       \item 分岐イベント要素の描画  
 
@@ -838,21 +852,7 @@ GUIElementが保持するBranches属性をもつ場合、分岐条件の順序�
 \end{enumerate}
 
 
-\subsubsection{矢印の開始点および終了点の算出}\label{sec:createarrow}
 
-矢印の開始点および終了点は、接続元CTM要素および接続先CTM要素の\texttt{BRectangle}をもとに算出する。
-具体的には、接続元CTM要素の右端中央を開始点とし、接続先CTM要素の左端中央を終了点とする。
-ここで、接続元CTM要素の左上座標を$(X_s, Y_s)$、幅を$W_s$、高さを$H_s$、
-接続先CTM要素の左上座標を$(X_t, Y_t)$、幅を$W_t$、高さを$H_t$とすると、
-開始点$(x_s, y_s)$および終了点$(x_t, y_t)$は、式\ref{eq:arrow_points_start}、と式\ref{eq:arrow_points_end}によりそれぞれ算出できる。
-
-\begin{equation}\label{eq:arrow_points_start}
-      (x_s, y_s) = (X_s + W_s, Y_s + \frac{H_s}{2})
-\end{equation}
-
-\begin{equation}\label{eq:arrow_points_end}
-      (x_t, y_t) = (X_t, Y_t + \frac{H_t}{2})
-\end{equation}
 
 \subsection{コンテキストメニュー描画処理}
 \label{sec:Context}
@@ -1064,7 +1064,7 @@ X \leq x \leq X + W \;\land\; Y \leq y \leq Y + H
 
 ユーザ操作対応部では、直前の左クリック情報として「直前クリック時刻\texttt{LastClickTime}」と「直前クリック対象要素\texttt{LastClickElement}」を保持する。
 本研究では、ダブルクリック判定の閾値を 400 msとする。
-なお、時刻取得には.NET(\ref{sec:NET}節を参照)標準ライブラリの協定世界時(UTC)
+なお、時刻取得には.NET(\ref{sec:NET}節を参照)標準ライブラリの協定世界時刻(UTC)
 に基づく現在時刻を取得する静的プロパティである\texttt{DateTime.UtcNow} を用いて、\texttt{LastClickElement}との差分を計算する。
 
 本処理の流れを、以下に示す。
@@ -1211,7 +1211,7 @@ CTM要素リストを更新する処理である。
                         \item 描画部に分岐イベント追加用のダイアログに対してダイアログ描画処理を呼び出し、入力を受け取り、
                         分岐条件文と分岐先イベントを取得する。
                         \item 新しい分岐イベント要素(\texttt{Type\allowbreak ==\allowbreak Event, Branches\allowbreak ==\allowbreak null})である\texttt{GUIElement}を生成し、\texttt{elements}に追加する。
-                        このとき、分岐条件を\texttt{Condition}、分岐先イベントを\texttt{Target}、として\texttt{EventBranch}を生成し、生成した\texttt{GUIElement}の\texttt{Branches}に格納する。また、対象ボタン要素の\texttt{GUIElement}の\texttt{Target}に「\texttt{"対象ボタン名"}押下」を保持し、
+                        このとき、分岐条件を\texttt{Condition}、分岐先イベントを\texttt{Target}として\texttt{EventBranch}を生成し、生成した\texttt{GUIElement}の\texttt{Branches}に格納する。また、対象ボタン要素の\texttt{GUIElement}の\texttt{Target}に「\texttt{"対象ボタン名"}押下」を保持し、
                         描画部が条件分岐表示を構成できるようにする。
                         \item プロジェクト管理部のファイル更新処理を呼び出し、ファイルの更新を行う。
                   \end{enumerate}
@@ -1275,7 +1275,7 @@ CTM要素リストを更新する処理である。
       \begin{enumerate}[label=\roman*]
             \item 選択中CTM要素\texttt{SelectedElement}を参照し、コピー対象を確定する。
             \item \texttt{SelectedElement}が\texttt{null}の場合は、中断する。
-            \item コピー対象の\texttt{GUIElement}を複製し、ユーザ操作対応部が保持する\texttt{SelectedElement}のコピー用バッファ\texttt{CopiedElement}へ格納する。\texttt{CopiedElement}のデータ構造を表\ref{tab:copy-data}に示し、コピー処理を以下に示す。
+            \item コピー対象の\texttt{GUIElement}を複製し、ユーザ操作対応部が保持する\texttt{SelectedElement}のコピー用バッファ\texttt{CopiedElement}へ格納する。\texttt{CopiedElement}のデータ構造を、表\ref{tab:copy-data}に示す。また、コピー処理を以下に示す。
             
             \begin{table}[tp]
                   \centering
@@ -1356,7 +1356,7 @@ CTM要素リストを更新する処理である。
                   \begin{enumerate}[label =\roman*]
                         \item 新しいイベント要素\texttt{GUIElement.\allowbreak Type \allowbreak == \allowbreak Event}を生成し、以下の設定を行う。
                         \begin{itemize}
-                              \item \texttt{GUIElement.\allowbreak Name}に\texttt{\textless ユーザから受け取った名称 \textgreater へ}を設定。
+                              \item \texttt{GUIElement.\allowbreak Name}に\texttt{\textless ユーザから受け取った名称\textgreater へ}を設定。
                               \item \texttt{GUIElement.\allowbreak Target}に\texttt{null}を設定する。
                               \item \texttt{GUIElement.\allowbreak X}に貼り付け位置であるX座標$Xs + 240$を設定する。
                               \item \texttt{GUIElement.\allowbreak Y}に貼り付け位置であるY座標$Ys + 30$を設定する。
@@ -1443,8 +1443,8 @@ CTM要素リストを更新する処理である。
 本処理部の入力は、ユーザ操作対応部(\ref{sec:UserOperationMonitoring}節を参照)による\texttt{elements}、および、プロジェクトフォルダのデータである。
 出力は、解析部、および、変換部へ渡すMarkdown仕様の文字列(以降、Markdown文字列と呼ぶ)、GUI要素生成部へ渡すCTM要素配置データ、\texttt{elements}、および、
 プロジェクトフォルダへ出力する各ファイル(Markdown仕様ファイル、VDM++仕様ファイル、CTM要素配置データファイル)である。
-CTM要素配置データには、CTM要素の名称(\texttt{GUIElement.\allowbreak Name})とCTM領域での座標情報を含み、
-Markdown仕様の記述ルール(\ref{sec:Specrule}節を参照)に含まない位置情報のみを保持する。CTM要素配置データの構造を、リスト\ref{lst:JSON_data}に示す。
+CTM要素配置データには、CTM要素の名称(\texttt{GUIElement.\allowbreak Name})とCTM領域での配置情報(\texttt{GUIElement.X} , \texttt{GUIElement.Y})を含み、
+Markdown仕様の記述ルール(\ref{sec:Specrule}節を参照)に含まない配置情報のみを保持する。CTM要素配置データの構造を、リスト\ref{lst:JSON_data}に示す。
 
 \begin{figure}[tp]
 \begin{lstlisting}[caption={CTM要素の配置情報を示すCTM要素配置データの構造}, label={lst:JSON_data}, language={}]
@@ -1543,18 +1543,18 @@ System.IO
       \item フォルダの場合
       
   発見した各フォルダについて、
-   \texttt{IsFolder == True}の\texttt{FolderItem} を生成する。生成の際、プロジェクトフォルダ直下(\texttt{FolderItem.Level == 0})の場合、
+   \texttt{IsFolder} が \texttt{True} の\texttt{FolderItem} を生成する。生成の際、プロジェクトフォルダ直下(\texttt{FolderItem.Level == 0})の場合、
    \texttt{FolderItem.IsVisible}を\texttt{True}にし、
   プロジェクトフォルダ直下でない(\texttt{FolderItem.Level != 0})場合、
   \texttt{FolderItem.IsVisible}を\texttt{false}にする。
-  すべてのフォルダの\texttt{FolderItem.IsExpanded}を\texttt{false}にする。
+  その後、すべてのフォルダの\texttt{FolderItem.IsExpanded}を\texttt{false}にする。
   \texttt{FolderItem}を生成した後、生成した\texttt{FolderItem}を\texttt{FolderItems} に追加する。
   
 
   \item Markdown仕様ファイルの場合
 
   発見した 各Markdown仕様ファイルについて、
-  \texttt{IsFile==True}の \texttt{FolderItem} を生成する。フォルダの場合と同様に、プロジェクトフォルダ直下(\texttt{FolderItem.Level == 0})の場合、\texttt{FolderItem.IsVisible}を\texttt{True}にし、
+  \texttt{IsFile} が \texttt{True}の \texttt{FolderItem} を生成する。フォルダの場合と同様に、プロジェクトフォルダ直下(\texttt{FolderItem.Level == 0})の場合、\texttt{FolderItem.IsVisible}を\texttt{True}にし、
   プロジェクトフォルダ直下でない(\texttt{FolderItem.Level != 0})場合、\texttt{FolderItem.IsVisible}を\texttt{false}にする。
   \texttt{FolderItem}を生成した後、生成した\texttt{FolderItem}を\texttt{FolderItems} に追加する。
   \end{itemize}
@@ -1573,7 +1573,7 @@ System.IO
   \item 再帰的探索の実行
 
   探索中のフォルダ内にサブフォルダが存在する場合には、
-  i.～ii.の手順を再帰的に適用し、
+ 2.i.～2.ii.の手順を再帰的に適用し、
  リスト構造として
   \texttt{FolderItems} に追加する。
 
@@ -1704,27 +1704,27 @@ System.IO(\ref{sec:NET}節を参照)、
   (\ref{sec:GUItoMarkdownConversionProcess}節を参照)を呼び出す。
   変換処理により、
   更新後の Markdown 文字列
-  \texttt{updatedMarkdown} を生成する。
+  \texttt{updateMarkdown} を生成する。
 
   \item Markdown 仕様ファイルの保存
 
-  2.で生成した \texttt{updatedMarkdown} を、
+  2.で生成した \texttt{updateMarkdown} を、
   \texttt{SelectedFilePath} が示す Markdown仕様ファイルへ
   書き込み、保存する。
 
   保存する際、プロジェクト管理部内で保持する、
   \texttt{MarkdownText}の画面クラス名と、
-  \texttt{updatedMarkdown}の画面クラス名を比較し、
+  \texttt{updateMarkdown}の画面クラス名を比較し、
   クラス名が変わっている場合は\texttt{ScreenIndex}(\ref{sec:PM_ScreenTransitionProcess}節を参照)
   の画面クラス名を変更する。
 
   \item \VDM  仕様の生成
 
-  2.で生成した Markdown 文字列 \texttt{updatedMarkdown} を入力として、
+  2.で生成した Markdown 文字列 \texttt{updateMarkdown} を入力として、
   変換部の
   Markdown 仕様から \VDM  仕様への変換処理
   (\ref{sec:Function}節を参照)を呼び出す。
-  これにより、入力の\texttt{updatedMarkdown}に対応した
+  これにより、入力の\texttt{updateMarkdown}に対応した
   \VDM の文字列である、 \texttt{VdmContent} を生成する。
 
   \item \VDM  ファイルの保存
@@ -1751,7 +1751,7 @@ System.IO(\ref{sec:NET}節を参照)、
 
   \item \texttt{MarkdownText}の更新
 
-  プロジェクト管理部内で保持する、\texttt{MarkdownText}に、2.で生成した \texttt{updatedMarkdown}を保存する。
+  プロジェクト管理部内で保持する、\texttt{MarkdownText}に、2.で生成した \texttt{updateMarkdown}を保存する。
 \end{enumerate}
 
 
@@ -1925,7 +1925,8 @@ Event & 確定押下 & -- & \begin{tabular}{l} 条件分岐を含むイベント
 各CTM要素の抽出に使用する独自に定めた3つの正規表現パターンを、表\ref{tab:parsing_rules}に示す。
 本処理部では、正規表現パターンの1つである\texttt{BulletPattern}によって抽出した文字列を、箇条書き本文と呼ぶ。
 
-本処理の流れを、図\ref{fig:parsing-flow}と以下に示す。
+解析処理フローを、図\ref{fig:parsing-flow}に示す。
+また、本処理の流れを、以下に示す。
 
 
 \begin{table}[tp]
@@ -1979,16 +1980,16 @@ OperationPattern
       
       具体的には、
       \texttt{lines[0] == "\# 画面一覧"} を満たす場合は、
-      画面一覧仕様として扱い、4.A.「画面一覧仕様」の場合を行う。
+      画面一覧仕様として扱い、後述する4.A.「画面一覧仕様」の場合を行う。
       一方で、 \texttt{lines[0]} が(\texttt{"\#\# "}) で始まる場合、
-      画面仕様として扱い、4.B.「画面仕様」の場合を行う。
+      画面仕様として扱い、後述する4.B.「画面仕様」の場合を行う。
       
       リスト\ref{lst:markdown_example}の具体例では、先頭行 \texttt{lines[0]} が
       「\texttt{\#\# 画面1}」 であるため、このMarkdown仕様は画面仕様として扱う。
 
       \item \texttt{elements}の初期化
       
-      空の\texttt{elements}を作成する
+      空の\texttt{elements}を作成する。
       
       \item GUIElementの生成
 
@@ -2037,7 +2038,7 @@ OperationPattern
                   リスト\ref{lst:markdown_example}の具体例では、2行目の「\texttt{- 80 秒でタイムアウト}」をタイムアウト記述フィールドとして解析する。
                   箇条書き本文から「\texttt{で}」より前の文字列(\texttt{80 秒})を抽出する。
                   抽出したタイムアウト名をもとに、
-                  CTM要素種別として\texttt{GUIElement.Type}に\texttt{Timeout}、CTM要素の名称として\texttt{GUIElement.Name}、CTM要素の遷移先として\texttt{GUIElement.Target}に 80 秒を設定したGUIElementを生成し、 \texttt{elements} に追加する。
+                  CTM要素種別として\texttt{GUIElement.Type}に\texttt{Timeout}、CTM要素の名称として\texttt{GUIElement.Name}に 80 秒、CTM要素の遷移先として\texttt{GUIElement.Target}に 80 秒を設定したGUIElementを生成し、 \texttt{elements} に追加する。
 
                   \item ボタン抽出
 
@@ -2069,7 +2070,7 @@ OperationPattern
                         箇条書きでない行はボタン要素として扱わず、スキップする。
                         
                         リスト\ref{lst:markdown_example}の具体例では、5行目\texttt{lines[4]}から12行目\texttt{lines[11]}までの各行を走査し、
-                        抽出した箇条書き本文をそれぞれボタン名として抽出する。5行目の「\texttt{ボタン1}」から、
+                        抽出した各箇条書き本文を、それぞれボタン名として抽出する。5行目の「\texttt{ボタン1}」から、
                         11行目の「\texttt{確定}」までをそれぞれ抽出し、12行目は空行であるためスキップする。
 
                         \item ボタン要素をGUIElementとして生成
@@ -2111,7 +2112,7 @@ OperationPattern
 
                         イベント記述フィールド内の各行について、
                         \texttt{BulletPattern} により箇条書き行かどうかを判定し、
-                        箇条書き本文をイベント文字列として抽出する。
+                        各箇条書き本文を、イベント文字列として抽出する。
                         箇条書き行でない場合はイベント定義ではないためスキップする。
 
                         リスト\ref{lst:markdown_example}の具体例では、14行目\texttt{lines[13]}から23行目\texttt{lines[22]}までの各行を走査し、
@@ -2364,11 +2365,12 @@ OperationPattern
       そのボタン要素(\texttt{GUIElement.Type == Button})のTarget属性に「\texttt{\texttt{correspondingButton}押下}」を設定する。
 
       リスト\ref{lst:markdown_example}の具体例では、
-      親イベント要素を
+      親イベント要素として、
       \texttt{GUIElement.Type}に\texttt{Event}、
       \texttt{GUIElement.Name}に「\texttt{確定押下}」、
-      \texttt{GUIElement.Target}を\texttt{空文字列}として
-      \texttt{GUIElement}に設定する。
+      \texttt{GUIElement.Target}に\texttt{空文字列}を、
+      \texttt{GUIElement}にそれぞれ
+      設定する。
 
       また、対応するボタン要素「\texttt{確定}」を表す\texttt{GUIElement}のTarget属性\texttt{GUIElement.Target}に
       「\texttt{確定押下}」を設定する。
@@ -2381,6 +2383,7 @@ OperationPattern
       当該親イベント行はスキップする。
 
 \end{enumerate}
+
 
 \section{GUI要素生成部}\label{sec:GUIElementGenerationComponent}
 
@@ -2409,7 +2412,7 @@ GUI要素生成部の入力は、プロジェクト管理部から受け取る \
 
 CTM要素配置データが存在し、かつ \texttt{GUIElement.Name} をキーとして座標が取得できる場合は、
 当該座標を優先して\texttt{GUIElement}の\texttt{X,Y} に設定する。
-一方、配置情報が存在しない場合、
+一方、CTM要素配置情報が存在しない場合、
 GUI要素生成部がCTM要素種別に応じた初期配置規則に基づいて座標を決定する。
 
 初期配置では、CTM要素種別ごとに縦方向へ配置する。
@@ -2436,9 +2439,9 @@ X_{\mathrm{mid}} = X_{\mathrm{left}} + W_{\mathrm{node}} + S_{\mathrm{col}}
 本研究では、タイムアウト要素は単一要素として取り扱う。
 したがって、タイムアウトは固定位置に配置する。
 
-タイムアウト要素が存在し、かつ、CTM要素配置データに座標を登録している場合は、
+タイムアウト要素が存在し、かつ、CTM要素配置データに存在している場合は、
 当該座標を設定する。
-配置情報が存在しない場合は、CTM領域左上の固定位置に配置する。
+タイムアウト要素が存在し、かつ、CTM要素配置データに存在しない場合は、CTM領域左上の固定位置に配置する。
 固定位置の設定を、式\ref{eq:timeout_position_single}に示す。ここで、タイムアウト要素の基準座標を($X(time)$ , $Y(time)$)とする。
 \begin{equation}\label{eq:timeout_position_single}
 X(time)=X_{\mathrm{left}},\quad
@@ -2478,7 +2481,7 @@ Y(b_{i_{\mathrm{button}}})=Y_{\mathrm{base}} + i_{\mathrm{button}}\cdot d
 \item \textbf{イベント要素}
 
 タイムアウト要素の秒数が存在し、かつ、当該イベントがタイムアウトに対応する場合は、
-イベントをタイムアウトと同じY座標に配置する。タイムアウト要素が存在し、かつ、タイムアウトに対応する場合、
+イベントをタイムアウトと同じY座標に配置する。タイムアウトに対応する
 未配置のイベント要素 $e_{i_{\mathrm{event}}}$の座標は、式\ref{eq:event_timeout_position_single_timeout}で決定する。
 \begin{equation}\label{eq:event_timeout_position_single_timeout}
 X(e_{i_{\mathrm{event}}})=X(time)+\left(W_{\mathrm{node}}+120\mathrm{px}\right),\quad
@@ -2514,7 +2517,7 @@ Y(e_{i_{\mathrm{event}}})=Y_{\mathrm{base}} + i_{\mathrm{event}}\cdot d
       \item \texttt{elements} の走査と要素種別の判定
 
       \texttt{elements} を2行目から順に走査し、
-      各要素について \texttt{GUIElement.Type} を参照して種別を判定する。
+      各要素について \texttt{GUIElement.Type} を参照してCTM要素種別を判定する。
 
       \begin{itemize}
       \item 画面要素の生成
@@ -2526,7 +2529,7 @@ Y(e_{i_{\mathrm{event}}})=Y_{\mathrm{base}} + i_{\mathrm{event}}\cdot d
             \item 表\ref{tab:gui_node_spec}に基づき、画面要素の既定サイズを\texttt{GUIElement.Width}、および、\texttt{GUIElement.Height}に設定する。
             \item 座標を決定する。
                   CTM要素配置データに一致する座標が存在する場合はそれを設定し、
-                  存在しない場合は初期配置規則により初期配置座標を算出して設定する。
+                  存在しない場合は前述の初期配置規則により初期配置座標を算出して設定する。
             \item 画面要素はユーザ操作により移動可能とし、
                   \texttt{GUIElement.IsMovable} に\texttt{true} を設定する。
             \item 生成したCTM要素を\texttt{elements}へ追加し、
@@ -2541,7 +2544,7 @@ Y(e_{i_{\mathrm{event}}})=Y_{\mathrm{base}} + i_{\mathrm{event}}\cdot d
             \item 表\ref{tab:gui_node_spec}に基づき、既定サイズ\texttt{GUIElement.Width}、および、\texttt{GUIElement.Height}に設定する。
             \item 座標を決定する。
             CTM要素配置データに一致する座標が存在する場合はそれを設定し、
-            存在しない場合は初期配置規則により初期配置座標を算出して設定する。
+            存在しない場合は前述の初期配置規則により初期配置座標を算出して設定する。
             \item タイムアウト要素は画面構造の基準として扱うため移動不可とし、
             \texttt{GUIElement.IsMovable} に\texttt{false}を設定する。
             \item 生成したCTM要素を\texttt{elements}へ追加する。
@@ -2556,7 +2559,7 @@ Y(e_{i_{\mathrm{event}}})=Y_{\mathrm{base}} + i_{\mathrm{event}}\cdot d
             \item 表\ref{tab:gui_node_spec}に基づき、既定サイズ\texttt{GUIElement.Width}、および、\texttt{GUIElement.Height}に設定する。
             \item 座標を決定する。
             CTM要素配置データに一致する座標が存在する場合はそれを設定し、
-            存在しない場合は初期配置規則により初期配置座標を算出して設定する。
+            存在しない場合は前述の初期配置規則により初期配置座標を算出して設定する。
             \item ボタン要素はユーザ操作により移動可能とし、
             \texttt{GUIElement.IsMovable} に\texttt{true} を設定する。
             \item 生成したCTM要素を\texttt{elements}へ追加し、
@@ -2575,7 +2578,7 @@ Y(e_{i_{\mathrm{event}}})=Y_{\mathrm{base}} + i_{\mathrm{event}}\cdot d
             \item 条件分岐を含まない場合は、
             表\ref{tab:gui_node_spec}に基づき、既定サイズ\texttt{GUIElement.Width}、および、\texttt{GUIElement.Height}に設定する。
             座標はCTM要素配置データを優先し、
-            CTM要素配置データが存在しない場合は初期配置規則により初期配置座標を算出して設定する。
+            CTM要素配置データが存在しない場合は前述の初期配置規則により初期配置座標を算出して設定する。
             \item 条件分岐を含む場合は、
             親イベント要素を表示対象外として扱い、
             分岐イベント要素における分岐条件、および、分岐先イベントの
@@ -2620,7 +2623,7 @@ Markdown仕様への変換処理は、Markdown仕様の記述ルール(\ref{sec:
       \item イベント一覧
 \end{itemize}
 
-変換処理の結果として生成する編集後Markdown文字列は、
+変換処理の結果として生成する更新後Markdown文字列は、
 プロジェクト管理部に引き渡し、
 ファイル更新処理(\ref{sec:FileUpdateProcess}節を参照)により保存する。
 これにより、
@@ -2637,8 +2640,8 @@ Markdown仕様への変換処理は、Markdown仕様の記述ルール(\ref{sec:
         
       \item 出力順序整理処理が出力した\texttt{lines} が格納するMarkdown文字列各行を連結し、
         最終的なMarkdown文字列
-        \texttt{Markdown} を生成する。
-      \item 生成した \texttt{Markdown} を編集後Markdown文字列として
+        \texttt{updateMarkdown} を生成する。
+      \item 生成した \texttt{Markdown} を更新後Markdown文字列として
         プロジェクト管理部に渡す。
 
 \end{enumerate}
@@ -2646,7 +2649,7 @@ Markdown仕様への変換処理は、Markdown仕様の記述ルール(\ref{sec:
 
 \subsection{出力順序整理処理}\label{sec:ConversionOrderProcess}
 本処理では、\texttt{elements} およびMarkdown文字列を入力として、
-Markdown文字列のうち画面要素、「有効ボタン一覧」、および、「イベント一覧」の並び順を
+Markdown文字列のうち「画面一覧フィールド」、「有効ボタン記述フィールド」、および、「イベント記述フィールド」の並び順を
 CTM上の配置順序に一致するよう再構成する。
 本処理は、CTM上の配置順序とMarkdown仕様を一致させることを目的とする。
 
@@ -2661,7 +2664,7 @@ CTM上の配置順序に一致するよう再構成する。
       
        以降、各CTM要素を順に処理する。
       \begin{enumerate}[label=\roman*.]
-            \item 画面要素の生成。
+            \item 画面要素の生成
             \begin{enumerate}[label=\alph*.]
                   
                   \item \texttt{elements} から
@@ -2694,7 +2697,7 @@ CTM上の配置順序に一致するよう再構成する。
                   画面一覧フィールドの生成および置換は行わない。
             \end{enumerate}
 
-            \item タイムアウト要素の生成。
+            \item タイムアウト要素の生成
             \begin{enumerate}[label=\alph*.]
                   \item \texttt{elements} から
                   \texttt{GUIElement.Type == Timeout}の\texttt{GUIElement}を抽出する。
@@ -2708,7 +2711,7 @@ CTM上の配置順序に一致するよう再構成する。
 
             \item\texttt{lines} 内から、ボタン一覧見出し \texttt{"\#\#\# 有効ボタン一覧"} の行位置を完全一致で探索し、行番号を\texttt{buttonIdx} として保持する。また、イベント一覧見出し \texttt{"\#\#\# イベント一覧"} の行位置を完全一致で探索し、行番号を\texttt{eventIdx} として保持する。
             
-            \item ボタン要素の生成。
+            \item ボタン要素の生成
             \begin{enumerate}[label=\alph*.] 
                   \item ボタン一覧の並び順を表す配列として、
                         \texttt{buttonList} を生成する。
@@ -2743,7 +2746,7 @@ CTM上の配置順序に一致するよう再構成する。
                         \end{itemize}
             \end{enumerate}
 
-            \item イベント要素の生成。
+            \item イベント要素の生成
             \begin{enumerate}[label=\alph*.]
 
                   \item\texttt{elements} から、
@@ -2762,20 +2765,20 @@ CTM上の配置順序に一致するよう再構成する。
                   関連元要素リスト \texttt{sourceList} として保持し、
                   イベント一覧の出力順序として用いる。
 
-                  \item イベント要素の対応付け  
-                  \texttt{sourceList} の各要素について、
+                  \item \texttt{sourceList} の各要素について、
                   \texttt{eventList} を参照し、
-                  対応規則に基づいてイベント要素を特定する。
+                  イベント要素を特定する。
                   対応付け結果は、
                   連想配列である対応表 \texttt{linkTable} に格納する。
-                  \texttt{linkTable} はキーを関連元要素（ボタン要素またはタイムアウト要素）、
-                  値を対応するイベント要素とする配列である。
+                  \texttt{linkTable} は関連元要素（ボタン要素またはタイムアウト要素）をキーとして、
+                  対応するイベント要素を値とする配列である。
+                  ボタン要素およびタイムアウト要素とイベント要素の対応付けを、以下に示す。
                   \begin{itemize}
                         \item イベント要素が \texttt{Target} を保持している場合:
                         
                         当該 \texttt{Target} と一致する
-                        \texttt{Target} を持つボタン要素またはタイムアウト要素と
-                        イベント要素を対応付ける。
+                        \texttt{Target} を持つボタン要素またはタイムアウト要素を
+                        イベント要素と対応付ける。
                         
                         \item イベント要素が \texttt{Target} を保持せず、
                         かつ分岐イベント要素(\texttt{IsBranch == true})である場合:
@@ -2833,7 +2836,7 @@ CTM上の配置順序に一致するよう再構成する。
       \end{enumerate}
       
       \item linesを正規化する。
-      \texttt{lines}をの正規化に関する処理を、以下に示す。
+      \texttt{lines}の正規化に関する処理を、以下に示す。
       \begin{enumerate}[label=\roman*.]
             \item \texttt{lines} を先頭から順に走査し、各行が空行 (空文字列、または空白文字のみからなる行)
                   であるかを判定する。

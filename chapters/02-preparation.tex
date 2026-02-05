@@ -11,7 +11,7 @@
 \begin{itemize}
 \item 同一画面内の別状態への変化
 \item 別の画面への遷移
-\item 条件付きで変化先が決定される内部状態または別の画面への遷移
+\item 条件付きで変化先が決定される、内部状態または別の画面への遷移
 \end{itemize}
 \end{itemize}
 
@@ -25,7 +25,7 @@ VDMは1970年代にウィーンのIBM研究所で考案され、1990年代前半
 1996年には、形式仕様記述言語VDM-SLがISO標準となっている\cite{vdm-1}。
 VDM++とは、VDM-SLにオブジェクト指向拡張を施した形式仕様記述言語である\cite{VDM++}。
 VDMには、VDMTools\cite{VDMTools}やOverture IDE\cite{Overture}などの支援ツールが揃っており、
-仕様の検証などを他の形式手法よりも比較的行いやすいという利点がある。
+仕様の検証を他の形式手法よりも比較的行いやすいという利点がある。
 VDM\texttt{++}は、クラス定義において、型定義や関数定義などをブロックで定義する。
 \VDM のファイルは .vdmppという拡張子を持つ。
 
@@ -51,7 +51,7 @@ VDM\texttt{++}における各定義について、以下で説明する。
 
     \item 操作定義
 
-    操作定義では、オブジェクトの振る舞いの一部を定義する。VDM\texttt{++}の操作は入力引数を受け取り結果を返し、そのオブジェクト内の、あるいは参照しているオブジェクトのインスタンス変数を参照することができる。
+    操作定義では、オブジェクトの振る舞いの一部を定義する。VDM\texttt{++}の操作は入力引数を受け取った後に結果を返し、そのオブジェクト内の、あるいは参照しているオブジェクトのインスタンス変数を参照することができる。
     VDM\texttt{++}の操作は、操作の特性を記述する陰操作定義と、計算アルゴリズムを示す陽操作定義の2つの定義スタイルがある。
 \end{itemize}
 
@@ -60,9 +60,11 @@ VDM\texttt{++}における各定義について、以下で説明する。
 \section{Markdown}\label{sec:markdown}
 
 Markdownは、2004年にJohn Gruber氏によって開発された軽量マークアップ言語である\cite{markdown}。
-Markdownを使用することで、プレーンテキストを使って簡単に文書を記述できる。Markdownのファイルは .mdという拡張子を持つ
+Markdownを使用することで、プレーンテキストを使って簡単に文書を記述できる。Markdownのファイルは .mdという拡張子を持つ。
 Markdownの主な記法を、表\ref{tab:Markdown_Example}に示す。
 
+本研究では、
+Markdownで記述した画面遷移システムの仕様を解析することで、本研究で提案するCTMの表示、および、VDM++仕様の生成を行う。以降、本論文では、Markdownで記述した画面遷移システムの仕様を、Markdowm仕様と呼ぶ。
 
 \begin{table}[tp]
 \centering
@@ -85,9 +87,6 @@ Markdownの主な記法を、表\ref{tab:Markdown_Example}に示す。
 
 
 
-本研究では、画面遷移システムの仕様をMarkdownで記述し、
-Markdownで記述した画面遷移システムの仕様を解析することで、本研究で提案するCTMの表示、および、VDM++仕様の生成を行う。以降、本論文ではMarkdownで記述した画面遷移システムの仕様をMarkdowm仕様と呼ぶ。
-
 \section{JSON}\label{sec:JSON}
 JSON(JavaScript Object Notation)\cite{JSON}は、軽量のテキストベースのデータ交換フォーマットである。
 JSONは、データをキーと値のペアで表現し、人間にも機械にも理解しやすい構造を持っている。
@@ -96,7 +95,7 @@ JSON形式のファイルは .json という拡張子を持つ。
 JSONは構造化データを簡潔に表現でき、言語や環境を問わずパース(解析)、および、シリアライズ(生成)が容易である
 
 本研究では、Markdown仕様を解析した後、
-CTMのノード配置の内部表現としてJSONを扱う。その後JSONの読み出し、および、書き込みを行う。
+CTMのノード配置の内部表現としてJSONを用いる。
 
 \section{MVVM}\label{sec:MVVM}
 MVVM(Model-View-ViewModel)\cite{MVVM}は、Model、View、ViewModelの 3 つのコンポーネントからなるソフトウェアアーキテクチャの一種である。
@@ -105,7 +104,7 @@ MVVM(Model-View-ViewModel)\cite{MVVM}は、Model、View、ViewModelの 3 つの�
 
 \begin{itemize}
     \item Model：アプリケーションのデータをカプセル化する非ビジュアルクラスであり、データや業務ロジックを保持、および、提供する役割
-    \item View：ユーザが画面に表示するものの構造、レイアウト、外観を定義する役割
+    \item View：画面に表示するものの構造、レイアウト、外観を定義する役割
     \item ViewModel：ModelとViewとのやりとりを調整する役割
 \end{itemize}
 
@@ -113,7 +112,7 @@ CommunityToolkit.Mvvm\cite{MVVMtool}は、高速モジュール式 MVVM ライ�
 標準型、自己完結型、軽量型のコレクションにアクセスするために使用する。
 
 本研究の拡張では、MVVMに基づいた実装を行う。また、CommunityToolkit.MvvmのRelayCommandを使用する。
-各メソッドにRelayCommand属性を付与することにより、拡張後の\tool 内でそのメソッドが非同期実行のコマンドとして扱える。
+各メソッドにRelayCommand属性を付与することにより、拡張後の\tool 内でそのメソッドが非同期実行のコマンドとして扱えるため、重い処理を行っていてもUIを止めずに処理をバックグラウンドで実行できる。
 
 \section{.NET}\label{sec:NET}
 .NET は、Microsoft によって開発されたマルチプラットフォーム対応のアプリケーション開発基盤である\cite{NET}。
@@ -127,7 +126,7 @@ C\#を主なプログラミング言語として用い、デスクトップア�
     正規表現による文字列解析機能を提供する.NET 標準ライブラリである。本研究では、Markdown仕様を解析する際に用いる。
     \item System.Collections.Generic：
 
-    ジェネリックコレクションを提供する.NET 標準ライブラリである。本研究では、解析結果や要素の集合を管理するために List\textless T \textgreater を用いている。
+    ジェネリックコレクションを提供する.NET 標準ライブラリである。本研究では、Markdown仕様の解析結果やCTMの要素の集合を管理するために List\textless T \textgreater を用いている。
     また、画面名やボタン名の重複生成を防止するため、HashSet\textless T \textgreater を用いた一意性の管理を行う。
     \item System.IO：
 
@@ -147,7 +146,7 @@ C\#を主なプログラミング言語として用い、デスクトップア�
     GUI を構成するための基本的な UI コンポーネントを提供する名前空間である。
     本研究では、「1画面」を表すページクラスであるContentPageを、各画面の基底クラスとして使用し、ボタン、ラベル、入力欄などのUI要素を配置することで、
     仕様編集画面や操作画面を構成する。
-    また、Shellクラスを用いてスタートページと仕様編集ページ間の画面遷移を管理する。
+    また、Shellクラスを用いて、スタートページと仕様編集ページ間の画面遷移を管理する。
     さらに、UIコンテナである\texttt{ContentView}、描画用UIコンポーネントである\texttt{GraphicsView}、スクロール用コンテナである\texttt{ScrollView}を用いてCTMの表示を行う。
 
     \item Microsoft.Maui.Controls.Xaml：
@@ -198,7 +197,7 @@ UI コンポーネント、ビヘイビア、エフェクト、ダイアログ�
 \section{Windows.Storage.Pickers}\label{sec:Windows.Storage.Pickers}
 
 Windows.Storage.Pickersは、Windows プラットフォームにおいて、
-ユーザにフォルダを選択させるための標準的なピッカーAPIを提供する名前空間である\cite{FolderPicker}。
+ユーザにフォルダを選択させるための標準的なPickerAPIを提供する名前空間である\cite{FolderPicker}。
 本ライブラリは、フォルダ選択ダイアログを通じて、
 ユーザ操作によるパス取得を安全かつ統一的に行うための機構を提供する。
 
@@ -221,11 +220,11 @@ WinUIが提供するポインタイベントAPIを利用している。
 仕様記述作成手法を内部に持ち、
 ユーザが記述したMarkdown仕様に対して、
 当該手法に基づく解析、および、\VDM への変換処理を行うツールである。
-本節では、まず、\tool が採用している
+本節では、\tool が採用している
 画面遷移システムを対象とした\VDM 仕様記述作成手法について説明し、
 その後、\tool の機能について述べる。
 
-\subsection{画面遷移システムを対象とした\VDM 仕様記述作成手法}\label{spec:way-of-convert}
+\subsection{画面遷移システムを対象とした\VDM 仕様記述作成手法}\label{sec:way-of-convert}
 
 本手法では、Markdown仕様を一定の文法で記述することを前提とし、
 その文法に基づいて、記述したMarkdown仕様から\VDM 仕様記述への変換を行う。
@@ -237,7 +236,7 @@ WinUIが提供するポインタイベントAPIを利用している。
 \end{itemize}
 
 本手法では、\VDM による画面遷移システムの仕様は、システムにおける表示部分を表現する表示部クラス、
-現在画面の状態を管理する画面管理クラス、および、各画面の仕様に基づく画面定義を表現する画面クラスから成る。
+現在の画面の状態を管理する画面管理クラス、および、各画面の仕様に基づく画面定義を表現する画面クラスから成る。
 なお、本手法において表示部クラスは、対象の仕様の内容にかかわらず一定のものとして定義する。
 
 本手法で\VDM へ変換を行う画面一覧仕様の記述例を図\ref{fig:specRuleA}に、画面仕様の記述例(画面A)を図\ref{fig:specRuleB}に、それぞれ示す。
@@ -369,14 +368,14 @@ end (*@「@*)画面A(*@」@*)
 \subsection{Markdown仕様の記述ルール}\label{sec:Specrule}
 
 本手法でのMarkdown仕様の記述ルールについて説明する。
-画面一覧仕様のMarkdown仕様の記述ルールを、以下に示す。図\ref{fig:specRuleA}に示した画面一覧仕様は、以下のルールに則って記述している。
+画面一覧仕様におけるMarkdown仕様の記述ルールを、以下に示す。図\ref{fig:specRuleA}に示した画面一覧仕様は、以下のルールに則って記述している。
 \begin{itemize}
 \item Markdownで記述していること。
 \item "画面一覧" をタイトルとしたレベル1見出しに続けて、システムに存在する画面の名前をアイテムとしたリストを記述していること。
 このリスト記述範囲を、画面一覧フィールドとする。
 \end{itemize}
 
-画面仕様のMarkdown仕様の記述ルールを、以下に示す。図\ref{fig:specRuleB}に示した画面仕様は、以下のルールに則って記述している。
+画面仕様におけるMarkdown仕様の記述ルールを、以下に示す。図\ref{fig:specRuleB}に示した画面仕様は、以下のルールに則って記述している。
 
 \begin{itemize}
     \item Markdownで記述していること。
@@ -403,7 +402,7 @@ end (*@「@*)画面A(*@」@*)
 
 \subsection{\VDM 変換ルール}\label{sec:ConvRule}
 本節では、Markdown仕様の記述ルールに基づいたMarkdown仕様から\VDM 仕様記述への変換ルールA、および、
-変換ルールBついて説明する。
+変換ルールBについて説明する。
 
 \subsubsection{変換ルールA}
 
@@ -593,7 +592,7 @@ Markdown仕様ファイルの新規作成、
 既存ファイルの編集、
 および保存といった基本的なファイル操作を
 ツール上から実行できるため、
-Markdow仕様作成作業を一元的に管理できる。
+Markdown仕様の作成作業を一元的に管理できる。
 
 \subsubsection{変換ルールAおよび変換ルールBに基づく\VDM 仕様への変換機能}
 本機能は、
