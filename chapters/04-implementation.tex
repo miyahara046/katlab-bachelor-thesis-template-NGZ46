@@ -107,18 +107,18 @@ ViewModel 層を介してのみ情報を受け渡す。
   「Markdown仕様記述ページ」、または、「GUI操作による\VDM 仕様編集ページ」へ遷移する。
 \begin{itemize}
   \item ユーザがスタートページ上の「Markdown」ボタンを押下した場合、
-  ボタンのクリックイベントをトリガとして、Shellのナビゲーション機構を用いて、
+  ボタンのクリックイベントをトリガとして、Shellのルーティング機構を用いて、
   「Markdown仕様記述ページ」へ遷移する。
 
   \item ユーザがスタートページ上の「NoCode」ボタンを押下した場合、
   ボタンのクリックイベントをトリガとして、
-  Shellのナビゲーション機構を用いて、
+  Shellのルーティング機構を用いて、
   「GUI操作による\VDM 仕様編集ページ」へ遷移する。
 
   \end{itemize}
   \item 「Markdown仕様記述ページ」、または、「GUI操作による\VDM 仕様編集ページ」において、
   ユーザが「スタートページへ戻る」ボタンを押下した場合、
-  押下イベントをトリガとしてShellのナビゲーション機構を用いて、「スタートページ」へ遷移する。
+  押下イベントをトリガとしてShellのルーティング機構を用いて、「スタートページ」へ遷移する。
 \end{enumerate}
 
 \subsection{操作ボタン生成および表示切替処理}
@@ -537,7 +537,7 @@ IsSelected & bool & 選択状態 \\
 IsMovable & bool & ドラッグによる移動が可能かどうか \\
 
 \hline
-Branches & List\textless EventBranch \textgreater & 条件分岐を表す分岐リスト \\
+Branches & List\textless EventBranch\textgreater & 条件分岐を表す分岐リスト \\
 
 
 \hline
@@ -572,34 +572,34 @@ Target & string & 分岐条件成立時のイベント \\
 \centering
 \caption{GuiElementType型の要素の描画仕様}
 \label{tab:gui_node_spec}
-\begin{tabular}{|l|l|l|c|c|p{4.5cm}|}
+\begin{tabularx}{\linewidth}{|l|l|l|c|c|X|}
 \hline
-\textbf{GUIElement.Type} & \textbf{形状} & \textbf{色} & \textbf{横幅(Px)} & \textbf{高さ(Px)} & \textbf{配置・備考} \\
+\textbf{GUIElement.Type} & \textbf{形状} & \textbf{色} & \textbf{横幅(px)} & \textbf{高さ(px)} & \textbf{配置・備考} \\
  \hline
 Screen
 & 角丸矩形
-&紫& 160 & 45
-& CTM領域の左列に縦配置(間隔80Px)、移動可 \\
+&ラベンダー& 160 & 45
+& CTM領域の左列に縦配置(間隔80px)、移動可 \\
  \hline
 
 Button
 & 楕円
-&青& 80 & 45
-& CTM領域の左列に縦配置(間隔80Px)、移動可 \\
+&水& 80 & 45
+& CTM領域の左列に縦配置(間隔80px)、移動可 \\
  \hline
 
 Event
 & 矩形
 &緑& 160 & 45
-& CTM領域の右列に縦配置(間隔80Px)、条件分岐時は本体非表示、移動可 \\
+& CTM領域の右列に縦配置(間隔80px)、条件分岐時は本体非表示、移動可 \\
  \hline
 
 Timeout
 & 楕円
 &ピンク& 112 & 45
-&規定オフセットとして、左上(x = 40Px, y = 8Px)固定配置、移動不可 \\
+&規定オフセットとして、左上(x = 40px, y = 8px)固定配置、移動不可 \\
  \hline
-\end{tabular}
+\end{tabularx}
 \end{table}
 
 \begin{table}[tp]
@@ -608,7 +608,7 @@ Timeout
 \label{tab:gui_node_branch}
 \begin{tabular}{|c|c|c|c|c|c|}
 \hline
-\textbf{GUIElement.Banches} & \textbf{形状} & \textbf{色} & \textbf{横幅(Px)} & \textbf{高さ(Px)} & \textbf{備考} \\
+\textbf{GUIElement.Banches} & \textbf{形状} & \textbf{色} & \textbf{横幅(px)} & \textbf{高さ(px)} & \textbf{備考} \\
  \hline
 Condition
 & 菱形
@@ -1220,7 +1220,7 @@ CTM要素リストを更新する処理である。
       \item \textbf{タイムアウト追加}：
       \begin{enumerate}[label=\roman*]
             \item ユーザによる入力を受け取る。
-            \item 新しいタイムアウト要素(\texttt{Type \allowbreak == \allowbreak Timeout})と、タイムアウト要素に対応したイベント要素(\texttt{Type \allowbreak ==\allowbreak  Event})である\texttt{GUIElement}を生成し、
+            \item 新しいタイムアウト要素(\texttt{Type \allowbreak == \allowbreak Timeout})と、タイムアウト要素に対応したイベント要素(\texttt{Type \allowbreak == \allowbreak  Event})である\texttt{GUIElement}を生成し、
             \texttt{elements}に追加する。タイムアウトは1画面につき1つであるため、既存のタイムアウト要素が存在する場合は更新(上書き)する。
             \item プロジェクト管理部のファイル更新処理を呼び出し、ファイルの更新を行う。
             \item 描画部のCTM描画処理を呼び出し、CTMの再描画を行う。
@@ -2074,7 +2074,7 @@ OperationPattern
                         \item ボタン要素を抽出
 
                         有効ボタン記述フィールド内の各行について、正規表現パターンの1つである\texttt{BulletPattern} により箇条書きかどうかを判定し、
-                        \texttt{BulletPattern}によって抽出した箇条書き本文をボタン名として抽出する。
+                        \texttt{BulletPattern}によって抽出した箇条書き本文を、ボタン名として抽出する。
                         箇条書きでない行はボタン要素として扱わず、スキップする。
                         
                         リスト\ref{lst:markdown_example}の具体例では、5行目\texttt{lines[4]}から12行目\texttt{lines[11]}までの各行を走査し、
@@ -2108,7 +2108,7 @@ OperationPattern
                         \item イベント記述フィールドの範囲を決定
 
                         イベント記述フィールドの開始行から\texttt{lines}を走査し、イベント記述フィールドの終了行を探索する。
-                        終了行の判定は、以下のいずれかを満たす行に到達した場合とする。
+                        なお、以下のいずれかを満たす行に到達した場合を、終了行と判定する。
                         \begin{itemize}
                               \item 見出し行(「\texttt{\#\#\#}」で始まる行)に到達する。
                               \item ファイル末尾に到達する。
@@ -2126,7 +2126,7 @@ OperationPattern
                         リスト\ref{lst:markdown_example}の具体例では、14行目\texttt{lines[13]}から23行目\texttt{lines[22]}までの各行を走査し、
                         箇条書き本文をそれぞれイベント文字列として抽出する。
                         14行目の「\texttt{タイムアウト → 画面A へ}」から、
-                        23行目の「\texttt{表示部に1 が入力されていない → 画面F へ}」までをそれぞれ抽出する。
+                        23行目の「\texttt{表示部に1 が入力されていない → 画面F へ}」までを、それぞれ抽出する。
 
 
                         \item イベント文字列の書式を判定
@@ -2136,7 +2136,7 @@ OperationPattern
                         「\texttt{\detokenize{@^(?<Operation>.*?)(?<Trigger>押下)\s*→\s*(?<Target>.*)\$}}」に該当するかを判定する。
                         該当する場合は、
                         (\texttt{押下 →})の直前までの文字列を対象ボタン名\texttt{buttonkey}、
-                        (\texttt{→})以降の文字列をイベント内容\texttt{eventContent}としてそれぞれ抽出する。
+                        (\texttt{→})以降の文字列をイベント内容\texttt{eventContent}として、それぞれ抽出する。
 
                         ここで、\texttt{OperationPattern}に該当するが、
                         抽出したイベント内容\texttt{eventContent}が空である場合は、
@@ -2199,7 +2199,7 @@ OperationPattern
                         \texttt{EventPattern}形式のイベントでは、
                         \texttt{GUIElement.Type} に\texttt{Event}、
                         \texttt{GUIElement.Name} に\texttt{leftText}、
-                        \texttt{GUIElement.Target}に\texttt{rightText}、
+                        \texttt{GUIElement.Target}に\texttt{rightText}
                         を設定した\texttt{GUIElement}を生成する。
                         また、左辺文字列(\texttt{leftText})が「\texttt{leftText == タイムアウト}」である場合、
                         既に生成済みのタイムアウト要素(\texttt{GUIElement.Type == Timeout})を
@@ -2426,11 +2426,11 @@ $i_{\mathrm{screen}}, i_{\mathrm{button}}, i_{\mathrm{event}}$
 とし、同一CTM要素種別内の出現順に増加させる。
 
 初期配置に用いる定数を、以下に定義する。
-左列の基準X座標を $X_{\mathrm{left}}=40\mathrm{Px}$、
-ノード幅を $W_{\mathrm{node}}=160\mathrm{Px}$、
-ノード高さを $H_{\mathrm{node}}=45\mathrm{Px}$、
-列間隔を $S_{\mathrm{col}}=40\mathrm{Px}$、
-縦方向間隔を $d=80\mathrm{Px}$ とする。
+左列の基準X座標を $X_{\mathrm{left}}=40\mathrm{px}$、
+ノード幅を $W_{\mathrm{node}}=160\mathrm{px}$、
+ノード高さを $H_{\mathrm{node}}=45\mathrm{px}$、
+列間隔を $S_{\mathrm{col}}=40\mathrm{px}$、
+縦方向間隔を $d=80\mathrm{px}$ とする。
 
 イベント要素のX座標 $X_{\mathrm{mid}}$を、式\ref{eq:column_x_positions_single_timeout}で定義する。
 \begin{equation}\label{eq:column_x_positions_single_timeout}
@@ -2450,7 +2450,7 @@ X_{\mathrm{mid}} = X_{\mathrm{left}} + W_{\mathrm{node}} + S_{\mathrm{col}}
 固定位置の設定を、式\ref{eq:timeout_position_single}に示す。ここで、タイムアウト要素の基準座標を($X(time)$ , $Y(time)$)とする。
 \begin{equation}\label{eq:timeout_position_single}
 X(time)=X_{\mathrm{left}},\quad
-Y(time)=8\mathrm{Px}
+Y(time)=8\mathrm{px}
 \end{equation}
 
 \item \textbf{画面要素}
@@ -2471,8 +2471,8 @@ Y(s_{i_{\mathrm{screen}}})=i_{\mathrm{screen}}\cdot d
 \begin{equation}\label{eq:y_base_single_timeout}
 Y_{\mathrm{base}}=
 \begin{cases}
-Y(time)+H_{\mathrm{node}}+10\mathrm{Px} & (\text{タイムアウト要素が存在する})\\
-40\mathrm{Px} & (\text{タイムアウト要素が存在しない})
+Y(time)+H_{\mathrm{node}}+10\mathrm{px} & (\text{タイムアウト要素が存在する})\\
+40\mathrm{px} & (\text{タイムアウト要素が存在しない})
 \end{cases}
 \end{equation}
 
@@ -2489,7 +2489,7 @@ Y(b_{i_{\mathrm{button}}})=Y_{\mathrm{base}} + i_{\mathrm{button}}\cdot d
 イベントをタイムアウトと同じY座標に配置する。タイムアウトに対応する
 未配置のイベント要素 $e_{i_{\mathrm{event}}}$の座標は、式\ref{eq:event_timeout_position_single_timeout}で決定する。
 \begin{equation}\label{eq:event_timeout_position_single_timeout}
-X(e_{i_{\mathrm{event}}})=X(time)+\left(W_{\mathrm{node}}+120\mathrm{Px}\right),\quad
+X(e_{i_{\mathrm{event}}})=X(time)+\left(W_{\mathrm{node}}+120\mathrm{px}\right),\quad
 Y(e_{i_{\mathrm{event}}})=Y(time)
 \end{equation}
 
@@ -2667,7 +2667,7 @@ CTM上の配置順序に一致するよう再構成する。
       
       \item 各CTM要素を順に処理する。
       
-       以降、各CTM要素を順に処理する。
+       以降、処理の流れを示す。
       \begin{enumerate}[label=\roman*.]
             \item 画面要素の生成
             \begin{enumerate}[label=\alph*.]
